@@ -8,8 +8,6 @@
 *
 *********************************************************************
 
-       def  main
-
 **
 * Memory mapped addresses
 *
@@ -23,10 +21,20 @@ sound  equ  >8400
 * VDP memory map
 *
 ptrntb equ  >0000                      ; Pattern table base
-sprptb equ  >1000                      ; Sprite pattern table base
-colrtb equ  >0C80                      ; Color table base
 nametb equ  >0400                      ; Name table base
-spratb equ  >0C00                      ; Sprite attribute table base
+spratb equ  >0700                      ; Sprite attribute table base
+colrtb equ  >0780                      ; Color table base
+sprptb equ  >1000                      ; Sprite pattern table base
+
+**
+* Constants
+*
+map_width:
+       equ  256
+map_height:
+       equ  16
+screen_width:
+       equ  32
 
 **
 * Scratch pad
@@ -50,8 +58,10 @@ padvar equ  stack+>10                  ; Start of pad variables
 **
 * PAD variables
 *
+scroll_x:
+       equ  padvar
 pad_max:
-       equ  padvar+2
+       equ  scroll_x+2
 
 **
 * Macros
@@ -81,6 +91,7 @@ pad_max:
 
 ***************************************************************
 *
+       def  main
        aorg >6000
 
 ***************************************************************
@@ -108,8 +119,168 @@ main:
        li   r10,stack                  ; Setup stack pointer
        li   r15,vdpwd                  ; Do not change
        bl   @graphics_mode
+       bl   @scroll_patterns
+       clr  @scroll_x
+       bl   @update_full_name_table
 loop:
+       bl   @vsync
+*      Set pattern table
+       mov  @scroll_x,r0
+       andi r0,>0007
+       ori  r0,>0400
+       bl   @vwtr
+*      Set name table
+       mov  @scroll_x,r0
+       andi r0,>0008
+       srl  r0,2
+       inc  r0
+       ori  r0,>0200
+       bl   @vwtr
+*      Update name table
+       bl   @update_partial_name_table
+*      Next
+       inc  @scroll_x
        jmp  loop
+
+*********************************************************************
+*
+* Wait for vertical retrace (CRU)
+*
+vsync:
+       clr  r12
+vsync_1:
+       tb   2                          ; Test CRU bit for VDP interrupt
+       jeq  vsync_1
+       movb @vdpsta,r12
+       rt
+*// vsync
+
+***************************************************************
+*
+* Update full name table
+*
+update_full_name_table:
+       .proc
+*      Dest
+       li   r0,nametb
+       bl   @vwad
+*      Source
+       mov  @scroll_x,r1
+       srl  r1,3
+       ai   r1,MD0
+*      Copy
+       li   r3,map_height
+       bl   @update_name_table_rows
+       .endproc
+*// update_full_name_table
+
+***************************************************************
+*
+* Update 1/8 name table
+*
+update_partial_name_table:
+       .proc
+*      Dest
+       mov  @scroll_x,r0
+       inv  r0
+       andi r0,>0008
+       sla  r0,8
+       ai   r0,nametb
+       mov  @scroll_x,r1
+       andi r1,>0007
+       sla  r1,6
+       a    r1,r0
+       bl   @vwad
+*      Source
+       mov  @scroll_x,r1
+       mov  r1,r0
+       andi r1,>0007
+       sla  r1,9
+       srl  r0,3
+       a    r0,r1
+       ai   r1,MD0+1
+*      Copy
+       li   r3,2
+       bl   @update_name_table_rows
+       .endproc
+*// update_partial_name_table
+
+***************************************************************
+*
+* Update name table rows
+*
+update_name_table_rows:
+       li   r0,vdpwd
+update_name_table_rows_1:
+       li   r2,screen_width/4
+update_name_table_rows_2:
+       movb *r1+,*r0
+       movb *r1+,*r0
+       movb *r1+,*r0
+       movb *r1+,*r0
+       dec  r2
+       jne  update_name_table_rows_2
+       ai   r1,map_width-screen_width
+       dec  r3
+       jne  update_name_table_rows_1
+       rt
+*// update_name_table_rows
+
+***************************************************************
+*
+* Scroll patterns horizontally and upload to VDP
+*
+scroll_patterns:
+       .proc
+       li   r4,TCHARS                  ; Pointer to from/to pattern numbers
+*      Pattern loop
+       clr  r2                         ; Pattern counter
+scroll_patterns_1:
+*      Scroll offset loop
+       clr  r3                         ; Horizontal scroll offset (0-7)
+scroll_patterns_2:
+       mov  *r4,r5                    ; Get from and to pattern numbers
+       jlt  scroll_patterns_5
+       mov  r5,r6
+       andi r5,>ff00
+       swpb r5
+       sla  r5,3
+       ai   r5,pat0                    ; Address of from pattern
+       andi r6,>00ff
+       sla  r6,3
+       ai   r6,pat0                    ; Address of to pattern
+*      Write address
+       mov  r2,r0                      ; Pattern number
+       sla  r0,3                       ; Multiply by 8
+       mov  r3,r1                      ; Scroll offset
+       sla  r1,11                      ; Multiply by >800
+       a    r1,r0                      ; Add to pattern offset
+       bl   @vwad                      ; Setup write address
+*      Row loop
+       li   r7,8                       ; Row counter
+scroll_patterns_3:
+       movb *r5+,r1                    ; Get from byte
+       movb *r6+,@r1lb                 ; Get to byte
+       mov  r3,r0                      ; Get scroll offset
+       jeq  scroll_patterns_4          ; Skip shift if zero
+       sla  r1,0
+scroll_patterns_4:
+       movb r1,@vdpwd                  ; Send to VDP
+*      Next row
+       dec  r7
+       jne  scroll_patterns_3
+*      Next scroll offset
+       inc  r3
+       ci   r3,8
+       jlt  scroll_patterns_2
+*      Next pattern
+scroll_patterns_5:
+       inct r4
+       inc  r2
+       c    r2,@TCHNUM                      ;
+       jlt  scroll_patterns_1
+       .endproc
+*// scroll_patterns
 
 *********************************************************************
 *
@@ -126,6 +297,11 @@ graphics_mode_1:
        ai   r0,>0100
        dec  r2
        jne  graphics_mode_1
+*      Colors
+       li   r0,colrtb
+       li   r1,CLRSET
+       mov  @CLRNUM,r2
+       bl   @vmbw
 *      Sprite attributes
        li   r0,spratb
        li   r1,>d000
@@ -287,6 +463,10 @@ vmbr_1:
        rt
 *// vmbr
 
+*********************************************************************
+*
+* Includes
+*
        copy "map.a99"
 
        end

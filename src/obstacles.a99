@@ -175,15 +175,14 @@ vsync_1:
 update_full_name_table:
        .proc
 *      Dest
-       li   r0,nametb
-       bl   @vwad
+       li   r1,nametb
 *      Source
-       mov  @scroll_x,r1
-       srl  r1,3
-       ai   r1,MD0
+       mov  @scroll_x,r5               ; Column offset
+       srl  r5,3
+       li   r6,map_row_source_table
 *      Copy
-       li   r3,map_height
-       bl   @update_name_table_rows
+       li   r7,map_height
+       bl   @copy_map_rows_from_vdp_custom
        .endproc
 *// update_full_name_table
 
@@ -193,28 +192,11 @@ update_full_name_table:
 *
 update_partial_name_table:
        .proc
-*      Dest
-       mov  @scroll_x,r0
-       inv  r0
-       andi r0,>0008
-       sla  r0,8
-       ai   r0,nametb
-       mov  @scroll_x,r1
-       andi r1,>0007
-       sla  r1,6
-       a    r1,r0
-       bl   @vwad
-*      Source
-       mov  @scroll_x,r1
-       mov  r1,r0
-       andi r1,>0007
-       sla  r1,9
-       srl  r0,3
-       a    r0,r1
-       ai   r1,MD0+1
-*      Copy
-       li   r3,2
-       bl   @update_name_table_rows
+       mov  @scroll_x,r6
+       andi r6,>0007
+       sla  r6,1
+       li   r7,2
+       bl   @copy_map_rows_from_vdp
        .endproc
 *// update_partial_name_table
 
@@ -238,6 +220,43 @@ update_name_table_rows_2:
        jne  update_name_table_rows_1
        rt
 *// update_name_table_rows
+
+***************************************************************
+*
+* Copy map rows from VDP RAM
+*
+* r6: Start row number to copy
+* r7: Number of rows to copy
+*
+copy_map_rows_from_vdp:
+       .proc
+*      Dest
+       mov  @scroll_x,r1               ; Calculate current name table address
+       inv  r1
+       andi r1,>0008
+       sla  r1,8
+       ai   r1,nametb
+       mov  r6,r0                      ; Row offset
+       sla  r0,5
+       a    r0,r1
+*      Source
+       mov  @scroll_x,r5               ; Column offset
+       srl  r5,3
+       inc  r5                         ; Plus one
+       sla  r6,1                       ; Lookup table address
+       ai   r6,map_row_source_table
+       jmp  copy_map_rows_from_vdp_1
+copy_map_rows_from_vdp_custom:
+       .proc
+copy_map_rows_from_vdp_1:
+       mov  *r6+,r0                    ; Row start
+       a    r5,r0                      ; Add column offset
+       li   r2,screen_width
+       bl   @vdp_to_vdp_copy           ; Copy row
+       dec  r7
+       jne  copy_map_rows_from_vdp_1
+       .endproc
+*// copy_map_rows_from_vdp
 
 ***************************************************************
 *
@@ -339,6 +358,11 @@ graphics_mode_1:
        ai   r0,>0100
        dec  r2
        jne  graphics_mode_1
+*      Clear VDP RAM
+       clr  r0
+       clr  r1
+       li   r2,>4000
+       bl   @vsmw
 *      Colors
        li   r0,colrtb
        li   r1,CLRSET
@@ -369,6 +393,8 @@ vregs2:
 * r0: Source address
 * r1: Destination address
 * r2: Number of bytes to copy (must be a multiple of buffer_size)
+*
+* Modifies r0-r4. On return r0 and r1 are incremented by r2 bytes.
 *
 vdp_to_vdp_copy:
        ori  r1,>4000                   ; Prepare write address
@@ -406,6 +432,7 @@ vdp_to_vdp_copy_3:
        ai   r1,buffer_size
        dec  r2
        jne  vdp_to_vdp_copy_1
+       rt
 *// vdp_to_vdp_copy
 
 *********************************************************************
@@ -550,6 +577,16 @@ vmbr_1:
        jne  vmbr_1                     ; Check if finished
        rt
 *// vmbr
+
+*********************************************************************
+*
+* Data
+*
+map_row_source_table:
+       data vmap0,vmap0+>100,vmap0+>200,vmap0+>300
+       data vmap1,vmap1+>100,vmap1+>200,vmap1+>300
+       data vmap2,vmap2+>100,vmap2+>200,vmap2+>300
+       data vmap3,vmap3+>100,vmap3+>200,vmap3+>300
 
 *********************************************************************
 *

@@ -1,0 +1,126 @@
+* LZ4 decompressor for 9900
+* Ported by Tursi from LZ4 data decompressor for Apple II
+* by Peter Ferrie (peter.ferrie@gmail.com)
+
+* warning: not tested
+
+* sample calling:
+* LIMI 0                 ; make sure interrupts are off
+* LI R0,VDPSRCADR         ; pack data source in VDP
+* LI R1,VDPDESTADR       ; destination in VDP
+* LI R2,PACKBYTES         ; number of packed bytes
+* BL @UNPACKLZ4FROMTOVDP * do it!
+
+* due to changing VDP address every byte, this function is
+* much slower than any of the CPU involved ones.
+
+* unpacker variables, no need to change these
+* for now we'll just use registers
+src     equ 0
+dst     equ 1
+end     equ 2
+a       equ 3
+b       equ 4
+count   equ 5
+delta   equ 6
+temp    equ 7
+temp2   equ 8
+return  equ 9
+return2 equ 12
+vread   equ 13
+vwrite  equ 14
+vaddr   equ 15
+
+* unpacker entrypoint
+* Caller must set a VDP read address and disable interrupts
+* R0 = src address
+* R1 = destination address
+* R2 = end of packed data
+
+unpack_lz4_from_to_vdp:
+       mov  r11,return                 ; remember return address
+       li   vread,vdprd
+       li   vwrite,vdpwd
+
+parse_token:
+       bl   @set_src
+       movb *vread,a                   ; read a token byte
+       inc  src
+       movb a,b                        ; save it off for later
+       srl  a,12                       ; make a counter out of the literal count MS nibble
+       jeq  copy_matches               ; if it's zero, go to the match copy
+
+       bl   @build_count               ; check for additional bytes of length
+       bl   @do_copy                   ; we know the src, dest, and count, so do it
+       c    src,end                    ; see if we're done yet (only place src advances)
+       jl   copy_matches               ; skip over if not done and work on the back reference
+
+       b    *return                    ; back to caller
+
+copy_matches:
+       bl   @set_src
+       movb *vread,delta               ; getsrc -> lsb (sadly it can be unaligned)
+       swpb delta
+       movb *vread,delta               ; getsrc -> msb - this gives us the offset
+       inct src
+       mov  b,a                        ; get the token back
+       andi a,>0f00                    ; get the reference count from the token
+       srl  a,8                        ; make it a count
+       bl   @build_count               ; check for additional bytes of length
+    
+       ai   count,4                    ; reference length always adds 4 bytes
+       mov  src,temp                   ; save the current compressed source address
+       mov  dst,src                    ; get the current destination pointer
+       s    delta,src                  ; and subtract the delta
+       bl   @do_copy                   ; we have src, dest, and count, do the copy
+       mov  temp,src                   ; restore the compressed pointer
+       jmp  parse_token                ; and go parse the next token
+
+do_copy:
+       mov  r11,return2
+do_copy2:
+       bl   @set_src
+       movb *vread,temp2               ; read one byte
+       inc  src
+       bl   @set_dest
+       movb temp2,*vwrite              ; write one byte
+       inc  dst
+       dec  count                      ; count down
+       jne  do_copy2                   ; loop if not done
+       b    *return2                   ; return if we are
+
+* start with a count in 'a', build an actual count in 'count'
+build_count:
+       mov  r11,return2
+       mov  a,count                    ; store the count
+       ci   count,15                   ; if it's not 15, we're done
+       jne  bc2
+bc1:
+       bl   @set_src
+       movb *vread,a                   ; get the next byte
+       inc  src
+       srl  a,8                        ; make it a count
+       a    a,count                    ; add it in
+       ci   a,255                      ; check if there are more
+       jeq  bc1                        ; there are
+bc2:
+       b    *return2                   ; else we're done
+
+* set src as the VDP read address
+set_src:
+       mov  src,vaddr
+       jmp  vdpwadr
+    
+* set dest as the VDP write address
+set_dest:
+       mov  dst,vaddr
+       ori  vaddr,>4000
+       jmp  vdpwadr
+
+* set VDP address as per vaddr
+vdpwadr:
+       swpb vaddr
+       movb vaddr,@vdpwa
+       swpb vaddr
+       movb vaddr,@vdpwa
+       rt

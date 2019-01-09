@@ -264,10 +264,17 @@ copy_map_rows_from_vdp_1:
 *
 copy_map_to_vdp:
        .proc
-       li   r0,>1000
-       li   r1,MD0
-       li   r2,map_size
+*      Upload
+       li   r0,>2000
+       li   r1,map1_lz4+11
+       li   r2,map1_lz4_end-map1_lz4-19
        bl   @vmbw
+*      Unpack
+       li   r0,>2000
+       li   r1,>1000
+       li   r2,>2000+(map1_lz4_end-map1_lz4-19)
+       bl   @unpack_lz4_from_to_vdp
+*      Rearrange
        li   r0,>1000
        li   r1,vmap0
        li   r2,>400
@@ -592,6 +599,12 @@ map_row_source_table:
 *
 * Includes
 *
-       copy "map.a99"
+       copy "unlz4FromToVdp.a99"
+
+map1_chars:
+       copy "map1-chars.a99"
+map1_lz4:
+       bcopy "map1.lz4"
+map1_lz4_end
 
        end

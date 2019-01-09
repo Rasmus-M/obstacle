@@ -2,15 +2,6 @@
 * Ported by Tursi from LZ4 data decompressor for Apple II
 * by Peter Ferrie (peter.ferrie@gmail.com)
 
-* warning: not tested
-
-* sample calling:
-* LIMI 0                 ; make sure interrupts are off
-* LI R0,VDPSRCADR         ; pack data source in VDP
-* LI R1,VDPDESTADR       ; destination in VDP
-* LI R2,PACKBYTES         ; number of packed bytes
-* BL @UNPACKLZ4FROMTOVDP * do it!
-
 * due to changing VDP address every byte, this function is
 * much slower than any of the CPU involved ones.
 

@@ -21,14 +21,23 @@ sound  equ  >8400
 * VDP memory map
 *
 ptrntb equ  >0000                      ; Pattern table base
-nametb equ  >0400                      ; Name table base
+nametb equ  >0400                      ; Name table base 1
 spratb equ  >0700                      ; Sprite attribute table base
 colrtb equ  >0780                      ; Color table base
-sprptb equ  >1000                      ; Sprite pattern table base
-vmap0  equ  >2400
-vmap1  equ  >2c00
-vmap2  equ  >3400
-vmap3  equ  >3c00
+ptrnt2 equ  >0800                      ; Patterns
+namet2 equ  >0c00                      ; Name table base 2
+ptrnt3 equ  >1000                      ; Patterns
+sprptb equ  >1000                      ; Sprite pattern table base (only from >1400, 32 patterns)
+ptrnt4 equ  >1800                      ; Patterns
+freev1 equ  >1c00                      ; 1k free
+ptrnt5 equ  >2000                      ; Patterns
+vmap0  equ  >2400                      ; Map
+ptrnt6 equ  >2800                      ; Patterns
+vmap1  equ  >2c00                      ; Map
+ptrnt7 equ  >3000                      ; Patterns
+vmap2  equ  >3400                      ; Map
+ptrnt8 equ  >3800                      ; Patterns
+vmap3  equ  >3c00                      ; Map
 
 **
 * Constants
@@ -129,10 +138,12 @@ main:
        limi 0                          ; Interrupts off
        lwpi wrksp                      ; Setup workspace
        li   r10,stack                  ; Setup stack pointer
+       li   r14,vdprd
        li   r15,vdpwd                  ; Do not change
        bl   @graphics_mode
        bl   @copy_map_to_vdp
        bl   @scroll_patterns
+       bl   @init_sprites
        clr  @scroll_x
        bl   @update_full_name_table
 loop:
@@ -205,19 +216,17 @@ update_partial_name_table:
 * Update name table rows
 *
 update_name_table_rows:
-       li   r0,vdpwd
-update_name_table_rows_1:
        li   r2,screen_width/4
-update_name_table_rows_2:
-       movb *r1+,*r0
-       movb *r1+,*r0
-       movb *r1+,*r0
-       movb *r1+,*r0
+update_name_table_rows_1:
+       movb *r1+,*r15
+       movb *r1+,*r15
+       movb *r1+,*r15
+       movb *r1+,*r15
        dec  r2
-       jne  update_name_table_rows_2
+       jne  update_name_table_rows_1
        ai   r1,map_width-screen_width
        dec  r3
-       jne  update_name_table_rows_1
+       jne  update_name_table_rows
        rt
 *// update_name_table_rows
 
@@ -333,7 +342,7 @@ scroll_patterns_3:
        jeq  scroll_patterns_4          ; Skip shift if zero
        sla  r1,0
 scroll_patterns_4:
-       movb r1,@vdpwd                  ; Send to VDP
+       movb r1,*r15                    ; Send to VDP
 *      Next row
        dec  r7
        jne  scroll_patterns_3
@@ -349,6 +358,25 @@ scroll_patterns_5:
        jlt  scroll_patterns_1
        .endproc
 *// scroll_patterns
+
+***************************************************************
+*
+* Initialize sprites
+*
+init_sprites:
+       .proc
+*      Sprite patterns
+       li   r0,sprptb+>400
+       li   r1,SPR0
+       li   r2,32
+       bl   @vmbw
+*      Sprite attributes
+       li   r0,spratb
+       li   r1,sal_init
+       li   r2,5
+       bl   @vmbw
+       .endproc
+*// init_sprites
 
 *********************************************************************
 *
@@ -415,10 +443,10 @@ vdp_to_vdp_copy_1:
        li   r3,buffer_size/4
        li   r4,buffer
 vdp_to_vdp_copy_2:
-       movb @vdprd,*r4+
-       movb @vdprd,*r4+
-       movb @vdprd,*r4+
-       movb @vdprd,*r4+
+       movb *r14,*r4+
+       movb *r14,*r4+
+       movb *r14,*r4+
+       movb *r14,*r4+
        dec  r3
        jne  vdp_to_vdp_copy_2
 *      Write block
@@ -429,10 +457,10 @@ vdp_to_vdp_copy_2:
        li   r3,buffer_size/4
        li   r4,buffer
 vdp_to_vdp_copy_3:
-       movb *r4+,@vdpwd
-       movb *r4+,@vdpwd
-       movb *r4+,@vdpwd
-       movb *r4+,@vdpwd
+       movb *r4+,*r15
+       movb *r4+,*r15
+       movb *r4+,*r15
+       movb *r4+,*r15
        dec  r3
        jne  vdp_to_vdp_copy_3
        ai   r0,buffer_size
@@ -500,7 +528,7 @@ vsbr:
        movb @r0lb,@vdpwa               ; Send low byte of VDP RAM write address
        andi r0,>3fff
        movb r0,@vdpwa                  ; Send high byte of VDP RAM write address
-       movb @vdprd,r1                  ; Read byte from VDP RAM
+       movb *r14,r1                    ; Read byte from VDP RAM
        rt
 *// vsbr
 
@@ -517,7 +545,7 @@ vsbw:
        movb  @r0lb,@vdpwa              ; Send low byte of VDP RAM write address
        ori  r0,>4000                   ; Set read/write bits 14 and 15 to write (01)
        movb r0,@vdpwa                  ; Send high byte of VDP RAM write address
-       movb r1,*15                     ; Write byte to VDP RAM
+       movb r1,*r15                    ; Write byte to VDP RAM
        rt
 *// vsbw
 
@@ -536,7 +564,7 @@ vmbw:
        ori  r0,>4000                   ; Set read/write bits 14 and 15 to write (01)
        movb r0,@vdpwa                  ; Send high byte of VDP RAM write address
 vmbw_1:
-       movb *r1+,*15                   ; Write byte to VDP RAM
+       movb *r1+,*r15                  ; Write byte to VDP RAM
        dec  r2
        jne  vmbw_1
        rt
@@ -557,7 +585,7 @@ vsmw:
        ori  r0,>4000                   ; Set read/write bits 14 and 15 to write (01)
        movb r0,@vdpwa                  ; Send high byte of VDP RAM write address
 vsmw_1:
-       movb r1,*15                     ; Write byte to VDP RAM
+       movb r1,*r15                    ; Write byte to VDP RAM
        dec  r2                         ; Byte counter
        jne  vsmw_1
        rt
@@ -577,9 +605,8 @@ vmbr:
        movb  @r0lb,@vdpwa              ; Send low byte of VDP RAM write address
        andi r0,>3fff
        movb r0,@vdpwa                  ; Send high byte of VDP RAM write address
-       li   r0,vdprd
 vmbr_1:
-       movb *r0,*r1+                   ; Read byte from VDP RAM
+       movb *r14,*r1+                  ; Read byte from VDP RAM
        dec  r2                         ; Byte counter
        jne  vmbr_1                     ; Check if finished
        rt
@@ -594,6 +621,17 @@ map_row_source_table:
        data vmap1,vmap1+>100,vmap1+>200,vmap1+>300
        data vmap2,vmap2+>100,vmap2+>200,vmap2+>300
        data vmap3,vmap3+>100,vmap3+>200,vmap3+>300
+
+**
+* Sprite Patterns
+*
+SPR0   DATA >071F,>3F77,>6BF7,>FFFF    ; Color 15
+       DATA >FFFF,>FF7F,>7E35,>1E07    ;
+       DATA >E0F8,>FCFE,>FAFF,>FBF5    ;
+       DATA >EBF7,>EB56,>AE5C,>F8E0    ;
+
+sal_init:
+       byte >5f,>30,>80,>0f,>d0,>00
 
 *********************************************************************
 *

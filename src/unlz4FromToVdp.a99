@@ -18,9 +18,9 @@ temp    equ 7
 temp2   equ 8
 return  equ 9
 return2 equ 12
-vread   equ 13
-vwrite  equ 14
-vaddr   equ 15
+vaddr   equ 13
+vread   equ 14
+vwrite  equ 15
 
 * unpacker entrypoint
 * Caller must set a VDP read address and disable interrupts
@@ -30,8 +30,8 @@ vaddr   equ 15
 
 unpack_lz4_from_to_vdp:
        mov  r11,return                 ; remember return address
-       li   vread,vdprd
-       li   vwrite,vdpwd
+;      li   vread,vdprd
+;      li   vwrite,vdpwd
 
 parse_token:
        bl   @set_src

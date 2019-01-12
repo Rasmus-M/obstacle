@@ -87,8 +87,10 @@ ball_vy:
        equ  ball_y+2
 ball_ay:
        equ  ball_vy+2
-buffer:
+ball_pattern:
        equ  ball_ay+2
+buffer:
+       equ  ball_pattern+2
 pad_max:
        equ  buffer+buffer_size
 
@@ -172,8 +174,9 @@ init_game:
 *      Sprite patterns
        li   r0,sprptb+>400
        li   r1,SPR0
-       li   r2,32
+       li   r2,8*32
        bl   @vmbw
+*      Ball
        li   r0,>5f00
        mov  r0,@ball_y
        li   r0,->0300
@@ -182,6 +185,8 @@ init_game:
        mov  r0,@ball_ay
        li   r0,>3000
        mov  r0,@ball_x
+       li   r0,>800e
+       mov  r0,@ball_pattern
        .endproc
 *// init_game
 
@@ -229,7 +234,12 @@ update_sprites:
        bl   @vwad
        movb @ball_y,*r15
        movb @ball_x,*r15
-       li   r0,>800f
+       mov  @ball_pattern,r0
+       movb r0,*r15
+       movb @r0lb,*r15
+       movb @ball_y,*r15
+       movb @ball_x,*r15
+       ai   r0,>1001
        movb r0,*r15
        movb @r0lb,*r15
        .endproc
@@ -248,8 +258,9 @@ move_ball:
        jl   move_ball_1
        li   r0,>5f00
        mov  r0,@ball_y
-       li   r0,->0300
-       mov  r0,@ball_vy
+;       li   r0,->0300
+;       mov  r0,@ball_vy
+       neg  @ball_vy
 move_ball_1:
        .endproc
 *// move_ball
@@ -678,32 +689,12 @@ map_row_source_table:
        data vmap2,vmap2+>100,vmap2+>200,vmap2+>300
        data vmap3,vmap3+>100,vmap3+>200,vmap3+>300
 
-**
-* Sprite Patterns
-*
-SPR0   DATA >0000,>0000,>030F,>1B15    ; Color 15
-       DATA >3B3F,>3F3F,>1F1F,>0E03    ;
-       DATA >0000,>0000,>C0F0,>F8F8    ;
-       DATA >FCF4,>FCF4,>E8D8,>B0C0    ;
-SPR1   DATA >0000,>0000,>0000,>071F    ; Color 15
-       DATA >376B,>777F,>7F3F,>1F07    ;
-       DATA >0000,>0000,>0000,>E0F8    ;
-       DATA >FCFE,>FAFE,>F6EC,>B8E0    ;
-SPR2   DATA >0000,>0000,>0000,>0000    ; Color 15
-       DATA >0F3F,>6FD7,>EF7F,>3F0F    ;
-       DATA >0000,>0000,>0000,>0000    ;
-       DATA >F0FC,>FEFF,>FBF6,>DCF0    ;
-SPR3   DATA >0000,>0307,>0D0A,>1D1F    ; Color 15
-       DATA >1F1F,>1F0F,>0F06,>0300    ;
-       DATA >0000,>C0E0,>F0F0,>F8F8    ;
-       DATA >F8E8,>F8D0,>B0E0,>C000    ;
-
 *********************************************************************
 *
 * Includes
 *
        copy "unlz4FromToVdp.a99"
-
+       copy "spritePatterns.a99"
 map1_chars:
        copy "map1-chars.a99"
 map1_lz4:

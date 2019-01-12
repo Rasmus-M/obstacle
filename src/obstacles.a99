@@ -79,8 +79,16 @@ padvar equ  stack+>10                  ; Start of pad variables
 *
 scroll_x:
        equ  padvar
-buffer:
+ball_x:
        equ  scroll_x+2
+ball_y:
+       equ  ball_x+2
+ball_vy:
+       equ  ball_y+2
+ball_ay:
+       equ  ball_vy+2
+buffer:
+       equ  ball_ay+2
 pad_max:
        equ  buffer+buffer_size
 
@@ -138,33 +146,44 @@ main:
        limi 0                          ; Interrupts off
        lwpi wrksp                      ; Setup workspace
        li   r10,stack                  ; Setup stack pointer
-       li   r14,vdprd
+       li   r14,vdprd                  ; Do not change
        li   r15,vdpwd                  ; Do not change
        bl   @graphics_mode
-       bl   @copy_map_to_vdp
-       bl   @scroll_patterns
-       bl   @init_sprites
-       clr  @scroll_x
-       bl   @update_full_name_table
+       bl   @init_game
 loop:
        bl   @vsync
-*      Set pattern table
-       mov  @scroll_x,r0
-       andi r0,>0007
-       ori  r0,>0400
-       bl   @vwtr
-*      Set name table
-       mov  @scroll_x,r0
-       andi r0,>0008
-       srl  r0,2
-       inc  r0
-       ori  r0,>0200
-       bl   @vwtr
-*      Update name table
+       bl   @update_vdp_regs
+       bl   @update_sprites
+       bl   @move_ball
        bl   @update_partial_name_table
-*      Next
        inc  @scroll_x
        jmp  loop
+
+***************************************************************
+*
+* Initialize game
+*
+init_game:
+       .proc
+       bl   @copy_map_to_vdp
+       bl   @scroll_patterns
+       clr  @scroll_x
+       bl   @update_full_name_table
+*      Sprite patterns
+       li   r0,sprptb+>400
+       li   r1,SPR0
+       li   r2,32
+       bl   @vmbw
+       li   r0,>5f00
+       mov  r0,@ball_y
+       li   r0,->0300
+       mov  r0,@ball_vy
+       li   r0,>0018
+       mov  r0,@ball_ay
+       li   r0,>3000
+       mov  r0,@ball_x
+       .endproc
+*// init_game
 
 *********************************************************************
 *
@@ -178,6 +197,76 @@ vsync_1:
        movb @vdpsta,r12
        rt
 *// vsync
+
+***************************************************************
+*
+* Update VDP registers
+*
+update_vdp_regs:
+       .proc
+*      Set pattern table
+       mov  @scroll_x,r0
+       andi r0,>0007
+       ori  r0,>0400
+       bl   @vwtr
+*      Set name table
+       mov  @scroll_x,r0
+       andi r0,>0008
+       srl  r0,2
+       inc  r0
+       ori  r0,>0200
+       bl   @vwtr
+       .endproc
+*// update_vdp_regs
+
+***************************************************************
+*
+* Update sprites
+*
+update_sprites:
+       .proc
+       li   r0,spratb
+       bl   @vwad
+       movb @ball_y,*r15
+       movb @ball_x,*r15
+       li   r0,>800f
+       movb r0,*r15
+       movb @r0lb,*r15
+       .endproc
+*// update_sprites
+
+***************************************************************
+*
+* Move ball
+*
+move_ball:
+       .proc
+       a    @ball_ay,@ball_vy
+       a    @ball_vy,@ball_y
+       mov  @ball_y,r0
+       ci   r0,>5f00
+       jl   move_ball_1
+       li   r0,>5f00
+       mov  r0,@ball_y
+       li   r0,->0300
+       mov  r0,@ball_vy
+move_ball_1:
+       .endproc
+*// move_ball
+
+***************************************************************
+*
+* Update 1/8 name table
+*
+update_partial_name_table:
+       .proc
+       mov  @scroll_x,r6
+       andi r6,>0007
+       sla  r6,1
+       li   r7,2
+       bl   @copy_map_rows_from_vdp
+       .endproc
+*// update_partial_name_table
 
 ***************************************************************
 *
@@ -196,20 +285,6 @@ update_full_name_table:
        bl   @copy_map_rows_from_vdp_custom
        .endproc
 *// update_full_name_table
-
-***************************************************************
-*
-* Update 1/8 name table
-*
-update_partial_name_table:
-       .proc
-       mov  @scroll_x,r6
-       andi r6,>0007
-       sla  r6,1
-       li   r7,2
-       bl   @copy_map_rows_from_vdp
-       .endproc
-*// update_partial_name_table
 
 ***************************************************************
 *
@@ -358,25 +433,6 @@ scroll_patterns_5:
        jlt  scroll_patterns_1
        .endproc
 *// scroll_patterns
-
-***************************************************************
-*
-* Initialize sprites
-*
-init_sprites:
-       .proc
-*      Sprite patterns
-       li   r0,sprptb+>400
-       li   r1,SPR0
-       li   r2,32
-       bl   @vmbw
-*      Sprite attributes
-       li   r0,spratb
-       li   r1,sal_init
-       li   r2,5
-       bl   @vmbw
-       .endproc
-*// init_sprites
 
 *********************************************************************
 *
@@ -625,13 +681,22 @@ map_row_source_table:
 **
 * Sprite Patterns
 *
-SPR0   DATA >071F,>3F77,>6BF7,>FFFF    ; Color 15
-       DATA >FFFF,>FF7F,>7E35,>1E07    ;
-       DATA >E0F8,>FCFE,>FAFF,>FBF5    ;
-       DATA >EBF7,>EB56,>AE5C,>F8E0    ;
-
-sal_init:
-       byte >5f,>30,>80,>0f,>d0,>00
+SPR0   DATA >0000,>0000,>030F,>1B15    ; Color 15
+       DATA >3B3F,>3F3F,>1F1F,>0E03    ;
+       DATA >0000,>0000,>C0F0,>F8F8    ;
+       DATA >FCF4,>FCF4,>E8D8,>B0C0    ;
+SPR1   DATA >0000,>0000,>0000,>071F    ; Color 15
+       DATA >376B,>777F,>7F3F,>1F07    ;
+       DATA >0000,>0000,>0000,>E0F8    ;
+       DATA >FCFE,>FAFE,>F6EC,>B8E0    ;
+SPR2   DATA >0000,>0000,>0000,>0000    ; Color 15
+       DATA >0F3F,>6FD7,>EF7F,>3F0F    ;
+       DATA >0000,>0000,>0000,>0000    ;
+       DATA >F0FC,>FEFF,>FBF6,>DCF0    ;
+SPR3   DATA >0000,>0307,>0D0A,>1D1F    ; Color 15
+       DATA >1F1F,>1F0F,>0F06,>0300    ;
+       DATA >0000,>C0E0,>F0F0,>F8F8    ;
+       DATA >F8E8,>F8D0,>B0E0,>C000    ;
 
 *********************************************************************
 *

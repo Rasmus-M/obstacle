@@ -272,14 +272,22 @@ PAT255 DATA >0000,>0000,>0000,>0000    ;
 ****************************************
 * Sprite Patterns                       
 ****************************************
-SPR0   DATA >071F,>3F77,>6BF7,>FFFF    ; Color 15
-       DATA >FFFF,>FF7F,>7E35,>1E07    ; 
-       DATA >E0F8,>FCFE,>FAFF,>FBF5    ; 
-       DATA >EBF7,>EB56,>AE5C,>F8E0    ; 
-SPR1   DATA >0202,>0204,>0CF1,>01C6    ; Color 15
-       DATA >300A,>1020,>2146,>5820    ; 
-       DATA >8080,>8040,>601E,>0146    ; 
-       DATA >98A0,>1008,>08C4,>3408    ; 
+SPR0   DATA >0000,>0000,>030F,>1B15    ; Color 15
+       DATA >3B3F,>3F3F,>1F1F,>0E03    ; 
+       DATA >0000,>0000,>C0F0,>F8F8    ; 
+       DATA >FCF4,>FCF4,>E8D8,>B0C0    ; 
+SPR1   DATA >0000,>0000,>0000,>071F    ; Color 15
+       DATA >376B,>777F,>7F3F,>1F07    ; 
+       DATA >0000,>0000,>0000,>E0F8    ; 
+       DATA >FCFE,>FAFE,>F6EC,>B8E0    ; 
+SPR2   DATA >0000,>0000,>0000,>0000    ; Color 15
+       DATA >0F3F,>6FD7,>EF7F,>3F0F    ; 
+       DATA >0000,>0000,>0000,>0000    ; 
+       DATA >F0FC,>FEFF,>FBF6,>DCF0    ; 
+SPR3   DATA >0000,>0307,>0D0A,>1D1F    ; Color 15
+       DATA >1F1F,>1F0F,>0F06,>0300    ; 
+       DATA >0000,>C0E0,>F0F0,>F8F8    ; 
+       DATA >F8E8,>F8D0,>B0E0,>C000    ; 
 ****************************************
 * Map Data                              
 ****************************************
@@ -815,3 +823,7 @@ MD1    DATA >1213,>1213,>1213,>1213    ;
        DATA >090A,>090A,>090A,>090A    ;
        DATA >090A,>090A,>090A,>090A    ;
        DATA >090A,>090A,>090A,>090A    ;
+* Sprite Locations                      
+SL1    DATA 96,112,28,1                ; y, x, pattern#, color#
+       DATA 96,128,32,1                ; 
+       DATA 96,16,32,1                 ; 

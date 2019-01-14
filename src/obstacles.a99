@@ -293,28 +293,15 @@ update_full_name_table:
        li   r6,map_row_source_table
 *      Copy
        li   r7,map_height
-       bl   @copy_map_rows_from_vdp_custom
+update_full_name_table_1:
+       mov  *r6+,r0                    ; Row start
+       a    r5,r0                      ; Add column offset
+       li   r2,screen_width
+       bl   @vdp_to_vdp_copy_fast      ; Copy row
+       dec  r7
+       jne  update_full_name_table_1
        .endproc
 *// update_full_name_table
-
-***************************************************************
-*
-* Update name table rows
-*
-update_name_table_rows:
-       li   r2,screen_width/4
-update_name_table_rows_1:
-       movb *r1+,*r15
-       movb *r1+,*r15
-       movb *r1+,*r15
-       movb *r1+,*r15
-       dec  r2
-       jne  update_name_table_rows_1
-       ai   r1,map_width-screen_width
-       dec  r3
-       jne  update_name_table_rows
-       rt
-*// update_name_table_rows
 
 ***************************************************************
 *
@@ -338,16 +325,29 @@ copy_map_rows_from_vdp:
        mov  @scroll_x,r5               ; Column offset
        srl  r5,3
        inc  r5                         ; Plus one
+       andi r5,map_width-1             ; Wrap at 256 columns
        sla  r6,1                       ; Lookup table address
        ai   r6,map_row_source_table
-       jmp  copy_map_rows_from_vdp_1
-copy_map_rows_from_vdp_custom:
-       .proc
 copy_map_rows_from_vdp_1:
        mov  *r6+,r0                    ; Row start
        a    r5,r0                      ; Add column offset
+       ci   r5,map_width-screen_width
+       jh   copy_map_rows_from_vdp_2
+*      Fast, non-wrapping
        li   r2,screen_width
-       bl   @vdp_to_vdp_copy           ; Copy row
+       bl   @vdp_to_vdp_copy_fast      ; Copy row
+       jmp  copy_map_rows_from_vdp_3
+*      Slow, wrapping
+copy_map_rows_from_vdp_2:
+       li   r2,map_width
+       s    r5,r2
+       bl   @vdp_to_vdp_copy           ; Copy 1st part
+       mov  r5,r2
+       ai   r2,-(map_width-screen_width)
+       dect r6
+       mov  *r6+,r0
+       bl   @vdp_to_vdp_copy           ; Copy 2nd part from beginning
+copy_map_rows_from_vdp_3:
        dec  r7
        jne  copy_map_rows_from_vdp_1
        .endproc
@@ -373,19 +373,19 @@ copy_map_to_vdp:
        li   r0,>1000
        li   r1,vmap0
        li   r2,>400
-       bl   @vdp_to_vdp_copy
+       bl   @vdp_to_vdp_copy_fast
        li   r0,>1400
        li   r1,vmap1
        li   r2,>400
-       bl   @vdp_to_vdp_copy
+       bl   @vdp_to_vdp_copy_fast
        li   r0,>1800
        li   r1,vmap2
        li   r2,>400
-       bl   @vdp_to_vdp_copy
+       bl   @vdp_to_vdp_copy_fast
        li   r0,>1c00
        li   r1,vmap3
        li   r2,>400
-       bl   @vdp_to_vdp_copy
+       bl   @vdp_to_vdp_copy_fast
        .endproc
 *// copy_map_to_vdp
 
@@ -490,18 +490,68 @@ vregs2:
 
 *********************************************************************
 *
-* VDP to VDP copy
+* VDP to VDP copy (slower)
 *
 * r0: Source address
 * r1: Destination address
-* r2: Number of bytes to copy (must be a multiple of buffer_size)
+* r2: Number of bytes to copy
 *
 * Modifies r0-r4. On return r0 and r1 are incremented by r2 bytes.
 *
 vdp_to_vdp_copy:
+       .push r5
+       ori  r1,>4000                   ; Prepare write address
+vdp_to_vdp_copy_1:
+       li   r5,buffer_size
+       c    r2,r5
+       jhe  vdp_to_vdp_copy_2
+       mov  r2,r5
+vdp_to_vdp_copy_2:
+*      Read block
+       swpb r0
+       movb r0,@vdpwa                  ; Send low byte of VDP RAM read address
+       swpb r0
+       movb r0,@vdpwa                  ; Send high byte of VDP RAM read address
+       li   r4,buffer
+       mov  r5,r3
+vdp_to_vdp_copy_3:
+       movb *r14,*r4+
+       dec  r3
+       jne  vdp_to_vdp_copy_3
+*      Write block
+       swpb r1
+       movb r1,@vdpwa
+       swpb r1
+       movb r1,@vdpwa
+       li   r4,buffer
+       mov  r5,r3
+vdp_to_vdp_copy_4:
+       movb  *r4+,*r15
+       dec  r3
+       jne  vdp_to_vdp_copy_4
+*      Next
+       a    r5,r0
+       a    r5,r1
+       s    r5,r2
+       jgt  vdp_to_vdp_copy_1
+       .pop r5
+       rt
+*// vdp_to_vdp_copy
+
+*********************************************************************
+*
+* VDP to VDP copy (fast)
+*
+* r0: Source address
+* r1: Destination address
+* r2: Number of bytes to copy (must be a multiple of buffer_size (32))
+*
+* Modifies r0-r4. On return r0 and r1 are incremented by r2 bytes.
+*
+vdp_to_vdp_copy_fast:
        ori  r1,>4000                   ; Prepare write address
        srl  r2,log_2_buffer_size
-vdp_to_vdp_copy_1:
+vdp_to_vdp_copy_fast_1:
 *      Read block
        swpb r0
        movb r0,@vdpwa                  ; Send low byte of VDP RAM read address
@@ -509,13 +559,13 @@ vdp_to_vdp_copy_1:
        movb r0,@vdpwa                  ; Send high byte of VDP RAM read address
        li   r3,buffer_size/4
        li   r4,buffer
-vdp_to_vdp_copy_2:
+vdp_to_vdp_copy_fast_2:
        movb *r14,*r4+
        movb *r14,*r4+
        movb *r14,*r4+
        movb *r14,*r4+
        dec  r3
-       jne  vdp_to_vdp_copy_2
+       jne  vdp_to_vdp_copy_fast_2
 *      Write block
        swpb r1
        movb r1,@vdpwa
@@ -523,19 +573,19 @@ vdp_to_vdp_copy_2:
        movb r1,@vdpwa
        li   r3,buffer_size/4
        li   r4,buffer
-vdp_to_vdp_copy_3:
+vdp_to_vdp_copy_fast_3:
        movb *r4+,*r15
        movb *r4+,*r15
        movb *r4+,*r15
        movb *r4+,*r15
        dec  r3
-       jne  vdp_to_vdp_copy_3
+       jne  vdp_to_vdp_copy_fast_3
        ai   r0,buffer_size
        ai   r1,buffer_size
        dec  r2
-       jne  vdp_to_vdp_copy_1
+       jne  vdp_to_vdp_copy_fast_1
        rt
-*// vdp_to_vdp_copy
+*// vdp_to_vdp_copy_fast
 
 *********************************************************************
 *

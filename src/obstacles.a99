@@ -16,6 +16,10 @@ vdpwa  equ  >8c02                      ; VDP set read/write address
 vdprd  equ  >8800                      ; VDP read data
 vdpsta equ  >8802                      ; VDP status
 sound  equ  >8400
+grmrd  equ  >9800                      ; GROM read data (GROM base)
+grmra  equ  >9802                      ; GROM read address+1
+grmwd  equ  >9C00
+grmwa  equ  >9C02
 
 **
 * VDP memory map
@@ -54,6 +58,8 @@ buffer_size:
        equ  32
 log_2_buffer_size:
        equ  5
+chr_qst_mark:
+       equ  112
 
 **
 * Scratch pad
@@ -89,8 +95,12 @@ ball_ay:
        equ  ball_vy+2
 ball_pattern:
        equ  ball_ay+2
-buffer:
+ball_jumping:
        equ  ball_pattern+2
+ball_animation_ptr:
+       equ  ball_jumping+2
+buffer:
+       equ  ball_animation_ptr+2
 pad_max:
        equ  buffer+buffer_size
 
@@ -158,6 +168,7 @@ loop:
        bl   @update_sprites
        bl   @move_ball
        bl   @update_partial_name_table
+       bl   @player_input
        inc  @scroll_x
        jmp  loop
 
@@ -169,24 +180,29 @@ init_game:
        .proc
        bl   @copy_map_to_vdp
        bl   @scroll_patterns
+       bl   @read_grom_chars
        clr  @scroll_x
        bl   @update_full_name_table
+       li   r0,19*32+8
+       li   r1,title
+       bl   @display_text
 *      Sprite patterns
        li   r0,sprptb+>400
        li   r1,SPR0
        li   r2,8*32
        bl   @vmbw
 *      Ball
-       li   r0,>5f00
+       li   r0,>6000
        mov  r0,@ball_y
-       li   r0,->0300
-       mov  r0,@ball_vy
+       clr  @ball_vy
        li   r0,>0018
        mov  r0,@ball_ay
        li   r0,>3000
        mov  r0,@ball_x
        li   r0,>800e
        mov  r0,@ball_pattern
+       clr  @ball_jumping
+       clr  @ball_animation_ptr
        .endproc
 *// init_game
 
@@ -232,16 +248,18 @@ update_sprites:
        .proc
        li   r0,spratb
        bl   @vwad
-       movb @ball_y,*r15
-       movb @ball_x,*r15
-       mov  @ball_pattern,r0
+       mov  @ball_y,r0
+       ai   r0,->0100
+       mov  @ball_pattern,r1
        movb r0,*r15
-       movb @r0lb,*r15
-       movb @ball_y,*r15
        movb @ball_x,*r15
-       ai   r0,>1001
+       movb r1,*r15
+       movb @r1lb,*r15
        movb r0,*r15
-       movb @r0lb,*r15
+       movb @ball_x,*r15
+       ai   r1,>1001
+       movb r1,*r15
+       movb @r1lb,*r15
        .endproc
 *// update_sprites
 
@@ -251,18 +269,48 @@ update_sprites:
 *
 move_ball:
        .proc
+       mov  @ball_animation_ptr,r0
+       jne  move_ball_3
+*      Check y velocity
+       mov  @ball_vy,r0
+       jlt  move_ball_1
+*      Check char under ball
+       li   r0,>0800
+       li   r1,>1000
+       bl   @get_map_char
+       movb r1,r1
+       jne  move_ball_2
+*      Move with acceleration
+move_ball_1:
        a    @ball_ay,@ball_vy
        a    @ball_vy,@ball_y
+       jmp  move_ball_5
+*      Hit the floor
+move_ball_2:
+       mov  @ball_vy,r0
+       jeq  move_ball_5
+       clr  @ball_jumping
        mov  @ball_y,r0
-       ci   r0,>5f00
-       jl   move_ball_1
-       li   r0,>5f00
+       andi r0,>f000
        mov  r0,@ball_y
-;       li   r0,->0300
-;       mov  r0,@ball_vy
-       neg  @ball_vy
-move_ball_1:
+       clr  @ball_vy
+       li   r0,animation_hit
+       mov  r0,@ball_animation_ptr
+       jmp  move_ball_5
+*      Animate
+move_ball_3:
+       movb *r0+,r1
+       jeq  move_ball_4
+       movb r1,@ball_pattern
+       mov  r0,@ball_animation_ptr
+       jmp  move_ball_5
+move_ball_4:
+       clr  @ball_animation_ptr
+move_ball_5:
        .endproc
+animation_hit:
+       byte >84,>84,>88,>88,>84,>84,>80,>00
+
 *// move_ball
 
 ***************************************************************
@@ -281,27 +329,122 @@ update_partial_name_table:
 
 ***************************************************************
 *
-* Update full name table
+* Read player input
 *
-update_full_name_table:
+player_input:
        .proc
-*      Dest
-       li   r1,nametb
-*      Source
-       mov  @scroll_x,r5               ; Column offset
-       srl  r5,3
-       li   r6,map_row_source_table
-*      Copy
-       li   r7,map_height
-update_full_name_table_1:
-       mov  *r6+,r0                    ; Row start
-       a    r5,r0                      ; Add column offset
-       li   r2,screen_width
-       bl   @vdp_to_vdp_copy_fast      ; Copy row
-       dec  r7
-       jne  update_full_name_table_1
+       mov  @ball_jumping,r0
+       jne  player_input_1
+       li   r0,JOY_FI
+       bl   @check_key
+       jeq  player_input_1
+       li   r0,->0300
+       mov  r0,@ball_vy
+       seto @ball_jumping
+player_input_1:
        .endproc
-*// update_full_name_table
+*// player_input
+
+*********************************************************************
+*
+* Check quit
+*
+check_quit:
+       clr  r1                         ; Test column 0
+       li   r12,>0024                  ; Address for column selection
+       ldcr r1,3                       ; Select column
+       li   r12,>0006                  ; Address to read rows
+       stcr r1,8
+       andi r1,>1100
+       jeq  quit
+*      Return
+       rt
+*      Quit
+quit   clr  @>83c4                     ; Reset user ISR address
+       blwp @>0000
+*// check_quit
+
+*********************************************************************
+*
+* Check key
+*
+* r0: Column in MSB: >0000 - >0700, Row in LSB: >0006 - >0014
+*
+*       Column   0      1    2    3    4    5     6       7
+*     Row
+*     >0006      =      .    ,    M    N    /    Fire    Fire
+*     >0008    Space    L    K    J    H    ;    Left    Left
+*     >000A    Enter    O    I    U    Y    P    Right   Right
+*     >000C             9    8    7    6    0    Down    Down
+*     >000E    Fctn     2    3    4    5    1    Up      Up
+*     >0010    Shift    S    D    F    G    A
+*     >0012    Ctrl     W    E    R    T    Q
+*     >0014             X    C    V    B    Z
+*
+* On return NEQ means that the key is pressed
+*
+KEY_FI EQU  >0606
+KEY_LF EQU  >0608
+KEY_RG EQU  >060A
+KEY_DN EQU  >060C
+KEY_UP EQU  >060E
+KEY_CM EQU  >0206
+KEY_FS EQU  >0106
+KEY_0  EQU  >050C
+KEY_1  EQU  >050E
+KEY_2  EQU  >010E
+KEY_3  EQU  >020E
+KEY_4  EQU  >030E
+KEY_5  EQU  >040E
+KEY_6  EQU  >040C
+KEY_7  EQU  >030C
+KEY_8  EQU  >020C
+KEY_9  EQU  >010C
+KEY_A  EQU  >0510
+KEY_B  EQU  >0414
+KEY_C  EQU  >0214
+KEY_D  EQU  >0210
+KEY_E  EQU  >0212
+KEY_F  EQU  >0310
+KEY_G  EQU  >0410
+KEY_H  EQU  >0408
+KEY_I  EQU  >020A
+KEY_J  EQU  >0308
+KEY_K  EQU  >0208
+KEY_L  EQU  >0108
+KEY_M  EQU  >0306
+KEY_N  EQU  >0406
+KEY_O  EQU  >010A
+KEY_P  EQU  >050A
+KEY_Q  EQU  >0512
+KEY_R  EQU  >0312
+KEY_S  EQU  >0110
+KEY_T  EQU  >0412
+KEY_U  EQU  >030A
+KEY_V  EQU  >0314
+KEY_W  EQU  >0112
+KEY_X  EQU  >0114
+KEY_Y  EQU  >040A
+KEY_Z  EQU  >0514
+KEY_SP EQU  >0008
+KEY_EN EQU  >000A
+KEY_FN EQU  >000E
+KEY_SH EQU  >0010
+KEY_CT EQU  >0012
+JOY_FI EQU  >0606
+JOY_LT EQU  >0608
+JOY_RT EQU  >060A
+JOY_DN EQU  >060C
+JOY_UP EQU  >060E
+*
+check_key:
+       li   r12,>0024                  ; CRU address of the column decoder
+       ldcr r0,3                       ; Select column
+       andi r0,>00ff
+       mov  r0,r12                     ; Select row
+       tb   0                          ; Test key, EQ if not pressed
+       rt
+*// check_key
 
 ***************************************************************
 *
@@ -352,6 +495,51 @@ copy_map_rows_from_vdp_3:
        jne  copy_map_rows_from_vdp_1
        .endproc
 *// copy_map_rows_from_vdp
+
+***************************************************************
+*
+* Update full name table
+*
+update_full_name_table:
+       .proc
+*      Dest
+       li   r1,nametb
+*      Source
+       mov  @scroll_x,r5               ; Column offset
+       srl  r5,3
+       li   r6,map_row_source_table
+*      Copy
+       li   r7,map_height
+update_full_name_table_1:
+       mov  *r6+,r0                    ; Row start
+       a    r5,r0                      ; Add column offset
+       li   r2,screen_width
+       bl   @vdp_to_vdp_copy_fast      ; Copy row
+       dec  r7
+       jne  update_full_name_table_1
+       .endproc
+*// update_full_name_table
+
+***************************************************************
+*
+* Get map char relative to ball
+*
+* r0: x offset in MSB
+* r1: y offset in MSB
+*
+get_map_char:
+       .proc
+       a    @ball_x,r0
+       a    @ball_y,r1
+       srl  r0,8                       ; To pixels
+       a    @scroll_x,r0               ; Add scroll offset
+       srl  r0,3                       ; To chars
+       srl  r1,11                      ; To chars
+       sla  r1,1                       ; To word
+       a    @map_row_source_table(r1),r0 ; Add row offset
+       bl   @vsbr
+       .endproc
+*// get_map_char
 
 ***************************************************************
 *
@@ -447,6 +635,83 @@ scroll_patterns_5:
 
 *********************************************************************
 *
+* Read character set from GROM
+*
+read_grom_chars:
+       .proc
+       li   r0,ptrntb+>300
+       li   r3,8
+read_grom_chars_1:
+       bl   @vwad
+       li   r4,charset
+       li   r5,32
+read_grom_chars_2:
+       clr  r1
+       movb *r4+,@r1lb
+       ai   r1,-32
+       mov  r1,r6
+       sla  r1,3
+       s    r6,r1
+       ai   r1,1716
+       movb r1,@grmwa
+       movb @r1lb,@grmwa
+       clr  *r15                       ; Top line
+       li   r2,7
+read_grom_chars_3:
+       movb @grmrd,*r15
+       dec  r2
+       jne  read_grom_chars_3
+       dec  r5
+       jne  read_grom_chars_2
+       ai   r0,>800
+       dec  r3
+       jne  read_grom_chars_1
+       .endproc
+*// read_grom_chars
+
+*********************************************************************************
+*
+* Display text to both name table buffers (slow)
+*
+* r0: VDP offset
+* r1: Points to zero terminated ascii text
+*
+display_text:
+       .proc
+       ai   r0,nametb
+       bl   @vwad
+       li   r2,buffer
+display_text_0:
+       movb *r1+,r4
+       jeq  display_text_4
+       li   r5,charset
+       clr  r6
+display_text_1:
+       cb   r4,*r5+
+       jeq  display_text_2
+       inc  r6
+       ci   r6,32
+       jlt  display_text_1
+       li   r6,chr_qst_mark
+       jmp  display_text_3
+display_text_2:
+       ai   r6,96
+display_text_3:
+       swpb r6
+       movb r6,*r15
+       movb r6,*r2+
+       jmp  display_text_0
+*      2nd name table buffer
+display_text_4:
+       ai   r0,namet2-nametb
+       li   r1,buffer
+       ai   r2,-buffer
+       bl   @vmbw
+       .endproc
+*// display_text
+
+*********************************************************************
+*
 * Set graphics mode
 *
 graphics_mode:
@@ -466,6 +731,10 @@ graphics_mode_1:
        li   r2,>4000
        bl   @vsmw
 *      Colors
+       li   r0,colrtb
+       li   r1,>f100
+       li   r2,32
+       bl   @vsmw
        li   r0,colrtb
        li   r1,CLRSET
        mov  @CLRNUM,r2
@@ -739,12 +1008,18 @@ map_row_source_table:
        data vmap2,vmap2+>100,vmap2+>200,vmap2+>300
        data vmap3,vmap3+>100,vmap3+>200,vmap3+>300
 
+title:
+       text "OBSTACLES COURSE"
+       byte 0
+       even
+
 *********************************************************************
 *
 * Includes
 *
        copy "unlz4FromToVdp.a99"
        copy "spritePatterns.a99"
+       copy "charset.a99"
 map1_chars:
        copy "map1-chars.a99"
 map1_lz4:

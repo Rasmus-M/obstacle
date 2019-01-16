@@ -169,7 +169,10 @@ loop:
        bl   @move_ball
        bl   @update_partial_name_table
        bl   @player_input
-       inc  @scroll_x
+       mov  @scroll_x,r0
+       inc  r0
+       andi r0,>07ff
+       mov  r0,@scroll_x
        jmp  loop
 
 ***************************************************************
@@ -273,8 +276,11 @@ move_ball:
        jne  move_ball_3
 *      Check y velocity
        mov  @ball_vy,r0
-       jlt  move_ball_1
+       jlt  move_ball_1                ; Moving up
+       li   r0,>800e
+       mov  r0,@ball_pattern
 *      Check char under ball
+move_ball_0:
        li   r0,>0800
        li   r1,>1000
        bl   @get_map_char
@@ -294,7 +300,7 @@ move_ball_2:
        andi r0,>f000
        mov  r0,@ball_y
        clr  @ball_vy
-       li   r0,animation_hit
+       li   r0,animation_land
        mov  r0,@ball_animation_ptr
        jmp  move_ball_5
 *      Animate
@@ -308,9 +314,11 @@ move_ball_4:
        clr  @ball_animation_ptr
 move_ball_5:
        .endproc
-animation_hit:
-       byte >84,>84,>88,>88,>84,>84,>80,>00
-
+animation_land:
+       byte >84,>84,>84
+       byte >88,>88,>88
+       byte >84,>84,>84
+       byte >80,>00,>00
 *// move_ball
 
 ***************************************************************
@@ -333,17 +341,30 @@ update_partial_name_table:
 *
 player_input:
        .proc
-       mov  @ball_jumping,r0
-       jne  player_input_1
        li   r0,JOY_FI
        bl   @check_key
        jeq  player_input_1
-       li   r0,->0300
-       mov  r0,@ball_vy
-       seto @ball_jumping
+       bl   @jump
 player_input_1:
        .endproc
 *// player_input
+
+***************************************************************
+*
+* Jump
+*
+jump:
+       .proc
+       mov  @ball_jumping,r0
+       jne  jump_1
+       li   r0,->0280
+       mov  r0,@ball_vy
+       li   r0,>8c0e
+       mov  r0,@ball_pattern
+       seto @ball_jumping
+jump_1:
+       .endproc
+*// jump
 
 *********************************************************************
 *

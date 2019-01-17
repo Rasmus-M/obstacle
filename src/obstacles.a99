@@ -87,8 +87,10 @@ scroll_x:
        equ  padvar
 ball_x:
        equ  scroll_x+2
-ball_y:
+ball_vx:
        equ  ball_x+2
+ball_y:
+       equ  ball_vx+2
 ball_vy:
        equ  ball_y+2
 ball_ay:
@@ -280,8 +282,11 @@ move_ball:
        movb r1,r1
        jeq  move_ball_6
        li   r0,->0100
-       a    r0,@ball_x
+       jmp  move_ball_7
 move_ball_6:
+       mov  @ball_vx,r0
+move_ball_7:
+       a    r0,@ball_x
 *      Check for animation
        mov  @ball_animation_ptr,r0
        jne  move_ball_3
@@ -384,6 +389,16 @@ player_input:
        jeq  player_input_1
        bl   @jump
 player_input_1:
+       clr  r1
+       tb   1
+       jeq  player_input_2
+       li   r1,->0180
+player_input_2:
+       tb   2
+       jeq  player_input_3
+       li   r1,>0080
+player_input_3:
+       mov  r1,@ball_vx
        .endproc
 *// player_input
 

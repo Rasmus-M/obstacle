@@ -187,7 +187,7 @@ init_game:
        bl   @read_grom_chars
        clr  @scroll_x
        bl   @update_full_name_table
-       li   r0,19*32+8
+       li   r0,23*32+8
        li   r1,title
        bl   @display_text
 *      Sprite patterns
@@ -196,12 +196,12 @@ init_game:
        li   r2,8*32
        bl   @vmbw
 *      Ball
-       li   r0,>6000
+       li   r0,>8000
        mov  r0,@ball_y
        clr  @ball_vy
        li   r0,>0018
        mov  r0,@ball_ay
-       li   r0,>3000
+       li   r0,>4000
        mov  r0,@ball_x
        li   r0,>800e
        mov  r0,@ball_pattern
@@ -339,6 +339,33 @@ animation_land:
 update_partial_name_table:
        .proc
        mov  @scroll_x,r6
+*      Ceiling and floor
+       mov  r6,r1
+       andi r1,>000f
+       sla  r1,1
+       mov  @floor_ceil_table(r1),r0
+       bl   @vwad
+       mov  r6,r1
+       andi r1,>0006
+       ai   r1,CEIL
+       mov  *r1,r2
+       mov  r6,r1
+       andi r1,>0008
+       jne  update_partial_name_table_0
+       swpb r2
+update_partial_name_table_0:
+       movb r2,r0
+       swpb r2
+       movb r2,r1
+       li   r2,4
+update_partial_name_table_1:
+       movb r0,*r15
+       movb r1,*r15
+       movb r0,*r15
+       movb r1,*r15
+       dec  r2
+       jne  update_partial_name_table_1
+*      Middle rows
        andi r6,>0007
        sla  r6,1
        li   r7,2
@@ -395,6 +422,7 @@ copy_map_rows_from_vdp:
        sla  r1,8
        ai   r1,nametb
        mov  r6,r0                      ; Row offset
+       inct r0                         ; Two rows offset
        sla  r0,5
        a    r0,r1
 *      Source
@@ -435,8 +463,21 @@ copy_map_rows_from_vdp_3:
 *
 update_full_name_table:
        .proc
+*      Ceiling and floor
+       li   r0,nametb
+       li   r3,CEIL
+       li   r4,2
+update_full_name_table_0:
+       bl   @vwad
+       mov  *r3+,r1
+       bl   @update_full_name_table_2
+       mov  *r3+,r1
+       bl   @update_full_name_table_2
+       ai   r0,>0240
+       dec  r4
+       jne  update_full_name_table_0
 *      Dest
-       li   r1,nametb
+       li   r1,nametb+>40
 *      Source
        mov  @scroll_x,r5               ; Column offset
        srl  r5,3
@@ -451,6 +492,14 @@ update_full_name_table_1:
        dec  r7
        jne  update_full_name_table_1
        .endproc
+update_full_name_table_2:
+       li   r2,16
+update_full_name_table_3:
+       movb r1,*r15
+       movb @r1lb,*r15
+       dec  r2
+       jne  update_full_name_table_3
+       rt
 *// update_full_name_table
 
 ***************************************************************
@@ -478,13 +527,24 @@ jump_1:
 * r1: y offset in MSB
 *
 get_map_char:
+       a    @ball_y,r1                 ; Add offset to y
+       srl  r1,11                      ; To chars
+       ci   r1,2                       ; Above map?
+       jhe  get_map_char_1
+       clr  r1                         ; Space
+       rt
+get_map_char_1:
+       dect r1                         ; Adjust for ceiling
+       ci   r1,map_height              ; Below map?
+       jl   get_map_char_2
+       li   r1,>0102                   ; Floor
+       rt
+get_map_char_2:
        a    @ball_x,r0                 ; Add offset to x
        srl  r0,8                       ; To pixels
        a    @scroll_x,r0               ; Add scroll offset
        srl  r0,3                       ; To chars
        andi r0,>00ff                   ; Wrap around
-       a    @ball_y,r1                 ; Add offset to y
-       srl  r1,11                      ; To chars
        sla  r1,1                       ; To word
        a    @map_row_table(r1),r0      ; Add row offset
        movb @r0lb,@vdpwa               ; Send low byte of VDP RAM read address
@@ -1020,7 +1080,7 @@ KEY_W  EQU  >0112
 KEY_X  EQU  >0114
 KEY_Y  EQU  >040A
 KEY_Z  EQU  >0514
-KEY_SP EQU  >0008
+hKEY_SP EQU  >0008
 KEY_EN EQU  >000A
 KEY_FN EQU  >000E
 KEY_SH EQU  >0010
@@ -1049,6 +1109,11 @@ map_row_table:
        data vmap1,vmap1+>100,vmap1+>200,vmap1+>300
        data vmap2,vmap2+>100,vmap2+>200,vmap2+>300
        data vmap3,vmap3+>100,vmap3+>200,vmap3+>300
+floor_ceil_table:
+       data namet2+>0000,namet2+>0010,namet2+>0020,namet2+>0030
+       data namet2+>0240,namet2+>0250,namet2+>0260,namet2+>0270
+       data nametb+>0000,nametb+>0010,nametb+>0020,nametb+>0030
+       data nametb+>0240,nametb+>0250,nametb+>0260,nametb+>0270
 
 title:
        text "OBSTACLES COURSE"

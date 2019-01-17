@@ -24,19 +24,19 @@ PAT19  DATA >0D0D,>0606,>0303,>0101    ; #13 (2A)
 PAT20  DATA >F0F0,>E0E0,>C0C0,>8080    ; #14 (2B)
 PAT21  DATA >0107,>0F0D,>1D15,>1514    ; #15 (30)
 PAT22  DATA >80E0,>F0B0,>B898,>9818    ; #16 (31)
-PAT23  DATA >1010,>9090,>9094,>9494    ; #17 (34)
+PAT23  DATA >1010,>9090,>9094,>9494    ; #17 (32)
 PAT24  DATA >141D,>151D,>0D0F,>0701    ; #18 (38)
 PAT25  DATA >1898,>98B8,>B0F0,>E080    ; #19 (39)
-PAT26  DATA >94D4,>D6D6,>D6DE,>DEFF    ; #1A (3C)
+PAT26  DATA >94D4,>D6D6,>D6DE,>DEFF    ; #1A (3A)
 PAT27  DATA >FF80,>BFBF,>BFBF,>BFFF    ; #1B (40)
 PAT28  DATA >FF00,>FFFF,>FFFF,>FFFF    ; #1C (41)
 PAT29  DATA >FF01,>FDFF,>F5FF,>55FF    ; #1D (42)
-PAT30  DATA >0101,>0103,>030F,>FF3D    ; #1E (43) star
+PAT30  DATA >0101,>0103,>030F,>FF3D    ; #1E (43)
 PAT31  DATA >0000,>0080,>80E0,>FE78    ; #1F (44)
 PAT32  DATA >FF57,>5545,>0101,>0000    ; #20 (48)
 PAT33  DATA >FF57,>5555,>5111,>1110    ; #21 (49)
 PAT34  DATA >FF75,>5551,>4040,>0000    ; #22 (4A)
-PAT35  DATA >0E05,>0F1F,>1E38,>2000    ; #23 (4B) star
+PAT35  DATA >0E05,>0F1F,>1E38,>2000    ; #23 (4B)
 PAT36  DATA >E040,>E0F0,>F038,>0800    ; #24 (4C)
 ****************************************
 * Colorset Definitions
@@ -144,3 +144,5 @@ TCHARS BYTE >00,>00                    ; #00 color 2/1
        BYTE >00,>17                    ; #5C color F/1
        BYTE >17,>17                    ; #5D color F/1
        BYTE >17,>00                    ; #5E color F/1
+CEIL   BYTE >10,>11,>08,>09
+FLOOR  BYTE >01,>02,>48,>49

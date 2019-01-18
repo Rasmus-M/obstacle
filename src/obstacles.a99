@@ -318,23 +318,13 @@ move_ball_0:
        li   r1,>1000
        bl   @get_map_char
        movb r1,r1
-       jne  move_ball_2
+       jeq  move_ball_1
+       bl   @check_coinc_below
+       jmp  move_ball_5
 *      Move with acceleration
 move_ball_1:
        a    @ball_ay,@ball_vy
        a    @ball_vy,@ball_y
-       jmp  move_ball_5
-*      Hit the floor
-move_ball_2:
-       mov  @ball_vy,r0
-       jeq  move_ball_5
-       clr  @ball_jumping
-       mov  @ball_y,r0
-       andi r0,>f000
-       mov  r0,@ball_y
-       clr  @ball_vy
-       li   r0,animation_land
-       mov  r0,@ball_animation_ptr
        jmp  move_ball_5
 *      Animate
 move_ball_3:
@@ -378,6 +368,29 @@ check_coinc_right_1:
 check_coinc_right_10:
        .endproc
 *// check_coinc_right
+
+***************************************************************
+*
+* Check collision below the ball
+*
+* r1: MSB contains collision char
+*
+* On return r0 contains the value to be added to @ball_x
+*
+check_coinc_below:
+       .proc
+       mov  @ball_vy,r0
+       jeq  check_coinc_below_1
+       clr  @ball_jumping
+       mov  @ball_y,r0
+       andi r0,>f000
+       mov  r0,@ball_y
+       clr  @ball_vy
+       li   r0,animation_land
+       mov  r0,@ball_animation_ptr
+check_coinc_below_1:
+       .endproc
+*// check_coinc_below
 
 ***************************************************************
 *

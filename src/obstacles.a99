@@ -61,6 +61,17 @@ log_2_buffer_size:
 chr_qst_mark:
        equ  112
 
+chr_space:
+       equ  0
+chr_star_tl:
+       equ  30
+chr_star_tr:
+       equ  31
+chr_star_bl:
+       equ  35
+chr_star_br:
+       equ  36
+
 **
 * Scratch pad
 *
@@ -281,7 +292,7 @@ move_ball:
        bl   @get_map_char
        movb r1,r1
        jeq  move_ball_6
-       li   r0,->0100
+       bl   @check_coinc_right
        jmp  move_ball_7
 move_ball_6:
        mov  @ball_vx,r0
@@ -342,6 +353,52 @@ animation_land:
        byte >84,>84,>84
        byte >80,>00,>00
 *// move_ball
+
+***************************************************************
+*
+* Check collision to the right of ball
+*
+* r1: MSB contains collision char
+*
+* On return r0 contains the value to be added to @ball_x
+*
+check_coinc_right:
+       .proc
+       cb   r1,@byte_star_tl
+       jeq  check_coinc_right_1
+       cb   r1,@byte_star_bl
+       jeq  check_coinc_right_1
+       li   r0,->0100
+       jmp  check_coinc_right_10
+*      Collision with star
+check_coinc_right_1:
+       bl   @remove_meta_tile
+       clr  r0
+       jmp  check_coinc_right_10
+check_coinc_right_10:
+       .endproc
+*// check_coinc_right
+
+***************************************************************
+*
+* Remove meta tile from map
+*
+* r0: VDP address of metatile to remove
+*
+remove_meta_tile:
+       .proc
+       dec  r0
+       bl   @vwad
+       clr  *r15
+       clr  *r15
+       clr  *r15
+       ai   r0,>100
+       bl   @vwad
+       clr  *r15
+       clr  *r15
+       clr  *r15
+       .endproc
+*// remove_meta_tile
 
 ***************************************************************
 *
@@ -547,6 +604,9 @@ jump:
 * r0: x offset in MSB
 * r1: y offset in MSB
 *
+* On return r1 contains the from/to characters at position
+* and r0 contains the VDP address of the metatile containing the character
+*
 get_map_char:
        a    @ball_y,r1                 ; Add offset to y
        srl  r1,11                      ; To chars
@@ -570,7 +630,7 @@ get_map_char_2:
        a    @map_row_table(r1),r0      ; Add row offset
        movb @r0lb,@vdpwa               ; Send low byte of VDP RAM read address
        movb r0,@vdpwa                  ; Send high byte of VDP RAM read address
-       nop                             ; Wait
+       andi r0,>3efe                   ; Adjust to metatile
        movb *r14,r1                    ; Read byte from VDP RAM
        srl  r1,8                       ; To LSB
        sla  r1,1                       ; To word
@@ -1140,6 +1200,17 @@ title:
        text "OBSTACLES COURSE"
        byte 0
        even
+
+byte_space:
+       byte chr_space
+byte_star_tl:
+       byte chr_star_tl
+byte_star_tr:
+       byte chr_star_tr
+byte_star_bl:
+       byte chr_star_bl
+byte_star_br:
+       byte chr_star_br
 
 *********************************************************************
 *

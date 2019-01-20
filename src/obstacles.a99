@@ -309,24 +309,35 @@ move_ball_8:
        jne  move_ball_3
 *      Check y velocity
        mov  @ball_vy,r0
-       jlt  move_ball_1                ; Moving up
+       jeq  move_ball_9
+       jlt  move_ball_1
+*      Moving down
        li   r0,>800e
        mov  r0,@ball_pattern
-*      Check char under ball
-move_ball_0:
+*      Check char below ball
        li   r0,>0a00
        li   r1,>1000
        bl   @get_map_char
        movb r1,r1
-       jeq  move_ball_1
+       jeq  move_ball_9
        bl   @check_coinc_below
        jmp  move_ball_5
-*      Move with acceleration
+*      Moving up
+*      Check char above ball
 move_ball_1:
+       li   r0,>0a00
+       li   r1,->0100
+       bl   @get_map_char
+       movb r1,r1
+       jeq  move_ball_9
+       bl   @check_coinc_above
+       jmp  move_ball_5
+*      Move with y acceleration
+move_ball_9:
        a    @ball_ay,@ball_vy
        a    @ball_vy,@ball_y
        jmp  move_ball_5
-*      Animate
+*      Animate landing
 move_ball_3:
        movb *r0+,r1
        jeq  move_ball_4
@@ -358,6 +369,7 @@ check_coinc_right:
        jeq  check_coinc_right_1
        cb   r1,@byte_star_bl
        jeq  check_coinc_right_1
+*      Other collision - stop ball
        li   r0,->0100
        jmp  check_coinc_right_10
 *      Collision with star
@@ -365,6 +377,7 @@ check_coinc_right_1:
        bl   @remove_meta_tile
        clr  r0
        jmp  check_coinc_right_10
+*      todo
 check_coinc_right_10:
        .endproc
 *// check_coinc_right
@@ -375,11 +388,9 @@ check_coinc_right_10:
 *
 * r1: MSB contains collision char
 *
-* On return r0 contains the value to be added to @ball_x
-*
 check_coinc_below:
        .proc
-       mov  @ball_vy,r0
+       mov  @ball_jumping,r0
        jeq  check_coinc_below_1
        clr  @ball_jumping
        mov  @ball_y,r0
@@ -391,6 +402,30 @@ check_coinc_below:
 check_coinc_below_1:
        .endproc
 *// check_coinc_below
+
+***************************************************************
+*
+* Check collision above the ball
+*
+* r1: MSB contains collision char
+*
+check_coinc_above:
+       .proc
+       cb   r1,@byte_star_bl
+       jeq  check_coinc_above_1
+       cb   r1,@byte_star_br
+       jeq  check_coinc_above_1
+*      Other collision
+       clr  @ball_vy
+       jmp  check_coinc_above_10
+*      Collision with star
+check_coinc_above_1:
+       bl   @remove_meta_tile
+       jmp  check_coinc_above_10
+*      todo
+check_coinc_above_10:
+       .endproc
+*// check_coinc_above
 
 ***************************************************************
 *

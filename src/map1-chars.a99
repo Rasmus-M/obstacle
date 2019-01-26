@@ -31,13 +31,13 @@ PAT26  DATA >94D4,>D6D6,>D6DE,>DEFF    ; #1A (3A)
 PAT27  DATA >FF80,>BFBF,>BFBF,>BFFF    ; #1B (40)
 PAT28  DATA >FF00,>FFFF,>FFFF,>FFFF    ; #1C (41)
 PAT29  DATA >FF01,>FDFF,>F5FF,>55FF    ; #1D (42)
-PAT30  DATA >0101,>0103,>030F,>FF3D    ; #1E (43)
-PAT31  DATA >0000,>0080,>80E0,>FE78    ; #1F (44)
+PAT30  DATA >0101,>0103,>030F,>FF3D    ; #1E (43) star
+PAT31  DATA >0000,>0080,>80E0,>FE78    ; #1F (44) star
 PAT32  DATA >FF57,>5545,>0101,>0000    ; #20 (48)
 PAT33  DATA >FF57,>5555,>5111,>1110    ; #21 (49)
 PAT34  DATA >FF75,>5551,>4040,>0000    ; #22 (4A)
-PAT35  DATA >0E05,>0F1F,>1E38,>2000    ; #23 (4B)
-PAT36  DATA >E040,>E0F0,>F038,>0800    ; #24 (4C)
+PAT35  DATA >0E05,>0F1F,>1E38,>2000    ; #23 (4B) star
+PAT36  DATA >E040,>E0F0,>F038,>0800    ; #24 (4C) star
 ****************************************
 * Colorset Definitions
 ****************************************
@@ -89,9 +89,9 @@ TCHARS BYTE >00,>00                    ; #00 color 2/1
        BYTE >0D,>0E                    ; #25 color 8/1
        BYTE >0E,>00                    ; #26 color 8/1
        BYTE >0E,>0D                    ; #27 color 8/1
-       BYTE >00,>23                    ; #28 color A/1
-       BYTE >23,>24                    ; #29 color A/1
-       BYTE >24,>00                    ; #2A color A/1
+       BYTE >00,>23                    ; #28 color A/1 star
+       BYTE >23,>24                    ; #29 color A/1 star
+       BYTE >24,>00                    ; #2A color A/1 star
        BYTE >00,>20                    ; #2B color A/1
        BYTE >20,>21                    ; #2C color A/1
        BYTE >21,>21                    ; #2D color A/1
@@ -105,9 +105,9 @@ TCHARS BYTE >00,>00                    ; #00 color 2/1
        BYTE >FF,>FF                    ; #35 unused
        BYTE >FF,>FF                    ; #36 unused
        BYTE >FF,>FF                    ; #37 unused
-       BYTE >00,>1E                    ; #38 color B/1
-       BYTE >1E,>1F                    ; #39 color B/1
-       BYTE >1F,>00                    ; #3A color B/1
+       BYTE >00,>1E                    ; #38 color B/1 star
+       BYTE >1E,>1F                    ; #39 color B/1 star
+       BYTE >1F,>00                    ; #3A color B/1 star
        BYTE >00,>1B                    ; #3B color B/1
        BYTE >1B,>1C                    ; #3C color B/1
        BYTE >1C,>1C                    ; #3D color B/1

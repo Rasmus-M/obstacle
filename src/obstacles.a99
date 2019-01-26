@@ -333,12 +333,13 @@ move_ball_8:
        jne  move_ball_3
 *      Check y velocity
        mov  @ball_vy,r0
-       jeq  move_ball_9
+       jeq  move_ball_11
        jlt  move_ball_1
 *      Moving down
        li   r0,>800e
        mov  r0,@ball_pattern
 *      Check char below ball
+move_ball_11:
        li   r0,>0800
        li   r1,>1000
        bl   @get_map_char
@@ -438,13 +439,14 @@ check_coinc_left_10:
 *
 check_coinc_below:
        .proc
+       mov  @ball_y,r0
+       andi r0,>f000                   ; Align to character
+       mov  r0,@ball_y
+       clr  @ball_vy
+*      If jumping then play animation
        mov  @ball_jumping,r0
        jeq  check_coinc_below_1
        clr  @ball_jumping
-       mov  @ball_y,r0
-       andi r0,>f000
-       mov  r0,@ball_y
-       clr  @ball_vy
        li   r0,animation_land
        mov  r0,@ball_animation_ptr
 check_coinc_below_1:

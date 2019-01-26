@@ -398,7 +398,7 @@ check_coinc_right:
        jmp  check_coinc_right_10
 *      Collision with star
 check_coinc_right_1:
-       bl   @remove_meta_tile
+       bl   @collect_star
        jmp  check_coinc_right_10
 *      todo
 check_coinc_right_10:
@@ -423,7 +423,7 @@ check_coinc_left:
        jmp  check_coinc_left_10
 *      Collision with star
 check_coinc_left_1:
-       bl   @remove_meta_tile
+       bl   @collect_star
        jmp  check_coinc_left_10
 *      todo
 check_coinc_left_10:
@@ -471,33 +471,12 @@ check_coinc_above:
        jmp  check_coinc_above_10
 *      Collision with star
 check_coinc_above_1:
-       bl   @remove_meta_tile
+       bl   @collect_star
        jmp  check_coinc_above_10
 *      todo
 check_coinc_above_10:
        .endproc
 *// check_coinc_above
-
-***************************************************************
-*
-* Remove meta tile from map
-*
-* r0: VDP address of metatile to remove
-*
-remove_meta_tile:
-       .proc
-       dec  r0
-       bl   @vwad
-       clr  *r15
-       clr  *r15
-       clr  *r15
-       ai   r0,>100
-       bl   @vwad
-       clr  *r15
-       clr  *r15
-       clr  *r15
-       .endproc
-*// remove_meta_tile
 
 ***************************************************************
 *
@@ -699,6 +678,16 @@ jump:
 
 ***************************************************************
 *
+* Collect a star
+*
+collect_star:
+       .proc
+       bl   @remove_meta_tile
+       .endproc
+*// collect_star
+
+***************************************************************
+*
 * Get map char relative to ball
 *
 * r0: x offset in MSB
@@ -737,6 +726,27 @@ get_map_char_2:
        mov  @TCHARS(r1),r1             ; Get from/to chars
        rt
 *// get_map_char
+
+***************************************************************
+*
+* Remove meta tile from map
+*
+* r0: VDP address of metatile to remove
+*
+remove_meta_tile:
+       .proc
+       dec  r0
+       bl   @vwad
+       clr  *r15
+       clr  *r15
+       clr  *r15
+       ai   r0,>100
+       bl   @vwad
+       clr  *r15
+       clr  *r15
+       clr  *r15
+       .endproc
+*// remove_meta_tile
 
 ***************************************************************
 *

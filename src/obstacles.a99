@@ -119,8 +119,40 @@ points_sprite_yx:
        equ  ball_animation_ptr+2
 points_sprite_pattern:
        equ  points_sprite_yx+2
-buffer:
+sfx_addr_1:                            ; Sound fx address channel 1
        equ  points_sprite_pattern+2
+sfx_addr_2:                            ; Sound fx address channel 2
+       equ  sfx_addr_1+2
+sfx_addr_3:                            ; Sound fx address channel 3
+       equ  sfx_addr_2+2
+sfx_addr_4:                            ; Sound fx address channel 4
+       equ  sfx_addr_3+2
+sfx_duration_1:                        ; Sound fx counter channel 1
+       equ  sfx_addr_4+2
+sfx_duration_2:                        ; Sound fx counter channel 2
+       equ  sfx_duration_1+2
+sfx_duration_3:                        ; Sound fx counter channel 3
+       equ  sfx_duration_2+2
+sfx_duration_4:                        ; Sound fx counter channel 4
+       equ  sfx_duration_3+2
+sfx_attn_1:                            ; Sound fx attenuation channel 1
+       equ  sfx_duration_4+2
+sfx_attn_2:                            ; Sound fx attenuation channel 2
+       equ  sfx_attn_1+2
+sfx_attn_3:                            ; Sound fx attenuation channel 3
+       equ  sfx_attn_2+2
+sfx_attn_4:                            ; Sound fx attenuation channel 4
+       equ  sfx_attn_3+2
+sfx_freq_1:                            ; Sound fx frequency channel 1
+       equ  sfx_attn_4+2
+sfx_freq_2:                            ; Sound fx frequency channel 2
+       equ  sfx_freq_1+2
+sfx_freq_3:                            ; Sound fx frequency channel 3
+       equ  sfx_freq_2+2
+sfx_freq_4:                            ; Sound fx frequency channel 4
+       equ  sfx_freq_3+2
+buffer:
+       equ  sfx_freq_4+2
 pad_max:
        equ  buffer+buffer_size
 
@@ -178,18 +210,18 @@ main:
        limi 0                          ; Interrupts off
        lwpi wrksp                      ; Setup workspace
        li   r10,stack                  ; Setup stack pointer
-       li   r14,vdprd                  ; Do not change
-       li   r15,vdpwd                  ; Do not change
-       bl   @graphics_mode
+       bl   @one_time_init
        bl   @init_game
 loop:
        bl   @vsync
        bl   @update_vdp_regs
-       bl   @update_sprites
+       bl   @upload_sprites
        bl   @move_ball
+       bl   @move_other_sprites
        bl   @update_partial_name_table
        bl   @player_input
        bl   @check_quit
+       bl   @sfx_player
        mov  @frame,r0
        andi r0,0
        jne  !
@@ -200,21 +232,40 @@ loop:
 !      inc  @frame
        jmp  loop
 
+*********************************************************************
+*
+* One time initializations
+*
+one_time_init:
+       .proc
+       li   r14,vdprd                  ; Do not change
+       li   r15,vdpwd                  ; Do not change
+*      Graphics mode
+       bl   @graphics_mode
+       .endproc
+*// one_time_init
+
 ***************************************************************
 *
 * Initialize game
 *
 init_game:
        .proc
+*      Scratch pad variables
+       li   r0,padvar
+       li   r2,pad_max-padvar
+one_time_init_1:
+       clr  *r0+
+       dect r2
+       jne  one_time_init_1
+*      Setup display
        bl   @copy_map_to_vdp
        bl   @scroll_patterns
        bl   @read_grom_chars
-       clr  @scroll_x
        bl   @update_full_name_table
        li   r0,23*32+8
        li   r1,title
        bl   @display_text
-       clr  @frame
 *      Sprite patterns
        li   r0,sprptb+>400
        li   r1,SPR0
@@ -223,15 +274,12 @@ init_game:
 *      Ball
        li   r0,>8000
        mov  r0,@ball_y
-       clr  @ball_vy
        li   r0,>0018
        mov  r0,@ball_ay
        li   r0,>4000
        mov  r0,@ball_x
        li   r0,>800e
        mov  r0,@ball_pattern
-       clr  @ball_jumping
-       clr  @ball_animation_ptr
        .endproc
 *// init_game
 
@@ -271,9 +319,9 @@ update_vdp_regs:
 
 ***************************************************************
 *
-* Update sprites
+* Upload sprites to VDP
 *
-update_sprites:
+upload_sprites:
        .proc
        li   r0,spratb
        bl   @vwad
@@ -290,7 +338,7 @@ update_sprites:
        movb r1,*r15
        movb @r1lb,*r15
        .endproc
-*// update_sprites
+*// upload_sprites
 
 ***************************************************************
 *
@@ -382,101 +430,13 @@ animation_land:
 
 ***************************************************************
 *
-* Check collision to the right of ball
+* Move other sprites than the ball
 *
-* r0: VDP address of collision char
-* r1: MSB contains collision char
-*
-check_coinc_right:
+move_other_sprites:
        .proc
-       cb   r1,@byte_star_tl
-       jeq  check_coinc_right_1
-       cb   r1,@byte_star_bl
-       jeq  check_coinc_right_1
-*      Other collision - stop ball
-       clr  @ball_vx
-       jmp  check_coinc_right_10
-*      Collision with star
-check_coinc_right_1:
-       bl   @collect_star
-       jmp  check_coinc_right_10
-*      todo
-check_coinc_right_10:
-       .endproc
-*// check_coinc_right
 
-***************************************************************
-*
-* Check collision to the left of ball
-*
-* r0: VDP address of collision char
-* r1: MSB contains collision char
-*
-check_coinc_left:
-       .proc
-       cb   r1,@byte_star_tr
-       jeq  check_coinc_left_1
-       cb   r1,@byte_star_br
-       jeq  check_coinc_left_1
-*      Other collision - stop ball
-       clr  @ball_vx
-       jmp  check_coinc_left_10
-*      Collision with star
-check_coinc_left_1:
-       bl   @collect_star
-       jmp  check_coinc_left_10
-*      todo
-check_coinc_left_10:
        .endproc
-*// check_coinc_left
-
-***************************************************************
-*
-* Check collision below the ball
-*
-* r0: VDP address of collision char
-* r1: MSB contains collision char
-*
-check_coinc_below:
-       .proc
-       mov  @ball_y,r0
-       andi r0,>f000                   ; Align to character
-       mov  r0,@ball_y
-       clr  @ball_vy
-*      If jumping then play animation
-       mov  @ball_jumping,r0
-       jeq  check_coinc_below_1
-       clr  @ball_jumping
-       li   r0,animation_land
-       mov  r0,@ball_animation_ptr
-check_coinc_below_1:
-       .endproc
-*// check_coinc_below
-
-***************************************************************
-*
-* Check collision above the ball
-*
-* r0: VDP address of collision char
-* r1: MSB contains collision char
-*
-check_coinc_above:
-       .proc
-       cb   r1,@byte_star_bl
-       jeq  check_coinc_above_1
-       cb   r1,@byte_star_br
-       jeq  check_coinc_above_1
-*      Other collision
-       clr  @ball_vy
-       jmp  check_coinc_above_10
-*      Collision with star
-check_coinc_above_1:
-       bl   @collect_star
-       jmp  check_coinc_above_10
-*      todo
-check_coinc_above_10:
-       .endproc
-*// check_coinc_above
+*// move_other_sprites
 
 ***************************************************************
 *
@@ -664,6 +624,104 @@ update_full_name_table_3:
 
 ***************************************************************
 *
+* Check collision to the right of ball
+*
+* r0: VDP address of collision char
+* r1: MSB contains collision char
+*
+check_coinc_right:
+       .proc
+       cb   r1,@byte_star_tl
+       jeq  check_coinc_right_1
+       cb   r1,@byte_star_bl
+       jeq  check_coinc_right_1
+*      Other collision - stop ball
+       clr  @ball_vx
+       jmp  check_coinc_right_10
+*      Collision with star
+check_coinc_right_1:
+       bl   @collect_star
+       jmp  check_coinc_right_10
+*      todo
+check_coinc_right_10:
+       .endproc
+*// check_coinc_right
+
+***************************************************************
+*
+* Check collision to the left of ball
+*
+* r0: VDP address of collision char
+* r1: MSB contains collision char
+*
+check_coinc_left:
+       .proc
+       cb   r1,@byte_star_tr
+       jeq  check_coinc_left_1
+       cb   r1,@byte_star_br
+       jeq  check_coinc_left_1
+*      Other collision - stop ball
+       clr  @ball_vx
+       jmp  check_coinc_left_10
+*      Collision with star
+check_coinc_left_1:
+       bl   @collect_star
+       jmp  check_coinc_left_10
+*      todo
+check_coinc_left_10:
+       .endproc
+*// check_coinc_left
+
+***************************************************************
+*
+* Check collision below the ball
+*
+* r0: VDP address of collision char
+* r1: MSB contains collision char
+*
+check_coinc_below:
+       .proc
+       mov  @ball_y,r0
+       andi r0,>f000                   ; Align to character
+       mov  r0,@ball_y
+       clr  @ball_vy
+*      If jumping then play animation
+       mov  @ball_jumping,r0
+       jeq  check_coinc_below_1
+       clr  @ball_jumping
+       li   r0,animation_land
+       mov  r0,@ball_animation_ptr
+check_coinc_below_1:
+       .endproc
+*// check_coinc_below
+
+***************************************************************
+*
+* Check collision above the ball
+*
+* r0: VDP address of collision char
+* r1: MSB contains collision char
+*
+check_coinc_above:
+       .proc
+       cb   r1,@byte_star_bl
+       jeq  check_coinc_above_1
+       cb   r1,@byte_star_br
+       jeq  check_coinc_above_1
+*      Other collision
+       clr  @ball_vy
+       jmp  check_coinc_above_10
+*      Collision with star
+check_coinc_above_1:
+       bl   @collect_star
+       jmp  check_coinc_above_10
+*      todo
+check_coinc_above_10:
+       .endproc
+*// check_coinc_above
+
+***************************************************************
+*
 * Init jump
 *
 jump:
@@ -683,6 +741,7 @@ jump:
 collect_star:
        .proc
        bl   @remove_meta_tile
+       bl   @play_pick_up
        .endproc
 *// collect_star
 
@@ -1327,6 +1386,7 @@ byte_star_br:
 * Includes
 *
        copy "unlz4FromToVdp.a99"
+       copy "sound.a99"
        copy "spritePatterns.a99"
        copy "charset.a99"
 map1_chars:

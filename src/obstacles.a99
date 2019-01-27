@@ -99,8 +99,10 @@ padvar equ  stack+>10                  ; Start of pad variables
 *
 frame:
        equ  padvar
-scroll_x:                              ; Scroll offset in FP 12.4
+status:
        equ  frame+2
+scroll_x:                              ; Scroll offset in FP 12.4
+       equ  status+2
 scroll_x_pixels:                       ; Scroll offset in pixels
        equ  scroll_x+2
 scroll_vx:                             ; FP 8.8
@@ -219,6 +221,7 @@ main:
        lwpi wrksp                      ; Setup workspace
        li   r10,stack                  ; Setup stack pointer
        bl   @one_time_init
+new_game:
        bl   @init_game
 loop:
        bl   @vsync
@@ -231,6 +234,8 @@ loop:
        bl   @check_quit
        bl   @sfx_player
        bl   @scroll
+       mov  @status,r0
+       jlt  new_game
        inc  @frame
        jmp  loop
 
@@ -253,6 +258,9 @@ one_time_init:
 *
 init_game:
        .proc
+*      Screen off
+       li   r0,>01a2
+       bl   @vwtr
 *      Scratch pad variables
        li   r0,padvar
        li   r2,pad_max-padvar
@@ -285,6 +293,9 @@ one_time_init_1:
 *      Misc
        li   r0,scroll_speed
        mov  r0,@scroll_vx
+*      Screen on
+       li   r0,>01e2
+       bl   @vwtr
        .endproc
 *// init_game
 
@@ -688,6 +699,10 @@ check_coinc_right:
        jeq  check_coinc_right_1
 *      Other collision - stop ball
        clr  @ball_vx
+       mov  @ball_x,r0
+       andi r0,>ff00
+       jne  check_coinc_right_10
+       seto @status
        jmp  check_coinc_right_10
 *      Collision with star
 check_coinc_right_1:

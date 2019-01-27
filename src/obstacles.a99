@@ -97,36 +97,36 @@ padvar equ  stack+>10                  ; Start of pad variables
 *
 frame:
        equ  padvar
-scroll_x:
+scroll_x:                              ; Scroll offset in FP 12.4
        equ  frame+2
-scroll_speed:
+scroll_x_pixels:                       ; Scroll offset in pixels
        equ  scroll_x+2
-ball_x:
-       equ  scroll_speed+2
-ball_vx:
+scroll_vx:                             ; FP 8.8
+       equ  scroll_x_pixels+2
+ball_x:                                ; FP 8.8
+       equ  scroll_vx+2
+ball_vx:                               ; FP 8.8
        equ  ball_x+2
-ball_y:
+ball_y:                                ; FP 8.8
        equ  ball_vx+2
-ball_vy:
+ball_vy:                               ; FP 8.8
        equ  ball_y+2
-ball_ay:
+ball_ay:                               ; FP 8.8
        equ  ball_vy+2
-ball_pattern:
+ball_pattern_color:
        equ  ball_ay+2
 ball_jumping:
-       equ  ball_pattern+2
+       equ  ball_pattern_color+2
 ball_animation_ptr:
        equ  ball_jumping+2
 points_sprite_y:
        equ  ball_animation_ptr+2
 points_sprite_x:
-       equ  points_sprite_y+1
-points_sprite_pattern:
-       equ  points_sprite_x+1
-points_sprite_color:
-       equ  points_sprite_pattern+1
+       equ  points_sprite_y+2
+points_sprite_pattern_color:
+       equ  points_sprite_x+2
 sfx_addr_1:                            ; Sound fx address channel 1
-       equ  points_sprite_color+1
+       equ  points_sprite_pattern_color+2
 sfx_addr_2:                            ; Sound fx address channel 2
        equ  sfx_addr_1+2
 sfx_addr_3:                            ; Sound fx address channel 3
@@ -230,14 +230,8 @@ loop:
        bl   @player_input
        bl   @check_quit
        bl   @sfx_player
-       mov  @frame,r0
-       andi r0,0
-       jne  !
-       mov  @scroll_x,r0
-       inc  r0
-       andi r0,>07ff
-       mov  r0,@scroll_x
-!      inc  @frame
+       bl   @scroll
+       inc  @frame
        jmp  loop
 
 *********************************************************************
@@ -287,7 +281,10 @@ one_time_init_1:
        li   r0,>4000
        mov  r0,@ball_x
        li   r0,>800e
-       mov  r0,@ball_pattern
+       mov  r0,@ball_pattern_color
+*      Misc
+       li   r0,>0100
+       mov  r0,@scroll_vx
        .endproc
 *// init_game
 
@@ -311,12 +308,12 @@ vsync_1:
 update_vdp_regs:
        .proc
 *      Set pattern table
-       mov  @scroll_x,r0
+       mov  @scroll_x_pixels,r0
        andi r0,>0007
        ori  r0,>0400
        bl   @vwtr
 *      Set name table
-       mov  @scroll_x,r0
+       mov  @scroll_x_pixels,r0
        andi r0,>0008
        srl  r0,2
        inc  r0
@@ -336,7 +333,7 @@ upload_sprites:
 *      Ball
        mov  @ball_y,r0
        ai   r0,->0100
-       mov  @ball_pattern,r1
+       mov  @ball_pattern_color,r1
        movb r0,*r15
        movb @ball_x,*r15
        movb r1,*r15
@@ -348,11 +345,11 @@ upload_sprites:
        movb @r1lb,*r15
 *      Points
        li   r0,points_sprite_y
-       movb *r0+,r1
+       mov  *r0+,r1
        jeq  upload_sprites_1
        ai   r1,->0100
        movb r1,*r15                    ; y
-       movb *r0+,*r15                  ; x
+       mov  *r0+,*r15                  ; x
        movb *r0+,*r15                  ; Pattern
        movb *r0,*r15                   ; Color
 *      End marker
@@ -390,7 +387,7 @@ move_ball_10:
 *      Move x
 move_ball_6:
        mov  @ball_vx,r0
-       ai   r0,->0100                  ; Movement from scrolling
+       s    @scroll_vx,r0              ; Movement from scrolling
        mov  @ball_x,r1
        a    r0,r1
        ci   r1,->0400                  ; Check for out of acreen left
@@ -407,7 +404,7 @@ move_ball_8:
        jlt  move_ball_1
 *      Moving down
        li   r0,>800e
-       mov  r0,@ball_pattern
+       mov  r0,@ball_pattern_color
 *      Check char below ball
 move_ball_11:
        li   r0,>0800
@@ -436,7 +433,7 @@ move_ball_9:
 move_ball_3:
        movb *r0+,r1
        jeq  move_ball_4
-       movb r1,@ball_pattern
+       movb r1,@ball_pattern_color
        mov  r0,@ball_animation_ptr
        jmp  move_ball_5
 move_ball_4:
@@ -452,16 +449,16 @@ move_ball_5:
 move_other_sprites:
        .proc
 *      Points sprite
-       movb @points_sprite_y,r0
+       mov  @points_sprite_y,r0
        jeq  move_other_sprites_1
        ci   r0,>1000
        jl   move_other_sprites_2
        ai   r0,->0100
-       movb r0,@points_sprite_y
-       movb @points_sprite_x,r0
+       mov  r0,@points_sprite_y
+       mov  @points_sprite_x,r0
        jeq  move_other_sprites_2
-       ai   r0,->0100
-       movb r0,@points_sprite_x
+       s    @scroll_vx,r0
+       mov  r0,@points_sprite_x
        jmp  move_other_sprites_1
 move_other_sprites_2:
        clr  @points_sprite_y
@@ -475,7 +472,7 @@ move_other_sprites_1:
 *
 update_partial_name_table:
        .proc
-       mov  @scroll_x,r6
+       mov  @scroll_x_pixels,r6
 *      Ceiling and floor
        mov  r6,r1
        andi r1,>000f
@@ -523,13 +520,14 @@ player_input:
        jne  player_input_1
        bl   @jump
 player_input_1:
-       li   r1,>0100                   ; Default speed
-       tb   1
+       mov  @scroll_vx,r1              ; Default speed
+       tb   1                          ; Left
        jeq  player_input_2
-       ai   r1,->0180
+       s    @scroll_vx,r1
+       ai   r1,->0080
        jmp  player_input_3
 player_input_2:
-       tb   2
+       tb   2                          ; Right
        jeq  player_input_3
        ai   r1,>0080
 player_input_3:
@@ -559,6 +557,21 @@ quit   clr  @>83c4                     ; Reset user ISR address
 
 ***************************************************************
 *
+* Update scrolling veriables
+*
+scroll:
+       mov  @scroll_x,r0
+       mov  @scroll_vx,r1
+       sra  r1,4
+       a    r1,r0
+       mov  r0,@scroll_x
+       srl  r0,4
+       mov  r0,@scroll_x_pixels
+       rt
+*// scroll
+
+***************************************************************
+*
 * Copy map rows from VDP RAM
 *
 * r6: Start row number to copy
@@ -567,7 +580,7 @@ quit   clr  @>83c4                     ; Reset user ISR address
 copy_map_rows_from_vdp:
        .proc
 *      Dest
-       mov  @scroll_x,r1               ; Calculate current name table address
+       mov  @scroll_x_pixels,r1        ; Calculate current name table address
        inv  r1
        andi r1,>0008
        sla  r1,8
@@ -577,7 +590,7 @@ copy_map_rows_from_vdp:
        sla  r0,5
        a    r0,r1
 *      Source
-       mov  @scroll_x,r5               ; Column offset
+       mov  @scroll_x_pixels,r5        ; Column offset
        srl  r5,3
        inc  r5                         ; Plus one
        andi r5,map_width-1             ; Wrap at 256 columns
@@ -630,7 +643,7 @@ update_full_name_table_0:
 *      Dest
        li   r1,nametb+>40
 *      Source
-       mov  @scroll_x,r5               ; Column offset
+       mov  @scroll_x_pixels,r5        ; Column offset
        srl  r5,3
        li   r6,map_row_table
 *      Copy
@@ -760,7 +773,7 @@ jump:
        li   r0,->0280
        mov  r0,@ball_vy
        li   r0,>8c0e
-       mov  r0,@ball_pattern
+       mov  r0,@ball_pattern_color
        seto @ball_jumping
        .endproc
 *// jump
@@ -774,11 +787,11 @@ collect_star:
        bl   @remove_meta_tile
        mov  @ball_y,r0
        ai   r0,->1000
-       movb r0,@points_sprite_y
+       mov  r0,@points_sprite_y
        mov  @ball_x,r0
        ai   r0,>1000
-       movb r0,@points_sprite_x
-       mov @sprite_100_pt,@points_sprite_pattern
+       mov  r0,@points_sprite_x
+       mov  @sprite_100_pt,@points_sprite_pattern_color
        bl   @play_pick_up
        .endproc
 *// collect_star
@@ -809,7 +822,7 @@ get_map_char_1:
 get_map_char_2:
        a    @ball_x,r0                 ; Add offset to x
        srl  r0,8                       ; To pixels
-       a    @scroll_x,r0               ; Add scroll offset
+       a    @scroll_x_pixels,r0        ; Add scroll offset
        srl  r0,3                       ; To chars
        andi r0,>00ff                   ; Wrap around
        sla  r1,1                       ; To word

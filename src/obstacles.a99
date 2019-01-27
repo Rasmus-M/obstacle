@@ -99,8 +99,10 @@ frame:
        equ  padvar
 scroll_x:
        equ  frame+2
-ball_x:
+scroll_speed:
        equ  scroll_x+2
+ball_x:
+       equ  scroll_speed+2
 ball_vx:
        equ  ball_x+2
 ball_y:
@@ -115,12 +117,16 @@ ball_jumping:
        equ  ball_pattern+2
 ball_animation_ptr:
        equ  ball_jumping+2
-points_sprite_yx:
+points_sprite_y:
        equ  ball_animation_ptr+2
+points_sprite_x:
+       equ  points_sprite_y+1
 points_sprite_pattern:
-       equ  points_sprite_yx+2
+       equ  points_sprite_x+1
+points_sprite_color:
+       equ  points_sprite_pattern+1
 sfx_addr_1:                            ; Sound fx address channel 1
-       equ  points_sprite_pattern+2
+       equ  points_sprite_color+1
 sfx_addr_2:                            ; Sound fx address channel 2
        equ  sfx_addr_1+2
 sfx_addr_3:                            ; Sound fx address channel 3
@@ -200,7 +206,9 @@ program:
        data 0
        data main
        byte 16
+title:
        text 'OBSTACLES COURSE'
+       byte 0
 
 ***************************************************************
 *
@@ -325,6 +333,7 @@ upload_sprites:
        .proc
        li   r0,spratb
        bl   @vwad
+*      Ball
        mov  @ball_y,r0
        ai   r0,->0100
        mov  @ball_pattern,r1
@@ -337,6 +346,19 @@ upload_sprites:
        ai   r1,>1001
        movb r1,*r15
        movb @r1lb,*r15
+*      Points
+       li   r0,points_sprite_y
+       movb *r0+,r1
+       jeq  upload_sprites_1
+       ai   r1,->0100
+       movb r1,*r15                    ; y
+       movb *r0+,*r15                  ; x
+       movb *r0+,*r15                  ; Pattern
+       movb *r0,*r15                   ; Color
+*      End marker
+upload_sprites_1:
+       li   r1,>d000
+       movb r1,*r15
        .endproc
 *// upload_sprites
 
@@ -421,11 +443,6 @@ move_ball_4:
        clr  @ball_animation_ptr
 move_ball_5:
        .endproc
-animation_land:
-       byte >84,>84,>84
-       byte >88,>88,>88
-       byte >84,>84,>84
-       byte >80,>00,>00
 *// move_ball
 
 ***************************************************************
@@ -434,7 +451,21 @@ animation_land:
 *
 move_other_sprites:
        .proc
-
+*      Points sprite
+       movb @points_sprite_y,r0
+       jeq  move_other_sprites_1
+       ci   r0,>1000
+       jl   move_other_sprites_2
+       ai   r0,->0100
+       movb r0,@points_sprite_y
+       movb @points_sprite_x,r0
+       jeq  move_other_sprites_2
+       ai   r0,->0100
+       movb r0,@points_sprite_x
+       jmp  move_other_sprites_1
+move_other_sprites_2:
+       clr  @points_sprite_y
+move_other_sprites_1:
        .endproc
 *// move_other_sprites
 
@@ -741,6 +772,13 @@ jump:
 collect_star:
        .proc
        bl   @remove_meta_tile
+       mov  @ball_y,r0
+       ai   r0,->1000
+       movb r0,@points_sprite_y
+       mov  @ball_x,r0
+       ai   r0,>1000
+       movb r0,@points_sprite_x
+       mov @sprite_100_pt,@points_sprite_pattern
        bl   @play_pick_up
        .endproc
 *// collect_star
@@ -1364,12 +1402,15 @@ floor_ceil_table:
        data namet2+>0240,namet2+>0250,namet2+>0260,namet2+>0270
        data nametb+>0000,nametb+>0010,nametb+>0020,nametb+>0030
        data nametb+>0240,nametb+>0250,nametb+>0260,nametb+>0270
-
-title:
-       text "OBSTACLES COURSE"
-       byte 0
-       even
-
+animation_land:
+       byte >84,>84,>84
+       byte >88,>88,>88
+       byte >84,>84,>84
+       byte >80,>00,>00
+sprite_100_pt:
+       byte >a0,>0f
+sprite_200_pt:
+       byte >a4,>0a
 byte_space:
        byte chr_space
 byte_star_tl:
@@ -1380,6 +1421,7 @@ byte_star_bl:
        byte chr_star_bl
 byte_star_br:
        byte chr_star_br
+       even
 
 *********************************************************************
 *

@@ -46,6 +46,8 @@ vmap3  equ  >3c00                      ; Map
 **
 * Constants
 *
+scroll_speed:
+       equ  >0100
 map_width:
        equ  256
 map_height:
@@ -281,7 +283,7 @@ one_time_init_1:
        li   r0,>800e
        mov  r0,@ball_pattern_color
 *      Misc
-       li   r0,>0080
+       li   r0,scroll_speed
        mov  r0,@scroll_vx
        .endproc
 *// init_game

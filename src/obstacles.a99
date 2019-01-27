@@ -737,10 +737,17 @@ check_coinc_below:
        mov  @ball_vy,r0
        jeq  check_coinc_below_2
 *      Other collision - land
-       mov  @ball_y,r0
-       andi r0,>f000                   ; Align to meta tile
-       mov  r0,@ball_y
-       clr  @ball_vy
+       mov  @ball_y,r1
+       andi r1,>f000                   ; Align to meta tile
+       mov  r1,@ball_y
+       ci   r0,>0280
+       jlt  check_coinc_below_3
+       li   r0,->0100
+       jmp  check_coinc_below_4
+check_coinc_below_3:
+       clr  r0
+check_coinc_below_4:
+       mov  r0,@ball_vy
        li   r0,animation_land
        mov  r0,@ball_animation_ptr
        jmp  check_coinc_below_2

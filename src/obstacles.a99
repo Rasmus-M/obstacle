@@ -693,23 +693,27 @@ update_full_name_table_3:
 *
 check_coinc_right:
        .proc
-       cb   r1,@byte_star_tl
+       srl  r1,8
+       movb @char_props_table(r1),r2
+       coc  @char_deadly,r2
        jeq  check_coinc_right_1
-       cb   r1,@byte_star_bl
-       jeq  check_coinc_right_1
-*      Other collision - stop ball
+       coc  @char_collectable,r2
+       jeq  check_coinc_right_2
+       coc  @char_block_left,r2
+       jne  check_coinc_right_3
+*      Collision with blocker
        clr  @ball_vx
        mov  @ball_x,r0
        andi r0,>ff00
-       jne  check_coinc_right_10
-       seto @status
-       jmp  check_coinc_right_10
-*      Collision with star
+       jne  check_coinc_right_3
+*      Collision with deadly
 check_coinc_right_1:
+       seto @status
+       jmp  check_coinc_right_3
+*      Collision with star
+check_coinc_right_2:
        bl   @collect_star
-       jmp  check_coinc_right_10
-*      todo
-check_coinc_right_10:
+check_coinc_right_3:
        .endproc
 *// check_coinc_right
 
@@ -748,30 +752,34 @@ check_coinc_left_10:
 check_coinc_below:
        .proc
        cb   r1,@byte_star_tl
-       jeq  check_coinc_below_1
+       jeq  check_coinc_below_3
        cb   r1,@byte_star_tr
-       jeq  check_coinc_below_1
+       jeq  check_coinc_below_3
        mov  @ball_vy,r0
-       jeq  check_coinc_below_2
+       jeq  check_coinc_below_5
 *      Other collision - land
        mov  @ball_y,r1
        andi r1,>f000                   ; Align to meta tile
        mov  r1,@ball_y
        ci   r0,>0280
-       jlt  check_coinc_below_3
+       jlt  check_coinc_below_1
        li   r0,->0100
-       jmp  check_coinc_below_4
-check_coinc_below_3:
+       jmp  check_coinc_below_2
+check_coinc_below_1:
        clr  r0
-check_coinc_below_4:
+check_coinc_below_2:
        mov  r0,@ball_vy
        li   r0,animation_land
        mov  r0,@ball_animation_ptr
-       jmp  check_coinc_below_2
+       jmp  check_coinc_below_5
 *      Collision with star
-check_coinc_below_1:
+check_coinc_below_3:
        bl   @collect_star
-check_coinc_below_2:
+       jmp  check_coinc_below_5
+check_coinc_below_4:
+*      Collision with deadly
+       seto @status
+check_coinc_below_5:
        .endproc
 *// check_coinc_below
 
@@ -1469,6 +1477,66 @@ byte_star_bl:
        byte chr_star_bl
 byte_star_br:
        byte chr_star_br
+       even
+**
+* Map character properties
+*
+char_deadly:
+       data :1000000000000000          ; Deadly
+char_collectable:
+       data :0100000000000000          ; Collectable
+char_unused_1:
+       data :0010000000000000          ; For future use
+char_unused_2:
+       data :0001000000000000          ; For future use
+char_block_top:
+       data :0000100000000000          ; Block top
+char_block_bottom:
+       data :0000010000000000          ; Block bottom
+char_block_left:
+       data :0000001000000000          ; Block left
+char_block_right:
+       data :0000000100000000          ; Block right
+*
+char_props_table:
+       byte :00000000                  ; #00 (00) space
+       byte :00001111                  ; #01 (01) floor
+       byte :00001111                  ; #02 (02) floor
+       byte :00001111                  ; #03 (09) floor
+       byte :00001111                  ; #04 (0A) floor
+       byte :00001111                  ; #05 (10) box
+       byte :00001111                  ; #06 (11) box
+       byte :00000000                  ; #07 (12) ceiling
+       byte :00000000                  ; #08 (13) ceiling
+       byte :00001111                  ; #09 (18) box
+       byte :00001111                  ; #0A (19) box
+       byte :00000000                  ; #0B (1A) ceiling
+       byte :00000000                  ; #0C (1B) ceiling
+       byte :10000000                  ; #0D (20) triangle up
+       byte :10000000                  ; #0E (21) triangle up
+       byte :10000000                  ; #0F (22) triangle down
+       byte :10000000                  ; #10 (23) triangle down
+       byte :10000000                  ; #11 (28) triangle up
+       byte :10000000                  ; #12 (29) triangle up
+       byte :10000000                  ; #13 (2A) triangle down
+       byte :10000000                  ; #14 (2B) triangle down
+       byte :00000000                  ; #15 (30) chain
+       byte :00000000                  ; #16 (31) chain
+       byte :10000000                  ; #17 (32) spikes
+       byte :00000000                  ; #18 (38) chain
+       byte :00000000                  ; #19 (39) chain
+       byte :10000000                  ; #1A (3A) spikes
+       byte :00001000                  ; #1B (40) platform
+       byte :00001000                  ; #1C (41) platform
+       byte :00001000                  ; #1D (42) platform
+       byte :01000000                  ; #1E (43) star
+       byte :01000000                  ; #1F (44) star
+       byte :00000000                  ; #20 (48) platform
+       byte :00000000                  ; #21 (49) platform
+       byte :00000000                  ; #22 (4A) platform
+       byte :01000000                  ; #23 (4B) star
+       byte :01000000                  ; #24 (4C) star
+
        even
 
 *********************************************************************

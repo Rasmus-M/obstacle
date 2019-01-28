@@ -1,41 +1,41 @@
 ****************************************
 * Original Character Patterns           
 ****************************************
-PAT0   DATA >0000,>0000,>0000,>0000    ; #00
-PAT1   DATA >7FAB,>DEAB,>FFAF,>FFDF    ; #01
-PAT2   DATA >FEDF,>FEFE,>FEFE,>FEFE    ; #02
-PAT3   DATA >FFFF,>BFFF,>FFFF,>80FF    ; #03 (09)
-PAT4   DATA >FEFE,>FEFE,>FEFE,>01FE    ; #04 (0A)
-PAT5   DATA >7FFF,>BFDF,>AFD7,>ABD5    ; #05 (10)
-PAT6   DATA >FEFE,>FDFA,>F5EA,>D5AA    ; #06 (11)
-PAT7   DATA >FD46,>3BBA,>DA27,>D8D7    ; #07 (12)
-PAT8   DATA >BCFB,>0BF4,>FB7B,>B64E    ; #08 (13)
-PAT9   DATA >ABD6,>ACD8,>B0E0,>C07F    ; #09 (18)
-PAT10  DATA >D56A,>351A,>0D06,>03FE    ; #0A (19)
-PAT11  DATA >3BEC,>D756,>544C,>2810    ; #0B (1A)
-PAT12  DATA >73ED,>EDED,>554B,>4B06    ; #0C (1B)
-PAT13  DATA >0101,>0303,>0707,>0F0F    ; #0D (20)
-PAT14  DATA >8080,>C0C0,>6060,>B0B0    ; #0E (21)
-PAT15  DATA >FFFF,>606F,>3737,>1B1B    ; #0F (22)
-PAT16  DATA >FFFF,>06FE,>FCFC,>F8F8    ; #10 (23)
-PAT17  DATA >1F1F,>3F3F,>7F60,>FFFF    ; #11 (28)
-PAT18  DATA >D8D8,>ECEC,>F606,>FFFF    ; #12 (29)
-PAT19  DATA >0D0D,>0606,>0303,>0101    ; #13 (2A)
-PAT20  DATA >F0F0,>E0E0,>C0C0,>8080    ; #14 (2B)
-PAT21  DATA >0107,>0F0D,>1D15,>1514    ; #15 (30)
-PAT22  DATA >80E0,>F0B0,>B898,>9818    ; #16 (31)
-PAT23  DATA >1010,>9090,>9094,>9494    ; #17 (32)
-PAT24  DATA >141D,>151D,>0D0F,>0701    ; #18 (38)
-PAT25  DATA >1898,>98B8,>B0F0,>E080    ; #19 (39)
-PAT26  DATA >94D4,>D6D6,>D6DE,>DEFF    ; #1A (3A)
-PAT27  DATA >FF80,>BFBF,>BFBF,>BFFF    ; #1B (40)
-PAT28  DATA >FF00,>FFFF,>FFFF,>FFFF    ; #1C (41)
-PAT29  DATA >FF01,>FDFF,>F5FF,>55FF    ; #1D (42)
+PAT0   DATA >0000,>0000,>0000,>0000    ; #00 (00) space
+PAT1   DATA >7FAB,>DEAB,>FFAF,>FFDF    ; #01 (01) floor
+PAT2   DATA >FEDF,>FEFE,>FEFE,>FEFE    ; #02 (02) floor
+PAT3   DATA >FFFF,>BFFF,>FFFF,>80FF    ; #03 (09) floor
+PAT4   DATA >FEFE,>FEFE,>FEFE,>01FE    ; #04 (0A) floor
+PAT5   DATA >7FFF,>BFDF,>AFD7,>ABD5    ; #05 (10) box
+PAT6   DATA >FEFE,>FDFA,>F5EA,>D5AA    ; #06 (11) box
+PAT7   DATA >FD46,>3BBA,>DA27,>D8D7    ; #07 (12) ceiling
+PAT8   DATA >BCFB,>0BF4,>FB7B,>B64E    ; #08 (13) ceiling
+PAT9   DATA >ABD6,>ACD8,>B0E0,>C07F    ; #09 (18) box
+PAT10  DATA >D56A,>351A,>0D06,>03FE    ; #0A (19) box
+PAT11  DATA >3BEC,>D756,>544C,>2810    ; #0B (1A) ceiling
+PAT12  DATA >73ED,>EDED,>554B,>4B06    ; #0C (1B) ceiling
+PAT13  DATA >0101,>0303,>0707,>0F0F    ; #0D (20) triangle up
+PAT14  DATA >8080,>C0C0,>6060,>B0B0    ; #0E (21) triangle up
+PAT15  DATA >FFFF,>606F,>3737,>1B1B    ; #0F (22) triangle down
+PAT16  DATA >FFFF,>06FE,>FCFC,>F8F8    ; #10 (23) triangle down
+PAT17  DATA >1F1F,>3F3F,>7F60,>FFFF    ; #11 (28) triangle up
+PAT18  DATA >D8D8,>ECEC,>F606,>FFFF    ; #12 (29) triangle up
+PAT19  DATA >0D0D,>0606,>0303,>0101    ; #13 (2A) triangle down
+PAT20  DATA >F0F0,>E0E0,>C0C0,>8080    ; #14 (2B) triangle down
+PAT21  DATA >0107,>0F0D,>1D15,>1514    ; #15 (30) chain
+PAT22  DATA >80E0,>F0B0,>B898,>9818    ; #16 (31) chain
+PAT23  DATA >1010,>9090,>9094,>9494    ; #17 (32) spikes
+PAT24  DATA >141D,>151D,>0D0F,>0701    ; #18 (38) chain
+PAT25  DATA >1898,>98B8,>B0F0,>E080    ; #19 (39) chain
+PAT26  DATA >94D4,>D6D6,>D6DE,>DEFF    ; #1A (3A) spikes
+PAT27  DATA >FF80,>BFBF,>BFBF,>BFFF    ; #1B (40) platform
+PAT28  DATA >FF00,>FFFF,>FFFF,>FFFF    ; #1C (41) platform
+PAT29  DATA >FF01,>FDFF,>F5FF,>55FF    ; #1D (42) platform
 PAT30  DATA >0101,>0103,>030F,>FF3D    ; #1E (43) star
 PAT31  DATA >0000,>0080,>80E0,>FE78    ; #1F (44) star
-PAT32  DATA >FF57,>5545,>0101,>0000    ; #20 (48)
-PAT33  DATA >FF57,>5555,>5111,>1110    ; #21 (49)
-PAT34  DATA >FF75,>5551,>4040,>0000    ; #22 (4A)
+PAT32  DATA >FF57,>5545,>0101,>0000    ; #20 (48) platform
+PAT33  DATA >FF57,>5555,>5111,>1110    ; #21 (49) platform
+PAT34  DATA >FF75,>5551,>4040,>0000    ; #22 (4A) platform
 PAT35  DATA >0E05,>0F1F,>1E38,>2000    ; #23 (4B) star
 PAT36  DATA >E040,>E0F0,>F038,>0800    ; #24 (4C) star
 ****************************************

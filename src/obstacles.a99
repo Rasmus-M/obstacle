@@ -111,8 +111,10 @@ ball_x:                                ; FP 8.8
        equ  scroll_vx+2
 ball_vx:                               ; FP 8.8
        equ  ball_x+2
-ball_y:                                ; FP 8.8
+ball_vx_last:                          ; FP 8.8
        equ  ball_vx+2
+ball_y:                                ; FP 8.8
+       equ  ball_vx_last+2
 ball_vy:                               ; FP 8.8
        equ  ball_y+2
 ball_ay:                               ; FP 8.8
@@ -230,7 +232,7 @@ loop:
        bl   @move_ball
        bl   @move_other_sprites
        bl   @update_partial_name_table
-       bl   @player_input
+       bl   @user_input
        bl   @check_quit
        bl   @sfx_player
        bl   @scroll
@@ -418,18 +420,18 @@ move_ball_3:
        mov  r0,@ball_pattern_color
 *      Check char below ball
 move_ball_4:
-       li   r0,>0400
+       li   r0,>0800
        li   r1,>1000
        bl   @get_map_char
        movb r1,r1
-       jne  move_ball_5
-       li   r0,>0c00
-       li   r1,>1000
-       bl   @get_map_char
-       movb r1,r1
+;       jne  move_ball_5
+;       li   r0,>0c00
+;       li   r1,>1000
+;       bl   @get_map_char
+;       movb r1,r1
        jeq  move_ball_7
 move_ball_5:
-       bl   @check_coinc_below
+       bl   @check_coinc_bottom
        jmp  move_ball_10
 *      Moving up
 *      Check char above ball
@@ -439,7 +441,7 @@ move_ball_6:
        bl   @get_map_char
        movb r1,r1
        jeq  move_ball_7
-       bl   @check_coinc_above
+       bl   @check_coinc_top
        jmp  move_ball_10
 *      Move y with acceleration
 move_ball_7:
@@ -527,32 +529,36 @@ update_partial_name_table_1:
 
 ***************************************************************
 *
-* Read player input
+* Read user input
 *
-player_input:
+user_input:
        .proc
+       mov  @ball_vy,r0
+       jne  user_input_4
        li   r0,JOY_FI
        bl   @check_key
-       jeq  player_input_1
-       mov  @ball_vy,r0
-       jne  player_input_1
+       jeq  user_input_1
        bl   @jump
-player_input_1:
+user_input_1:
        mov  @scroll_vx,r1              ; Default speed
        tb   1                          ; Left
-       jeq  player_input_2
+       jeq  user_input_2
        s    @scroll_vx,r1
-       ai   r1,->0080
-       jmp  player_input_3
-player_input_2:
+       ai   r1,->0040
+       jmp  user_input_3
+user_input_2:
        tb   2                          ; Right
-       jeq  player_input_3
+       jeq  user_input_3
        ai   r1,>0080
-player_input_3:
+user_input_3:
        mov  r1,@ball_vx
-player_input_4:
+       mov  r1,@ball_vx_last
+       jmp  user_input_5
+user_input_4:
+       mov  @ball_vx_last,@ball_vx
+user_input_5:
        .endproc
-*// player_input
+*// user_input
 
 *********************************************************************
 *
@@ -726,19 +732,25 @@ check_coinc_right_3:
 *
 check_coinc_left:
        .proc
-       cb   r1,@byte_star_tr
+       srl  r1,8
+       movb @char_props_table(r1),r2
+       coc  @char_deadly,r2
        jeq  check_coinc_left_1
-       cb   r1,@byte_star_br
-       jeq  check_coinc_left_1
-*      Other collision - stop ball
+       coc  @char_collectable,r2
+       jeq  check_coinc_left_2
+       coc  @char_block_right,r2
+       jne  check_coinc_left_3
+*      Collision with blocker
        clr  @ball_vx
-       jmp  check_coinc_left_10
-*      Collision with star
+       jmp  check_coinc_left_3
+*      Collision with deadly
 check_coinc_left_1:
+       seto @status
+       jmp  check_coinc_left_3
+*      Collision with star
+check_coinc_left_2:
        bl   @collect_star
-       jmp  check_coinc_left_10
-*      todo
-check_coinc_left_10:
+check_coinc_left_3:
        .endproc
 *// check_coinc_left
 
@@ -749,39 +761,43 @@ check_coinc_left_10:
 * r0: VDP address of collision char
 * r1: MSB contains collision char
 *
-check_coinc_below:
+check_coinc_bottom:
        .proc
-       cb   r1,@byte_star_tl
-       jeq  check_coinc_below_3
-       cb   r1,@byte_star_tr
-       jeq  check_coinc_below_3
+       srl  r1,8
+       movb @char_props_table(r1),r2
+       coc  @char_deadly,r2
+       jeq  check_coinc_bottom_1
+       coc  @char_collectable,r2
+       jeq  check_coinc_bottom_2
+       coc  @char_block_top,r2
+       jne  check_coinc_bottom_3
+*      Collision with blocker
        mov  @ball_vy,r0
-       jeq  check_coinc_below_5
-*      Other collision - land
+       jeq  check_coinc_bottom_3
        mov  @ball_y,r1
        andi r1,>f000                   ; Align to meta tile
        mov  r1,@ball_y
        ci   r0,>0280
-       jlt  check_coinc_below_1
+       jlt  check_coinc_bottom_4
        li   r0,->0100
-       jmp  check_coinc_below_2
-check_coinc_below_1:
+       jmp  check_coinc_bottom_5
+check_coinc_bottom_4:
        clr  r0
-check_coinc_below_2:
+check_coinc_bottom_5:
        mov  r0,@ball_vy
        li   r0,animation_land
        mov  r0,@ball_animation_ptr
-       jmp  check_coinc_below_5
-*      Collision with star
-check_coinc_below_3:
-       bl   @collect_star
-       jmp  check_coinc_below_5
-check_coinc_below_4:
+       jmp  check_coinc_bottom_3
 *      Collision with deadly
+check_coinc_bottom_1:
        seto @status
-check_coinc_below_5:
+       jmp  check_coinc_left_3
+*      Collision with star
+check_coinc_bottom_2:
+       bl   @collect_star
+check_coinc_bottom_3:
        .endproc
-*// check_coinc_below
+*// check_coinc_bottom
 
 ***************************************************************
 *
@@ -790,23 +806,29 @@ check_coinc_below_5:
 * r0: VDP address of collision char
 * r1: MSB contains collision char
 *
-check_coinc_above:
+check_coinc_top:
        .proc
-       cb   r1,@byte_star_bl
-       jeq  check_coinc_above_1
-       cb   r1,@byte_star_br
-       jeq  check_coinc_above_1
-*      Other collision
+       srl  r1,8
+       movb @char_props_table(r1),r2
+       coc  @char_deadly,r2
+       jeq  check_coinc_top_1
+       coc  @char_collectable,r2
+       jeq  check_coinc_top_2
+       coc  @char_block_bottom,r2
+       jne  check_coinc_top_3
+*      Collision with blocker
        clr  @ball_vy
-       jmp  check_coinc_above_10
+       jmp  check_coinc_left_3
+*      Collision with deadly
+check_coinc_top_1:
+       seto @status
+       jmp  check_coinc_left_3
 *      Collision with star
-check_coinc_above_1:
+check_coinc_top_2:
        bl   @collect_star
-       jmp  check_coinc_above_10
-*      todo
-check_coinc_above_10:
+check_coinc_top_3:
        .endproc
-*// check_coinc_above
+*// check_coinc_top
 
 ***************************************************************
 *

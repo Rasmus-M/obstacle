@@ -383,7 +383,7 @@ move_ball:
        jlt  move_ball_1
 *      Check char to the right of ball
        li   r0,>1000
-       li   r1,>0c00
+       li   r1,>0800
        bl   @get_map_char
        movb r1,r1
        jeq  move_ball_2
@@ -392,7 +392,7 @@ move_ball:
 *      Check char to the left of ball
 move_ball_1:
        li   r0,->0100
-       li   r1,>0c00
+       li   r1,>0000
        bl   @get_map_char
        movb r1,r1
        jeq  move_ball_2
@@ -424,14 +424,10 @@ move_ball_4:
        li   r1,>1000
        bl   @get_map_char
        movb r1,r1
-;       jne  move_ball_5
-;       li   r0,>0c00
-;       li   r1,>1000
-;       bl   @get_map_char
-;       movb r1,r1
        jeq  move_ball_7
-move_ball_5:
        bl   @check_coinc_bottom
+       mov  r1,r1
+       jeq  move_ball_7
        jmp  move_ball_10
 *      Moving up
 *      Check char above ball
@@ -442,7 +438,8 @@ move_ball_6:
        movb r1,r1
        jeq  move_ball_7
        bl   @check_coinc_top
-       jmp  move_ball_10
+       mov  r1,r1
+       jne  move_ball_10
 *      Move y with acceleration
 move_ball_7:
        a    @ball_ay,@ball_vy
@@ -712,9 +709,11 @@ check_coinc_right:
        mov  @ball_x,r0
        andi r0,>ff00
        jne  check_coinc_right_3
+       bl   @die
+       jmp  check_coinc_right_3
 *      Collision with deadly
 check_coinc_right_1:
-       seto @status
+       bl   @check_coinc_deadly
        jmp  check_coinc_right_3
 *      Collision with star
 check_coinc_right_2:
@@ -745,7 +744,7 @@ check_coinc_left:
        jmp  check_coinc_left_3
 *      Collision with deadly
 check_coinc_left_1:
-       seto @status
+       bl   @check_coinc_deadly
        jmp  check_coinc_left_3
 *      Collision with star
 check_coinc_left_2:
@@ -770,8 +769,11 @@ check_coinc_bottom:
        coc  @char_collectable,r2
        jeq  check_coinc_bottom_2
        coc  @char_block_top,r2
-       jne  check_coinc_bottom_3
+       jeq  check_coinc_bottom_6
+       clr  r1
+       jmp  check_coinc_bottom_3
 *      Collision with blocker
+check_coinc_bottom_6:
        mov  @ball_vy,r0
        jeq  check_coinc_bottom_3
        mov  @ball_y,r1
@@ -790,7 +792,7 @@ check_coinc_bottom_5:
        jmp  check_coinc_bottom_3
 *      Collision with deadly
 check_coinc_bottom_1:
-       seto @status
+       bl   @check_coinc_deadly
        jmp  check_coinc_left_3
 *      Collision with star
 check_coinc_bottom_2:
@@ -815,13 +817,16 @@ check_coinc_top:
        coc  @char_collectable,r2
        jeq  check_coinc_top_2
        coc  @char_block_bottom,r2
-       jne  check_coinc_top_3
+       jeq  check_coinc_top_4
+       clr  r1
+       jmp  check_coinc_top_3
 *      Collision with blocker
+check_coinc_top_4:
        clr  @ball_vy
        jmp  check_coinc_left_3
 *      Collision with deadly
 check_coinc_top_1:
-       seto @status
+       bl   @check_coinc_deadly
        jmp  check_coinc_left_3
 *      Collision with star
 check_coinc_top_2:
@@ -829,6 +834,44 @@ check_coinc_top_2:
 check_coinc_top_3:
        .endproc
 *// check_coinc_top
+
+***************************************************************
+*
+* Check possible deadly collision carefully
+*
+* r0: VDP address of collision char
+* r1: Contains collision char index
+* r2: MSB contains collision char properties
+*
+check_coinc_deadly:
+       .proc
+;       mov  r0,r1
+;       andi r1,>00ff                   ; Character column
+;       sla  r1,3                       ; In pixels
+;       s    @scroll_x_pixels,r1        ; In screen coordinates
+;       mov  @ball_x,r2
+;       srl  r2,8
+;       s    r2,r1                      ; Relative to ball
+;       jlt  check_coinc_deadly_1
+;       ci   r1,8
+;       jgt  check_coinc_deadly_1
+*      Collsion
+;       li   r1,>6100
+;       bl   @vsbw
+       bl   @die
+check_coinc_deadly_1:
+       .endproc
+*// check_coinc_deadly
+
+***************************************************************
+*
+* Die
+*
+die:
+       .proc
+        seto @status
+       .endproc
+*// die
 
 ***************************************************************
 *
@@ -869,7 +912,7 @@ collect_star:
 * r1: y offset in MSB
 *
 * On return r1 contains the from/to characters at position
-* and r0 contains the VDP address of the metatile containing the character
+* and r0 contains the VDP address of the character
 *
 get_map_char:
        a    @ball_y,r1                 ; Add offset to y
@@ -894,7 +937,7 @@ get_map_char_2:
        a    @map_row_table(r1),r0      ; Add row offset
        movb @r0lb,@vdpwa               ; Send low byte of VDP RAM read address
        movb r0,@vdpwa                  ; Send high byte of VDP RAM read address
-       andi r0,>3efe                   ; Adjust to metatile
+       nop
        movb *r14,r1                    ; Read byte from VDP RAM
        srl  r1,8                       ; To LSB
        sla  r1,1                       ; To word
@@ -906,10 +949,11 @@ get_map_char_2:
 *
 * Remove meta tile from map
 *
-* r0: VDP address of metatile to remove
+* r0: VDP address of a character in the metatile to remove
 *
 remove_meta_tile:
        .proc
+       andi r0,>3efe                   ; Adjust to metatile
        dec  r0
        bl   @vwad
        clr  *r15
@@ -1534,13 +1578,13 @@ char_props_table:
        byte :00001111                  ; #0A (19) box
        byte :00000000                  ; #0B (1A) ceiling
        byte :00000000                  ; #0C (1B) ceiling
-       byte :10000000                  ; #0D (20) triangle up
+       byte :00000000                  ; #0D (20) triangle up
        byte :10000000                  ; #0E (21) triangle up
-       byte :10000000                  ; #0F (22) triangle down
+       byte :00000000                  ; #0F (22) triangle down
        byte :10000000                  ; #10 (23) triangle down
-       byte :10000000                  ; #11 (28) triangle up
+       byte :00000000                  ; #11 (28) triangle up
        byte :10000000                  ; #12 (29) triangle up
-       byte :10000000                  ; #13 (2A) triangle down
+       byte :00000000                  ; #13 (2A) triangle down
        byte :10000000                  ; #14 (2B) triangle down
        byte :00000000                  ; #15 (30) chain
        byte :00000000                  ; #16 (31) chain

@@ -235,11 +235,15 @@ loop:
        bl   @user_input
        bl   @check_quit
        bl   @sfx_player
-       bl   @scroll
        mov  @status,r0
-       jlt  new_game
+       jlt  loop_1
+       bl   @scroll
        inc  @frame
        jmp  loop
+loop_1:
+       dec  @frame
+       jne  loop
+       jmp  new_game
 
 *********************************************************************
 *
@@ -378,7 +382,12 @@ upload_sprites_1:
 *
 move_ball:
        .proc
+       mov  @status,r0
+       jlt  move_ball_5
+**
+*      X
 *      Check x velocity
+move
        mov  @ball_vx,r0
        jlt  move_ball_1
 *      Check char to the right of ball
@@ -408,9 +417,13 @@ move_ball_2:
        clr  r1
 move_ball_3:
        mov  r1,@ball_x
+**
+*      Y
 *      Check for animation
        mov  @ball_animation_ptr,r0
        jne  move_ball_8
+*      Accelerate
+       a    @ball_ay,@ball_vy
 *      Check y velocity
        mov  @ball_vy,r0
        jeq  move_ball_4
@@ -426,9 +439,7 @@ move_ball_4:
        movb r1,r1
        jeq  move_ball_7
        bl   @check_coinc_bottom
-       mov  r1,r1
-       jeq  move_ball_7
-       jmp  move_ball_10
+       jmp  move_ball_7
 *      Moving up
 *      Check char above ball
 move_ball_6:
@@ -438,14 +449,14 @@ move_ball_6:
        movb r1,r1
        jeq  move_ball_7
        bl   @check_coinc_top
-       mov  r1,r1
-       jne  move_ball_10
-*      Move y with acceleration
+*      Move y
 move_ball_7:
-       a    @ball_ay,@ball_vy
        a    @ball_vy,@ball_y
        jmp  move_ball_10
-*      Animate landing
+*      Animate
+move_ball_5:
+       mov  @ball_animation_ptr,r0
+       jeq  move_ball_10
 move_ball_8:
        movb *r0+,r1
        jeq  move_ball_9
@@ -769,26 +780,25 @@ check_coinc_bottom:
        coc  @char_collectable,r2
        jeq  check_coinc_bottom_2
        coc  @char_block_top,r2
-       jeq  check_coinc_bottom_6
-       clr  r1
-       jmp  check_coinc_bottom_3
+       jne  check_coinc_bottom_3
 *      Collision with blocker
-check_coinc_bottom_6:
        mov  @ball_vy,r0
-       jeq  check_coinc_bottom_3
-       mov  @ball_y,r1
-       andi r1,>f000                   ; Align to meta tile
-       mov  r1,@ball_y
-       ci   r0,>0280
+       ci   r0,>0300
        jlt  check_coinc_bottom_4
-       li   r0,->0100
+       li   r1,->0100                  ; Rebounce
        jmp  check_coinc_bottom_5
 check_coinc_bottom_4:
-       clr  r0
+       clr  r1                         ; Stop movement
+       ci   r0,>0020
+       jlt  check_coinc_bottom_6
 check_coinc_bottom_5:
-       mov  r0,@ball_vy
-       li   r0,animation_land
-       mov  r0,@ball_animation_ptr
+       mov  @ball_y,r2                 ; Align to meta tile
+       andi r2,>f000
+       mov  r2,@ball_y
+       li   r2,animation_land          ; Animate
+       mov  r2,@ball_animation_ptr
+check_coinc_bottom_6:
+       mov  r1,@ball_vy
        jmp  check_coinc_bottom_3
 *      Collision with deadly
 check_coinc_bottom_1:
@@ -817,11 +827,8 @@ check_coinc_top:
        coc  @char_collectable,r2
        jeq  check_coinc_top_2
        coc  @char_block_bottom,r2
-       jeq  check_coinc_top_4
-       clr  r1
-       jmp  check_coinc_top_3
+       jne  check_coinc_top_3
 *      Collision with blocker
-check_coinc_top_4:
        clr  @ball_vy
        jmp  check_coinc_left_3
 *      Collision with deadly
@@ -869,7 +876,11 @@ check_coinc_deadly_1:
 *
 die:
        .proc
-        seto @status
+       seto @status
+       li   r2,animation_die           ; Animate
+       mov  r2,@ball_animation_ptr
+       li   r0,120
+       mov  r0,@frame
        .endproc
 *// die
 
@@ -1529,6 +1540,11 @@ animation_land:
        byte >88,>88,>88
        byte >84,>84,>84
        byte >80,>00,>00
+animation_die:
+       byte >80,>80,>80
+       byte >84,>84,>84
+       byte >88,>88,>88
+       byte >88,>00,>00
 sprite_100_pt:
        byte >a0,>0f
 sprite_200_pt:

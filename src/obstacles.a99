@@ -61,7 +61,7 @@ buffer_size:
 log_2_buffer_size:
        equ  5
 n_sprite_patterns:
-       equ  10
+       equ  14
 chr_space:
        equ  0
 chr_star_tl:
@@ -287,6 +287,10 @@ one_time_init_1:
        li   r1,SPR0
        li   r2,n_sprite_patterns*32
        bl   @vmbw
+       li   r0,sprptb+>400+(n_sprite_patterns*32)
+       clr  r1
+       li   r2,(32-n_sprite_patterns)*32
+       bl   @vsmw
 *      Ball
        li   r0,>8000
        mov  r0,@ball_y
@@ -720,11 +724,9 @@ check_coinc_right:
        mov  @ball_x,r0
        andi r0,>ff00
        jne  check_coinc_right_3
-       bl   @die
-       jmp  check_coinc_right_3
 *      Collision with deadly
 check_coinc_right_1:
-       bl   @check_coinc_deadly
+       bl   @die
        jmp  check_coinc_right_3
 *      Collision with star
 check_coinc_right_2:
@@ -755,7 +757,7 @@ check_coinc_left:
        jmp  check_coinc_left_3
 *      Collision with deadly
 check_coinc_left_1:
-       bl   @check_coinc_deadly
+       bl   @die
        jmp  check_coinc_left_3
 *      Collision with star
 check_coinc_left_2:
@@ -802,7 +804,7 @@ check_coinc_bottom_6:
        jmp  check_coinc_bottom_3
 *      Collision with deadly
 check_coinc_bottom_1:
-       bl   @check_coinc_deadly
+       bl   @die
        jmp  check_coinc_left_3
 *      Collision with star
 check_coinc_bottom_2:
@@ -833,7 +835,7 @@ check_coinc_top:
        jmp  check_coinc_left_3
 *      Collision with deadly
 check_coinc_top_1:
-       bl   @check_coinc_deadly
+       bl   @die
        jmp  check_coinc_left_3
 *      Collision with star
 check_coinc_top_2:
@@ -841,34 +843,6 @@ check_coinc_top_2:
 check_coinc_top_3:
        .endproc
 *// check_coinc_top
-
-***************************************************************
-*
-* Check possible deadly collision carefully
-*
-* r0: VDP address of collision char
-* r1: Contains collision char index
-* r2: MSB contains collision char properties
-*
-check_coinc_deadly:
-       .proc
-;       mov  r0,r1
-;       andi r1,>00ff                   ; Character column
-;       sla  r1,3                       ; In pixels
-;       s    @scroll_x_pixels,r1        ; In screen coordinates
-;       mov  @ball_x,r2
-;       srl  r2,8
-;       s    r2,r1                      ; Relative to ball
-;       jlt  check_coinc_deadly_1
-;       ci   r1,8
-;       jgt  check_coinc_deadly_1
-*      Collsion
-;       li   r1,>6100
-;       bl   @vsbw
-       bl   @die
-check_coinc_deadly_1:
-       .endproc
-*// check_coinc_deadly
 
 ***************************************************************
 *
@@ -1539,16 +1513,19 @@ animation_land:
        byte >84,>84,>84
        byte >88,>88,>88
        byte >84,>84,>84
-       byte >80,>00,>00
+       byte >80,>00
 animation_die:
-       byte >80,>80,>80
-       byte >84,>84,>84
-       byte >88,>88,>88
-       byte >88,>00,>00
+       byte >80,>80,>80,>80
+       byte >84,>84,>84,>84
+       byte >88,>88,>88,>88
+       byte >a0,>a0,>a0,>a0
+       byte >a4,>a4,>a4,>a4
+       byte >d0,>00
+       even
 sprite_100_pt:
-       byte >a0,>0f
+       byte >a8,>0f
 sprite_200_pt:
-       byte >a4,>0a
+       byte >ac,>0a
 byte_space:
        byte chr_space
 byte_star_tl:

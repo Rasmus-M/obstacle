@@ -61,7 +61,7 @@ buffer_size:
 log_2_buffer_size:
        equ  5
 n_sprite_patterns:
-       equ  14
+       equ  18
 chr_space:
        equ  0
 chr_star_tl:
@@ -123,8 +123,10 @@ ball_pattern_color:
        equ  ball_ay+2
 ball_animation_ptr:
        equ  ball_pattern_color+2
-points_sprite_y:
+ball_animation_count:
        equ  ball_animation_ptr+2
+points_sprite_y:
+       equ  ball_animation_count+2
 points_sprite_x:
        equ  points_sprite_y+2
 points_sprite_pattern_color:
@@ -235,9 +237,9 @@ loop:
        bl   @user_input
        bl   @check_quit
        bl   @sfx_player
+       bl   @scroll
        mov  @status,r0
        jlt  loop_1
-       bl   @scroll
        inc  @frame
        jmp  loop
 loop_1:
@@ -298,7 +300,7 @@ one_time_init_1:
        mov  r0,@ball_ay
        li   r0,>4000
        mov  r0,@ball_x
-       li   r0,>800e
+       li   r0,>800f
        mov  r0,@ball_pattern_color
 *      Misc
        li   r0,scroll_speed
@@ -361,7 +363,7 @@ upload_sprites:
        movb @r1lb,*r15
        movb r0,*r15
        movb @ball_x,*r15
-       ai   r1,>1001
+       ai   r1,>10f8
        movb r1,*r15
        movb @r1lb,*r15
 *      Points
@@ -433,7 +435,7 @@ move_ball_3:
        jeq  move_ball_4
        jlt  move_ball_6
 *      Moving down
-       li   r0,>800e
+       li   r0,>800f
        mov  r0,@ball_pattern_color
 *      Check char below ball
 move_ball_4:
@@ -462,13 +464,18 @@ move_ball_5:
        mov  @ball_animation_ptr,r0
        jeq  move_ball_10
 move_ball_8:
-       movb *r0+,r1
+       mov  @ball_animation_count,r1
+       jne  move_ball_11
+       movb *r0+,@ball_pattern_color
+       movb *r0+,@ball_animation_count+1
        jeq  move_ball_9
-       movb r1,@ball_pattern_color
        mov  r0,@ball_animation_ptr
-       jmp  move_ball_10
+       jmp  move_ball_11
 move_ball_9:
        clr  @ball_animation_ptr
+       jmp  move_ball_10
+move_ball_11:
+       dec  @ball_animation_count
 move_ball_10:
        .endproc
 *// move_ball
@@ -855,6 +862,7 @@ die:
        mov  r2,@ball_animation_ptr
        li   r0,120
        mov  r0,@frame
+       clr  @scroll_vx
        .endproc
 *// die
 
@@ -866,7 +874,7 @@ jump:
        .proc
        li   r0,->0280
        mov  r0,@ball_vy
-       li   r0,>8c0e
+       li   r0,>8c0f
        mov  r0,@ball_pattern_color
        .endproc
 *// jump
@@ -1510,22 +1518,24 @@ floor_ceil_table:
        data nametb+>0000,nametb+>0010,nametb+>0020,nametb+>0030
        data nametb+>0240,nametb+>0250,nametb+>0260,nametb+>0270
 animation_land:
-       byte >84,>84,>84
-       byte >88,>88,>88
-       byte >84,>84,>84
-       byte >80,>00
+       byte >84,3
+       byte >88,3
+       byte >84,3
+       byte >80,0
 animation_die:
-       byte >80,>80,>80,>80
-       byte >84,>84,>84,>84
-       byte >88,>88,>88,>88
-       byte >a0,>a0,>a0,>a0
-       byte >a4,>a4,>a4,>a4
-       byte >d0,>00
-       even
+       byte >80,6
+       byte >84,6
+       byte >88,6
+       byte >a0,6
+       byte >a4,6
+       byte >a8,6
+       byte >ac,6
+       byte >bc,6
+       byte >d0,0
 sprite_100_pt:
-       byte >a8,>0f
+       byte >c0,>0f
 sprite_200_pt:
-       byte >ac,>0a
+       byte >c4,>0a
 byte_space:
        byte chr_space
 byte_star_tl:

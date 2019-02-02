@@ -1555,7 +1555,7 @@ char_deadly:
 char_collectable:
        data :0100000000000000          ; Collectable
 char_unused_1:
-       data :0010000000000000          ; For future use
+       data :0010000000000000          ; Long jump
 char_unused_2:
        data :0001000000000000          ; For future use
 char_block_top:
@@ -1571,40 +1571,52 @@ char_props_table:
        byte :00000000                  ; #00 (00) space
        byte :00001111                  ; #01 (01) floor
        byte :00001111                  ; #02 (02) floor
-       byte :00001111                  ; #03 (09) floor
-       byte :00001111                  ; #04 (0A) floor
-       byte :00001111                  ; #05 (10) box
-       byte :00001111                  ; #06 (11) box
-       byte :00000000                  ; #07 (12) ceiling
-       byte :00000000                  ; #08 (13) ceiling
-       byte :00001111                  ; #09 (18) box
-       byte :00001111                  ; #0A (19) box
-       byte :00000000                  ; #0B (1A) ceiling
-       byte :00000000                  ; #0C (1B) ceiling
-       byte :00000000                  ; #0D (20) triangle up
-       byte :10000000                  ; #0E (21) triangle up
-       byte :00000000                  ; #0F (22) triangle down
-       byte :10000000                  ; #10 (23) triangle down
-       byte :00000000                  ; #11 (28) triangle up
-       byte :10000000                  ; #12 (29) triangle up
-       byte :00000000                  ; #13 (2A) triangle down
-       byte :10000000                  ; #14 (2B) triangle down
-       byte :00000000                  ; #15 (30) chain
-       byte :00000000                  ; #16 (31) chain
-       byte :10000000                  ; #17 (32) spikes
-       byte :00000000                  ; #18 (38) chain
-       byte :00000000                  ; #19 (39) chain
-       byte :10000000                  ; #1A (3A) spikes
-       byte :00001000                  ; #1B (40) platform
-       byte :00001000                  ; #1C (41) platform
-       byte :00001000                  ; #1D (42) platform
-       byte :01000000                  ; #1E (43) star
-       byte :01000000                  ; #1F (44) star
-       byte :00000000                  ; #20 (48) platform
-       byte :00000000                  ; #21 (49) platform
-       byte :00000000                  ; #22 (4A) platform
-       byte :01000000                  ; #23 (4B) star
-       byte :01000000                  ; #24 (4C) star
+       byte :10000000                  ; #03 (03) ooze
+       byte :10000000                  ; #04 (04) ooze
+       byte :00001111                  ; #05 (09) floor
+       byte :00001111                  ; #06 (0A) floor
+       byte :00000000                  ; #07 (0B) ooze
+       byte :10000000                  ; #08 (0C) ooze
+       byte :00001111                  ; #09 (10) box
+       byte :00001111                  ; #0A (11) box
+       byte :00000000                  ; #0B (12) ceiling
+       byte :00000000                  ; #0C (13) ceiling
+       byte :00001111                  ; #0D (18) box
+       byte :00001111                  ; #0E (19) box
+       byte :00000000                  ; #0F (1A) ceiling
+       byte :00000000                  ; #10 (1B) ceiling
+       byte :00000000                  ; #11 (20) triangle up
+       byte :10000000                  ; #12 (21) triangle up
+       byte :00000000                  ; #13 (22) triangle down
+       byte :10000000                  ; #14 (23) triangle down
+       byte :00000000                  ; #15 (28) triangle up
+       byte :10000000                  ; #16 (29) triangle up
+       byte :00000000                  ; #17 (2A) triangle down
+       byte :10000000                  ; #18 (2B) triangle down
+       byte :00000000                  ; #19 (30) chain
+       byte :00000000                  ; #1A (31) chain
+       byte :10000000                  ; #1B (32) spikes
+       byte :00000000                  ; #1C (38) chain
+       byte :00000000                  ; #1D (39) chain
+       byte :10000000                  ; #1E (3A) spikes
+       byte :00001000                  ; #1F (40) platform
+       byte :00001000                  ; #20 (41) platform
+       byte :00001000                  ; #21 (42) platform
+       byte :01000000                  ; #22 (43) star
+       byte :01000000                  ; #23 (44) star
+       byte :00100000                  ; #24 (45) spring
+       byte :00100000                  ; #25 (46) spring
+       byte :00000000                  ; #26 (48) platform
+       byte :00000000                  ; #27 (49) platform
+       byte :00000000                  ; #28 (4A) platform
+       byte :01000000                  ; #29 (4B) star
+       byte :01000000                  ; #2A (4C) star
+       byte :00100000                  ; #2B (4D) spring
+       byte :00100000                  ; #2C (4E) spring
+       byte :00000000                  ; #2D (50) spring collapsed
+       byte :00000000                  ; #2E (51) spring collapsed
+       byte :00000000                  ; #2F (58) spring collapsed
+       byte :00000000                  ; #30 (59) spring collapsed
 
        even
 

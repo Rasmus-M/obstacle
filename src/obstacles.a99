@@ -62,16 +62,6 @@ log_2_buffer_size:
        equ  5
 n_sprite_patterns:
        equ  18
-chr_space:
-       equ  0
-chr_star_tl:
-       equ  >1e
-chr_star_tr:
-       equ  >1f
-chr_star_bl:
-       equ  >23
-chr_star_br:
-       equ  >24
 chr_qst_mark:
        equ  112
 
@@ -520,7 +510,7 @@ update_partial_name_table:
        bl   @vwad
        mov  r6,r1
        andi r1,>0006
-       ai   r1,CEIL
+       ai   r1,ceiling
        mov  *r1,r2
        mov  r6,r1
        andi r1,>0008
@@ -672,7 +662,7 @@ update_full_name_table:
        .proc
 *      Ceiling and floor
        li   r0,nametb
-       li   r3,CEIL
+       li   r3,ceiling
        li   r4,2
 update_full_name_table_0:
        bl   @vwad
@@ -788,6 +778,8 @@ check_coinc_bottom:
        jeq  check_coinc_bottom_1
        coc  @char_collectable,r2
        jeq  check_coinc_bottom_2
+       coc  @char_long_jump,r2
+       jeq  check_coinc_bottom_7
        coc  @char_block_top,r2
        jne  check_coinc_bottom_3
 *      Collision with blocker
@@ -816,6 +808,10 @@ check_coinc_bottom_1:
 *      Collision with star
 check_coinc_bottom_2:
        bl   @collect_star
+       jmp  check_coinc_left_3
+*      Collision with spring
+check_coinc_bottom_7:
+       bl   @long_jump
 check_coinc_bottom_3:
        .endproc
 *// check_coinc_bottom
@@ -878,6 +874,19 @@ jump:
        mov  r0,@ball_pattern_color
        .endproc
 *// jump
+
+***************************************************************
+*
+* Init long jump
+*
+long_jump:
+       .proc
+       li   r0,->0400
+       mov  r0,@ball_vy
+       li   r0,>8c0f
+       mov  r0,@ball_pattern_color
+       .endproc
+*// long_jump
 
 ***************************************************************
 *
@@ -1536,88 +1545,6 @@ sprite_100_pt:
        byte >c0,>0f
 sprite_200_pt:
        byte >c4,>0a
-byte_space:
-       byte chr_space
-byte_star_tl:
-       byte chr_star_tl
-byte_star_tr:
-       byte chr_star_tr
-byte_star_bl:
-       byte chr_star_bl
-byte_star_br:
-       byte chr_star_br
-       even
-**
-* Map character properties
-*
-char_deadly:
-       data :1000000000000000          ; Deadly
-char_collectable:
-       data :0100000000000000          ; Collectable
-char_unused_1:
-       data :0010000000000000          ; Long jump
-char_unused_2:
-       data :0001000000000000          ; For future use
-char_block_top:
-       data :0000100000000000          ; Block top
-char_block_bottom:
-       data :0000010000000000          ; Block bottom
-char_block_left:
-       data :0000001000000000          ; Block left
-char_block_right:
-       data :0000000100000000          ; Block right
-*
-char_props_table:
-       byte :00000000                  ; #00 (00) space
-       byte :00001111                  ; #01 (01) floor
-       byte :00001111                  ; #02 (02) floor
-       byte :10000000                  ; #03 (03) ooze
-       byte :10000000                  ; #04 (04) ooze
-       byte :00001111                  ; #05 (09) floor
-       byte :00001111                  ; #06 (0A) floor
-       byte :00000000                  ; #07 (0B) ooze
-       byte :10000000                  ; #08 (0C) ooze
-       byte :00001111                  ; #09 (10) box
-       byte :00001111                  ; #0A (11) box
-       byte :00000000                  ; #0B (12) ceiling
-       byte :00000000                  ; #0C (13) ceiling
-       byte :00001111                  ; #0D (18) box
-       byte :00001111                  ; #0E (19) box
-       byte :00000000                  ; #0F (1A) ceiling
-       byte :00000000                  ; #10 (1B) ceiling
-       byte :00000000                  ; #11 (20) triangle up
-       byte :10000000                  ; #12 (21) triangle up
-       byte :00000000                  ; #13 (22) triangle down
-       byte :10000000                  ; #14 (23) triangle down
-       byte :00000000                  ; #15 (28) triangle up
-       byte :10000000                  ; #16 (29) triangle up
-       byte :00000000                  ; #17 (2A) triangle down
-       byte :10000000                  ; #18 (2B) triangle down
-       byte :00000000                  ; #19 (30) chain
-       byte :00000000                  ; #1A (31) chain
-       byte :10000000                  ; #1B (32) spikes
-       byte :00000000                  ; #1C (38) chain
-       byte :00000000                  ; #1D (39) chain
-       byte :10000000                  ; #1E (3A) spikes
-       byte :00001000                  ; #1F (40) platform
-       byte :00001000                  ; #20 (41) platform
-       byte :00001000                  ; #21 (42) platform
-       byte :01000000                  ; #22 (43) star
-       byte :01000000                  ; #23 (44) star
-       byte :00100000                  ; #24 (45) spring
-       byte :00100000                  ; #25 (46) spring
-       byte :00000000                  ; #26 (48) platform
-       byte :00000000                  ; #27 (49) platform
-       byte :00000000                  ; #28 (4A) platform
-       byte :01000000                  ; #29 (4B) star
-       byte :01000000                  ; #2A (4C) star
-       byte :00100000                  ; #2B (4D) spring
-       byte :00100000                  ; #2C (4E) spring
-       byte :00000000                  ; #2D (50) spring collapsed
-       byte :00000000                  ; #2E (51) spring collapsed
-       byte :00000000                  ; #2F (58) spring collapsed
-       byte :00000000                  ; #30 (59) spring collapsed
-
        even
 
 *********************************************************************
@@ -1628,8 +1555,8 @@ char_props_table:
        copy "sound.a99"
        copy "spritePatterns.a99"
        copy "charset.a99"
-map1_chars:
-       copy "map1-chars.a99"
+map_chars:
+       copy "map-chars.a99"
 map1_lz4:
        bcopy "map1.lz4"
 map1_lz4_end

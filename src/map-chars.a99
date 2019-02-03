@@ -4,12 +4,12 @@
 PAT0   DATA >0000,>0000,>0000,>0000    ; #00 (00) space
 PAT1   DATA >7FAB,>DEAB,>FFAF,>FFDF    ; #01 (01) floor
 PAT2   DATA >FEDF,>FEFE,>FEFE,>FEFE    ; #02 (02) floor
-PAT3   DATA >4E91,>2020,>118E,>4024    ; #03 (03) ooze
-PAT4   DATA >0804,>93A8,>2813,>44A8    ; #04 (04) ooze
+PAT3   DATA >3249,>A484,>8445,>BA02    ; #03 (03) ooze
+PAT4   DATA >52C2,>4438,>C122,>1924    ; #04 (04) ooze
 PAT5   DATA >FFFF,>BFFF,>FFFF,>80FF    ; #05 (09) floor
 PAT6   DATA >FEFE,>FEFE,>FEFE,>01FE    ; #06 (0A) floor
-PAT7   DATA >2A24,>4098,>2525,>9940    ; #07 (0B) ooze
-PAT8   DATA >4808,>6493,>1013,>24C8    ; #08 (0C) ooze
+PAT7   DATA >0042,>2418,>1824,>4200    ; #07 (0B) not used
+PAT8   DATA >0042,>2418,>1824,>4200    ; #08 (0C) not used
 PAT9   DATA >7FFF,>BFDF,>AFD7,>ABD5    ; #09 (10) box
 PAT10  DATA >FEFE,>FDFA,>F5EA,>D5AA    ; #0A (11) box
 PAT11  DATA >FD46,>3BBA,>DA27,>D8D7    ; #0B (12) ceiling
@@ -133,12 +133,12 @@ TCHARS BYTE >00,>00                    ; #00 color 2/1
        BYTE >2D,>2E                    ; #45 color B/1
        BYTE >2E,>00                    ; #46 color B/1
        BYTE >FF,>FF                    ; #47 unused
-       BYTE >00,>07                    ; #48 color C/1
-       BYTE >07,>08                    ; #49 color C/1
-       BYTE >08,>07                    ; #4A color C/1
-       BYTE >08,>00                    ; #4B color C/1
-       BYTE >05,>06                    ; #4C color C/1
-       BYTE >06,>05                    ; #4D color C/1
+       BYTE >05,>06                    ; #48 color C/1
+       BYTE >06,>05                    ; #49 color C/1
+       BYTE >00,>07                    ; #4A color C/1
+       BYTE >07,>08                    ; #4B color C/1
+       BYTE >08,>07                    ; #4C color C/1
+       BYTE >08,>00                    ; #4D color C/1
        BYTE >FF,>FF                    ; #4E unused
        BYTE >FF,>FF                    ; #4F unused
        BYTE >00,>1C                    ; #50 color E/1
@@ -159,10 +159,13 @@ TCHARS BYTE >00,>00                    ; #00 color 2/1
 ceiling:
        byte >10,>11,>08,>09
 floor:
-       byte >05,>06,>4C,>4D
-spring_collapsed:
+       byte >05,>06,>48,>49
+spring:
        byte >41,>42,>43
        byte >31,>32,>33
+spring_collapsed:
+       byte >44,>45,>46
+       byte >34,>35,>36
 
 **
 * Map character properties
@@ -173,8 +176,8 @@ char_collectable:
        data :0100000000000000          ; Collectable
 char_long_jump:
        data :0010000000000000          ; Long jump
-char_unused_2:
-       data :0001000000000000          ; For future use
+char_vert_scroll:
+       data :0001000000000000          ; Vertically scrolling
 char_block_top:
        data :0000100000000000          ; Block top
 char_block_bottom:
@@ -188,12 +191,12 @@ char_props_table:
        byte :00000000                  ; #00 (00) space
        byte :00001111                  ; #01 (01) floor
        byte :00001111                  ; #02 (02) floor
-       byte :10000000                  ; #03 (03) ooze
-       byte :10000000                  ; #04 (04) ooze
+       byte :10010000                  ; #03 (03) ooze
+       byte :10010000                  ; #04 (04) ooze
        byte :00001111                  ; #05 (09) floor
        byte :00001111                  ; #06 (0A) floor
-       byte :00000000                  ; #07 (0B) ooze
-       byte :10000000                  ; #08 (0C) ooze
+       byte :00000000                  ; #07 (0B) not used
+       byte :00000000                  ; #08 (0C) not used
        byte :00001111                  ; #09 (10) box
        byte :00001111                  ; #0A (11) box
        byte :00000000                  ; #0B (12) ceiling

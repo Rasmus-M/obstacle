@@ -881,6 +881,8 @@ jump:
 *
 long_jump:
        .proc
+       li   r1,spring_collapsed
+       bl   @replace_meta_tile
        li   r0,->0400
        mov  r0,@ball_vy
        li   r0,>8c0f
@@ -971,6 +973,29 @@ remove_meta_tile:
 
 ***************************************************************
 *
+* Replace meta tile in map
+*
+* r0: VDP address of a character in the metatile to replace
+* r1: CPU RAM address of replacement characters
+*
+replace_meta_tile:
+       .proc
+       andi r0,>3efe                   ; Adjust to metatile
+       dec  r0
+       bl   @vwad
+       movb *r1+,*r15
+       movb *r1+,*r15
+       movb *r1+,*r15
+       ai   r0,>100
+       bl   @vwad
+       movb *r1+,*r15
+       movb *r1+,*r15
+       movb *r1+,*r15
+       .endproc
+*// replace_meta_tile
+
+***************************************************************
+*
 * Unpack and copy map to VDP RAM
 *
 copy_map_to_vdp:
@@ -1018,18 +1043,36 @@ scroll_patterns_1:
 *      Scroll offset loop
        clr  r3                         ; Horizontal scroll offset (0-7)
 scroll_patterns_2:
-       mov  *r4,r5                    ; Get from and to pattern numbers
-       jlt  scroll_patterns_5
-       mov  r5,r6
-       andi r5,>ff00
-       swpb r5
-       sla  r5,3
+       mov  *r4,r5                     ; Get from and to pattern numbers
+       jlt  scroll_patterns_5          ; >ff = unused
+       mov  r5,r6                      ; Copy
+       andi r5,>ff00                   ; Isolate
+       swpb r5                         ; To LSB
+       mov  r5,r8                      ; Copy
+       sla  r5,3                       ; Multiply by 8
        ai   r5,pat0                    ; Address of from pattern
-       andi r6,>00ff
-       sla  r6,3
+       movb @char_props_table(r8),r9   ; Check for vertical scrolling
+       coc  @char_vert_scroll,r9
+       jne  !
+       mov  r5,r0
+       li   r1,buffer
+       bl   @copy_char_to_buffer
+       li   r5,buffer
+       a    r3,r5                      ; Add scroll offset
+!      andi r6,>00ff                   ; Isolate
+       mov  r6,r8                      ; Copy
+       sla  r6,3                       ; Multiply by 8
        ai   r6,pat0                    ; Address of to pattern
+       movb @char_props_table(r8),r9   ; Check for vertical scrolling
+       coc  @char_vert_scroll,r9
+       jne  !
+       mov  r6,r0
+       li   r1,buffer+16
+       bl   @copy_char_to_buffer
+       li   r6,buffer+16
+       a    r3,r6                      ; Add scroll offset
 *      Write address
-       mov  r2,r0                      ; Pattern number
+!      mov  r2,r0                      ; Pattern number
        sla  r0,3                       ; Multiply by 8
        mov  r3,r1                      ; Scroll offset
        sla  r1,11                      ; Multiply by >800
@@ -1059,7 +1102,24 @@ scroll_patterns_5:
        c    r2,@TCHNUM                      ;
        jlt  scroll_patterns_1
        .endproc
-*// scroll_patterns
+*/
+
+*********************************************************************
+*
+* Copy char pattern to buffer twice
+*
+* r0: source
+* r1: dest
+*
+copy_char_to_buffer:
+       li   r9,8
+copy_char_to_buffer_1:
+       movb *r0,@8(r1)
+       movb *r0+,*r1+
+       dec  r9
+       jne  copy_char_to_buffer_1
+       rt
+*// copy_char_to_buffer
 
 *********************************************************************
 *

@@ -4,8 +4,8 @@
 PAT0   DATA >0000,>0000,>0000,>0000    ; #00 (00) space
 PAT1   DATA >7FAB,>DEAB,>FFAF,>FFDF    ; #01 (01) floor
 PAT2   DATA >FEDF,>FEFE,>FEFE,>FEFE    ; #02 (02) floor
-PAT3   DATA >3249,>A484,>8445,>BA02    ; #03 (03) ooze
-PAT4   DATA >52C2,>4438,>C122,>1924    ; #04 (04) ooze
+PAT3   DATA >3249,>A482,>8245,>BA02    ; #03 (03) ooze
+PAT4   DATA >5282,>4438,>C122,>1924    ; #04 (04) ooze
 PAT5   DATA >FFFF,>BFFF,>FFFF,>80FF    ; #05 (09) floor
 PAT6   DATA >FEFE,>FEFE,>FEFE,>01FE    ; #06 (0A) floor
 PAT7   DATA >0042,>2418,>1824,>4200    ; #07 (0B) not used

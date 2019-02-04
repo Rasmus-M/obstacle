@@ -91,8 +91,10 @@ frame:
        equ  padvar
 status:
        equ  frame+2
-scroll_x:                              ; Scroll offset in FP 12.4
+level:
        equ  status+2
+scroll_x:                              ; Scroll offset in FP 12.4
+       equ  level+2
 scroll_x_pixels:                       ; Scroll offset in pixels
        equ  scroll_x+2
 scroll_vx:                             ; FP 8.8
@@ -1002,13 +1004,18 @@ copy_map_to_vdp:
        .proc
 *      Upload
        li   r0,>2000
-       li   r1,map1_lz4+11
-       li   r2,map1_lz4_end-map1_lz4-19
+       mov  @level,r3
+       sla  r3,2
+       mov  @maps(r3),r1
+       mov  @maps+2(r3),r2
        bl   @vmbw
 *      Unpack
        li   r0,>2000
        li   r1,>1000
-       li   r2,>2000+(map1_lz4_end-map1_lz4-19)
+       mov  @level,r3
+       sla  r3,2
+       li   r2,>2000
+       a    @maps+2(r3),r2
        bl   @unpack_lz4_from_to_vdp
 *      Rearrange
        li   r0,>1000
@@ -1617,8 +1624,14 @@ sprite_200_pt:
        copy "charset.a99"
 map_chars:
        copy "map-chars.a99"
-map1_lz4:
-       bcopy "map1.lz4"
-map1_lz4_end
+maps:
+       data map1,map1_end-map1
+       data map2,map2_end-map2
+map1:
+       bcopy "map1trim.lz4"
+map1_end
+map2:
+       bcopy "map2trim.lz4"
+map2_end
 
        end

@@ -64,6 +64,10 @@ n_sprite_patterns:
        equ  18
 chr_qst_mark:
        equ  112
+n_lives:
+       equ  3
+n_levels:
+       equ  2
 
 **
 * Scratch pad
@@ -87,14 +91,16 @@ padvar equ  stack+>10                  ; Start of pad variables
 **
 * PAD variables
 *
-frame:
-       equ  padvar
-status:
-       equ  frame+2
 level:
+       equ  padvar
+lives:
+       equ  level+2
+status:
+       equ  lives+2
+frame:
        equ  status+2
 scroll_x:                              ; Scroll offset in FP 12.4
-       equ  level+2
+       equ  frame+2
 scroll_x_pixels:                       ; Scroll offset in pixels
        equ  scroll_x+2
 scroll_vx:                             ; FP 8.8
@@ -219,6 +225,8 @@ main:
        bl   @one_time_init
 new_game:
        bl   @init_game
+new_level:
+       bl   @init_level
 loop:
        bl   @vsync
        bl   @update_vdp_regs
@@ -231,12 +239,18 @@ loop:
        bl   @sfx_player
        bl   @scroll
        mov  @status,r0
-       jlt  loop_1
+       jgt  loop_1
+       jlt  loop_2
        inc  @frame
        jmp  loop
 loop_1:
+       inc  @level
+       jmp  new_level
+loop_2:
        dec  @frame
        jne  loop
+       dec  @lives
+       jne  new_level
        jmp  new_game
 
 *********************************************************************
@@ -257,13 +271,24 @@ one_time_init:
 * Initialize game
 *
 init_game:
+       clr  @level
+       li   r0,n_lives
+       mov  r0,@lives
+       rt
+*// init_game
+
+***************************************************************
+*
+* Initialize level
+*
+init_level:
        .proc
 *      Screen off
        li   r0,>01a2
        bl   @vwtr
 *      Scratch pad variables
-       li   r0,padvar
-       li   r2,pad_max-padvar
+       li   r0,status
+       li   r2,pad_max-status
 one_time_init_1:
        clr  *r0+
        dect r2
@@ -301,7 +326,7 @@ one_time_init_1:
        li   r0,>01e2
        bl   @vwtr
        .endproc
-*// init_game
+*// init_level
 
 *********************************************************************
 *
@@ -602,6 +627,10 @@ scroll:
        mov  r0,@scroll_x
        srl  r0,4
        mov  r0,@scroll_x_pixels
+       ci   r0,map_width*8
+       jlt  scroll_1
+       inc  @status
+scroll_1:
        rt
 *// scroll
 
@@ -1002,18 +1031,17 @@ replace_meta_tile:
 *
 copy_map_to_vdp:
        .proc
+       mov  @level,r3
+       andi r3,n_levels-1
+       sla  r3,2
 *      Upload
        li   r0,>2000
-       mov  @level,r3
-       sla  r3,2
        mov  @maps(r3),r1
        mov  @maps+2(r3),r2
        bl   @vmbw
 *      Unpack
        li   r0,>2000
        li   r1,>1000
-       mov  @level,r3
-       sla  r3,2
        li   r2,>2000
        a    @maps+2(r3),r2
        bl   @unpack_lz4_from_to_vdp

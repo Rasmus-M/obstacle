@@ -205,13 +205,13 @@ char_props_table:
        byte :00001111                  ; #0E (19) box
        byte :00000000                  ; #0F (1A) ceiling
        byte :00000000                  ; #10 (1B) ceiling
-       byte :00000000                  ; #11 (20) triangle up
+       byte :00000001                  ; #11 (20) triangle up
        byte :10000000                  ; #12 (21) triangle up
-       byte :00000000                  ; #13 (22) triangle down
+       byte :00000001                  ; #13 (22) triangle down
        byte :10000000                  ; #14 (23) triangle down
-       byte :00000000                  ; #15 (28) triangle up
+       byte :00000001                  ; #15 (28) triangle up
        byte :10000000                  ; #16 (29) triangle up
-       byte :00000000                  ; #17 (2A) triangle down
+       byte :00000001                  ; #17 (2A) triangle down
        byte :10000000                  ; #18 (2B) triangle down
        byte :00000000                  ; #19 (30) chain
        byte :00000000                  ; #1A (31) chain

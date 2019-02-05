@@ -64,6 +64,8 @@ n_sprite_patterns:
        equ  18
 chr_qst_mark:
        equ  112
+chr_zero:
+       equ  100
 n_lives:
        equ  3
 n_levels:
@@ -1179,11 +1181,18 @@ read_grom_chars_2:
        movb r1,@grmwa
        movb @r1lb,@grmwa
        clr  *r15                       ; Top line
-       li   r2,7
+       li   r2,4
 read_grom_chars_3:
-       movb @grmrd,*r15
+       movb @grmrd,r1
+       srl  r1,1
+       movb r1,*r15
        dec  r2
        jne  read_grom_chars_3
+       li   r2,3
+read_grom_chars_4:
+       movb @grmrd,*r15
+       dec  r2
+       jne  read_grom_chars_4
        dec  r5
        jne  read_grom_chars_2
        ai   r0,>800
@@ -1232,6 +1241,40 @@ display_text_4:
        bl   @vmbw
        .endproc
 *// display_text
+
+*********************************************************************
+*
+* Display decimal number
+* VDP address must already be set up.
+*
+* r1: number to display
+* r2: number of digits
+*
+display_decimal:
+       li   r3,5
+       s    r2,r3
+       sla  r3,1
+       ai   r3,d10000
+       dec  r2
+display_decimal_1:
+       clr  r0
+       div  *r3+,r0
+       ai   r0,chr_zero
+       movb @r0lb,*r15
+       dec  r2
+       jne  display_decimal_1
+       ai   r1,chr_zero
+       movb @r1lb,*r15
+       rt
+d10000:
+       data 10000
+d1000:
+       data 1000
+d100:
+       data 100
+d10:
+       data 10
+*// display_decimal
 
 *********************************************************************
 *
@@ -1640,6 +1683,15 @@ sprite_100_pt:
        byte >c0,>0f
 sprite_200_pt:
        byte >c4,>0a
+txt_score:
+       text "SCORE"
+       byte 0
+txt_lives:
+       text "LIVES"
+       byte 0
+txt_level:
+       text "LEVEL"
+       byte 0
        even
 
 *********************************************************************

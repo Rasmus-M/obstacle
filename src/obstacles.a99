@@ -97,8 +97,12 @@ level:
        equ  padvar
 lives:
        equ  level+2
-status:
+score:
        equ  lives+2
+disp_score:
+       equ  score+2
+status:
+       equ  disp_score+2
 frame:
        equ  status+2
 scroll_x:                              ; Scroll offset in FP 12.4
@@ -237,6 +241,7 @@ loop:
        bl   @move_other_sprites
        bl   @update_partial_name_table
        bl   @user_input
+       bl   @display_score
        bl   @check_quit
        bl   @sfx_player
        bl   @scroll
@@ -274,6 +279,8 @@ one_time_init:
 *
 init_game:
        clr  @level
+       clr  @score
+       seto @disp_score
        li   r0,n_lives
        mov  r0,@lives
        rt
@@ -598,6 +605,23 @@ user_input_5:
        .endproc
 *// user_input
 
+***************************************************************
+*
+* Display score
+*
+display_score:
+       .proc
+       c    @score,@disp_score
+       jeq  display_score_1
+       li   r0,32*23
+       mov  @score,r1
+       li   r2,5
+       bl   @display_decimal
+       mov  @score,@disp_score
+display_score_1:
+       .endproc
+*// display_score
+
 *********************************************************************
 *
 * Check quit
@@ -619,7 +643,7 @@ quit   clr  @>83c4                     ; Reset user ISR address
 
 ***************************************************************
 *
-* Update scrolling veriables
+* Update scrolling variables
 *
 scroll:
        mov  @scroll_x,r0
@@ -937,6 +961,8 @@ collect_star:
        ai   r0,>1000
        mov  r0,@points_sprite_x
        mov  @sprite_100_pt,@points_sprite_pattern_color
+       li   r0,100
+       a    r0,@score
        bl   @play_pick_up
        .endproc
 *// collect_star
@@ -1205,7 +1231,7 @@ read_grom_chars_4:
 *
 * Display text to both name table buffers (slow)
 *
-* r0: VDP offset
+* r0: Screen offset
 * r1: Points to zero terminated ascii text
 *
 display_text:
@@ -1247,10 +1273,16 @@ display_text_4:
 * Display decimal number
 * VDP address must already be set up.
 *
-* r1: number to display
-* r2: number of digits
+* r0: Screen offset
+* r1: Number to display
+* r2: Number of digits
 *
 display_decimal:
+       .proc
+       ai   r0,nametb
+       mov  r0,r4
+       bl   @vwad
+       li   r5,buffer
        li   r3,5
        s    r2,r3
        sla  r3,1
@@ -1260,12 +1292,23 @@ display_decimal_1:
        clr  r0
        div  *r3+,r0
        ai   r0,chr_zero
-       movb @r0lb,*r15
+       swpb r0
+       movb r0,*r15
+       movb r0,*r5+
        dec  r2
        jne  display_decimal_1
        ai   r1,chr_zero
-       movb @r1lb,*r15
-       rt
+       swpb r1
+       movb r1,*r15
+       movb r1,*r5+
+*      2nd name table buffer
+       mov  r4,r0
+       ai   r0,namet2-nametb
+       li   r1,buffer
+       mov  r5,r2
+       ai   r2,-buffer
+       bl   @vmbw
+       .endproc
 d10000:
        data 10000
 d1000:

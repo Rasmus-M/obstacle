@@ -69,7 +69,9 @@ chr_zero:
 n_lives:
        equ  3
 n_levels:
-       equ  2
+       equ  4
+start_level:
+       equ  0
 
 **
 * Scratch pad
@@ -280,7 +282,8 @@ one_time_init:
 * Initialize game
 *
 init_game:
-       clr  @level
+       li   r0,start_level
+       mov  r0,@level
        clr  @score
        seto @disp_score
        li   r0,n_lives
@@ -426,7 +429,12 @@ move_ball:
 move
        mov  @ball_vx,r0
        jlt  move_ball_1
+       mov  @ball_x,r0
+       ci   r0,>f000
+       jl   move_ball_0
+       clr  @ball_vx
 *      Check char to the right of ball
+move_ball_0:
        li   r0,>1000
        li   r1,>0800
        bl   @get_map_char
@@ -1788,11 +1796,19 @@ map_chars:
 maps:
        data map1,map1_end-map1
        data map2,map2_end-map2
+       data map3,map3_end-map3
+       data map4,map4_end-map4
 map1:
        bcopy "map1trim.lz4"
 map1_end
 map2:
        bcopy "map2trim.lz4"
 map2_end
+map3:
+       bcopy "map3trim.lz4"
+map3_end
+map4:
+       bcopy "map4trim.lz4"
+map4_end
 
        end

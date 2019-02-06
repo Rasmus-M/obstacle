@@ -129,8 +129,10 @@ ball_animation_ptr:
        equ  ball_pattern_color+2
 ball_animation_count:
        equ  ball_animation_ptr+2
-points_sprite_y:
+ball_rebounce:
        equ  ball_animation_count+2
+points_sprite_y:
+       equ  ball_rebounce+2
 points_sprite_x:
        equ  points_sprite_y+2
 points_sprite_pattern_color:
@@ -307,12 +309,11 @@ one_time_init_1:
        bl   @scroll_patterns
        bl   @read_grom_chars
        bl   @update_full_name_table
-;       li   r0,21*32+8
-;       li   r1,title
-;       bl   @display_text
        li   r0,22*32+1
        li   r1,txt_stats
        bl   @display_text
+       bl   @display_level
+       bl   @display_lives
 *      Sprite patterns
        li   r0,sprptb+>400
        li   r1,SPR0
@@ -457,6 +458,9 @@ move_ball_3:
 *      Check for animation
        mov  @ball_animation_ptr,r0
        jne  move_ball_8
+*      Check for rebounce
+       abs  @ball_rebounce
+       jne  move_ball_12
 *      Accelerate
        a    @ball_ay,@ball_vy
 *      Check y velocity
@@ -464,8 +468,8 @@ move_ball_3:
        jeq  move_ball_4
        jlt  move_ball_6
 *      Moving down
-       li   r0,>800f
-       mov  r0,@ball_pattern_color
+       li   r0,>8000
+       movb r0,@ball_pattern_color
 *      Check char below ball
 move_ball_4:
        li   r0,>0800
@@ -505,6 +509,12 @@ move_ball_9:
        jmp  move_ball_10
 move_ball_11:
        dec  @ball_animation_count
+       jmp  move_ball_10
+*      Recounce
+move_ball_12
+       li   r0,->0100
+       mov  r0,@ball_vy
+       clr  @ball_rebounce
 move_ball_10:
        .endproc
 *// move_ball
@@ -624,6 +634,33 @@ display_score:
 display_score_1:
        .endproc
 *// display_score
+
+***************************************************************
+*
+* Display level
+*
+display_level:
+       .proc
+       li   r0,32*22+20
+       mov  @level,r1
+       inc  r1
+       li   r2,2
+       bl   @display_decimal
+       .endproc
+*// display_level
+
+***************************************************************
+*
+* Display lives
+*
+display_lives:
+       .proc
+       li   r0,32*22+29
+       mov  @lives,r1
+       li   r2,2
+       bl   @display_decimal
+       .endproc
+*// display_lives
 
 *********************************************************************
 *
@@ -846,20 +883,21 @@ check_coinc_bottom:
        mov  @ball_vy,r0
        ci   r0,>0300
        jlt  check_coinc_bottom_4
-       li   r1,->0100                  ; Rebounce
+       seto @ball_rebounce             ; Rebounce
        jmp  check_coinc_bottom_5
 check_coinc_bottom_4:
-       clr  r1                         ; Stop movement
        ci   r0,>0020
        jlt  check_coinc_bottom_6
 check_coinc_bottom_5:
        mov  @ball_y,r2                 ; Align to meta tile
        andi r2,>f000
        mov  r2,@ball_y
+       li   r2,>800f
+       mov  r2,@ball_pattern_color
        li   r2,animation_land          ; Animate
        mov  r2,@ball_animation_ptr
 check_coinc_bottom_6:
-       mov  r1,@ball_vy
+       clr  @ball_vy                   ; Stop movement
        jmp  check_coinc_bottom_3
 *      Collision with deadly
 check_coinc_bottom_1:
@@ -932,6 +970,7 @@ jump:
        mov  r0,@ball_vy
        li   r0,>8c0f
        mov  r0,@ball_pattern_color
+       clr  @ball_rebounce
        .endproc
 *// jump
 
@@ -945,8 +984,9 @@ long_jump:
        bl   @replace_meta_tile
        li   r0,->0400
        mov  r0,@ball_vy
-       li   r0,>8c0f
+       li   r0,>8c0e
        mov  r0,@ball_pattern_color
+       clr  @ball_rebounce
        .endproc
 *// long_jump
 

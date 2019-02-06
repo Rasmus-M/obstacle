@@ -307,8 +307,11 @@ one_time_init_1:
        bl   @scroll_patterns
        bl   @read_grom_chars
        bl   @update_full_name_table
-       li   r0,23*32+8
-       li   r1,title
+;       li   r0,21*32+8
+;       li   r1,title
+;       bl   @display_text
+       li   r0,22*32+1
+       li   r1,txt_stats
        bl   @display_text
 *      Sprite patterns
        li   r0,sprptb+>400
@@ -613,7 +616,7 @@ display_score:
        .proc
        c    @score,@disp_score
        jeq  display_score_1
-       li   r0,32*23
+       li   r0,32*22+8
        mov  @score,r1
        li   r2,5
        bl   @display_decimal
@@ -1726,15 +1729,10 @@ sprite_100_pt:
        byte >c0,>0f
 sprite_200_pt:
        byte >c4,>0a
-txt_score:
-       text "SCORE"
+txt_stats:
+       text "SCORE:000000 LEVEL:00 LIVES:00"
        byte 0
-txt_lives:
-       text "LIVES"
-       byte 0
-txt_level:
-       text "LEVEL"
-       byte 0
+
        even
 
 *********************************************************************

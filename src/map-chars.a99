@@ -197,12 +197,12 @@ char_props_table:
        byte :00001111                  ; #06 (0A) floor
        byte :00000000                  ; #07 (0B) not used
        byte :00000000                  ; #08 (0C) not used
-       byte :00001111                  ; #09 (10) box
-       byte :00001111                  ; #0A (11) box
+       byte :00001010                  ; #09 (10) box
+       byte :00001001                  ; #0A (11) box
        byte :00000000                  ; #0B (12) ceiling
        byte :00000000                  ; #0C (13) ceiling
-       byte :00001111                  ; #0D (18) box
-       byte :00001111                  ; #0E (19) box
+       byte :00000110                  ; #0D (18) box
+       byte :00000101                  ; #0E (19) box
        byte :00000000                  ; #0F (1A) ceiling
        byte :00000000                  ; #10 (1B) ceiling
        byte :00000001                  ; #11 (20) triangle up
@@ -231,8 +231,8 @@ char_props_table:
        byte :00000000                  ; #28 (4A) platform
        byte :01000000                  ; #29 (4B) star
        byte :01000000                  ; #2A (4C) star
-       byte :00100000                  ; #2B (4D) spring
-       byte :00100000                  ; #2C (4E) spring
+       byte :00000000                  ; #2B (4D) spring
+       byte :00000000                  ; #2C (4E) spring
        byte :00000000                  ; #2D (50) spring collapsed
        byte :00000000                  ; #2E (51) spring collapsed
        byte :00000000                  ; #2F (58) spring collapsed

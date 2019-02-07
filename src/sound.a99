@@ -153,12 +153,12 @@ W1     equ  >E5
 W2     equ  >E6
 
 sfx_star:
-       byte 8                          ; Frames
-       byte T1
+       byte 64                         ; Frames
+       byte T2
        byte 0                          ; Attn start
-       byte 0                          ; Attn step
-       byte 200                        ; Freq start
-       byte -24                        ; Freq step
+       byte 4                          ; Attn step
+       byte 16                         ; Freq start
+       byte 0                          ; Freq step
 sfx_jump:
        byte 6                          ; Frames
        byte T3

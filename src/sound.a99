@@ -22,94 +22,43 @@ mute_table:
 
 *********************************************************************
 *
-* Play step
+* Play star
 *
-play_step:
-       li   r0,sfx_step
-       clr  r1
-       jmp  play_sfx
-*// play_step
-
-*********************************************************************
-*
-* Play pick up
-*
-play_pick_up:
-       li   r0,sfx_pick_up
+play_star:
+       li   r0,sfx_star
        li r1,2
        jmp  play_sfx
-*// play_pick_up
+*// play_star
 
 *********************************************************************
 *
-* Play food
+* Play jump
 *
-play_food:
-       li   r0,sfx_food
-       li r1,2
-       jmp  play_sfx
-*// play_food
-
-*********************************************************************
-*
-* Play axe
-*
-play_axe:
-       li   r0,sfx_axe
+play_jump:
+       li   r0,sfx_jump
        li r1,4
        jmp  play_sfx
 *// play_axe
 
 *********************************************************************
 *
-* Play energy drain
+* Play long jumo
 *
-play_energy_drain:
-       li   r0,sfx_energy_drain
-       li r1,2
-       jmp  play_sfx
-*// play_energy_drain
-
-*********************************************************************
-*
-* Play shot
-*
-play_shot:
-       li   r0,sfx_shot
-       li   r1,2
-       jmp  play_sfx
-*// play_shot
-
-
-*********************************************************************
-*
-* Play bomb
-*
-play_bomb:
-       li   r0,sfx_bomb
+play_long_jump:
+       li   r0,sfx_long_jump
        li   r1,4
        jmp  play_sfx
 *// play_bomb
 
 *********************************************************************
 *
-* Play explosion
+* Play die
 *
-play_explosion:
-       li   r0,sfx_explosion
+play_die:
+       li   r0,sfx_die
        li   r1,6
        jmp  play_sfx
-*// play_explosion
-
-*********************************************************************
-*
-* Play boxing glove
-*
-play_glove:
-       li   r0,sfx_glove
-       li   r1,6
-       jmp  play_sfx
-*// play_glove
+*// play_die
 
 *********************************************************************
 *
@@ -203,64 +152,28 @@ W0     equ  >E4
 W1     equ  >E5
 W2     equ  >E6
 
-sfx_step:
-       byte 2                          ; Frames
-       byte W0
-       byte 32                          ; Attn start
-       byte 96                         ; Attn step
-sfx_pick_up:
+sfx_star:
        byte 8                          ; Frames
        byte T1
        byte 0                          ; Attn start
        byte 0                          ; Attn step
        byte 200                        ; Freq start
        byte -24                        ; Freq step
-sfx_food:
-       byte 64                         ; Frames
-       byte T2
-       byte 0                          ; Attn start
-       byte 4                          ; Attn step
-       byte 16                         ; Freq start
-       byte 0                          ; Freq step
-sfx_axe:
+sfx_jump:
        byte 6                          ; Frames
        byte T3
        byte 32                         ; Attn start
        byte 16                         ; Attn step
        byte 192                        ; Freq start
        byte 8                          ; Freq step
-sfx_leave_room:
-       byte 14                         ; Frames
-       byte T1
-       byte 0                          ; Attn start
-       byte 4                          ; Attn step
-       byte 255                        ; Freq start
-       byte -16                        ; Freq step
-sfx_energy_drain:
-       byte 6                          ; Frames
-       byte T1
-       byte 0                          ; Attn start
-       byte 0                          ; Attn step
-       byte 32                         ; Freq start
-       byte -32                        ; Freq step
-sfx_shot:
-       byte 8                          ; Frames
-       byte W0
-       byte 0                          ; Attn start
-       byte 32                          ; Attn step
-sfx_bomb:
+sfx_long_jump:
        byte 32                         ; Frames
        byte T3
        byte 0                          ; Attn start
        byte 0                          ; Attn step
        byte 16                         ; Freq start
        byte 4                          ; Freq step
-sfx_explosion:
-       byte 64                         ; Frames
-       byte W2
-       byte 0                          ; Attn start
-       byte 4                          ; Attn step
-sfx_glove:
+sfx_die:
        byte 64                         ; Frames
        byte W1
        byte 0                          ; Attn start

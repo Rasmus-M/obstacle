@@ -965,6 +965,7 @@ die:
        li   r0,120
        mov  r0,@frame
        clr  @scroll_vx
+       bl   @play_die
        .endproc
 *// die
 
@@ -979,6 +980,7 @@ jump:
        li   r0,>8c0f
        mov  r0,@ball_pattern_color
        clr  @ball_rebounce
+       bl   @play_jump
        .endproc
 *// jump
 
@@ -995,6 +997,7 @@ long_jump:
        li   r0,>8c0e
        mov  r0,@ball_pattern_color
        clr  @ball_rebounce
+       bl   @play_long_jump
        .endproc
 *// long_jump
 
@@ -1014,7 +1017,7 @@ collect_star:
        mov  @sprite_100_pt,@points_sprite_pattern_color
        li   r0,100
        a    r0,@score
-       bl   @play_pick_up
+       bl   @play_star
        .endproc
 *// collect_star
 

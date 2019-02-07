@@ -430,9 +430,9 @@ move
        mov  @ball_vx,r0
        jlt  move_ball_1
        mov  @ball_x,r0
-       ci   r0,>f000
+       ci   r0,>e800
        jl   move_ball_0
-       clr  @ball_vx
+       mov  @scroll_vx,@ball_vx        ;  Stop if edge is reached
 *      Check char to the right of ball
 move_ball_0:
        li   r0,>1000

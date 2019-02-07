@@ -132,13 +132,13 @@ TCHARS BYTE >00,>00                    ; #00 color 2/1
        BYTE >00,>2D                    ; #44 color B/1
        BYTE >2D,>2E                    ; #45 color B/1
        BYTE >2E,>00                    ; #46 color B/1
-       BYTE >FF,>FF                    ; #47 unused
+       BYTE >1F,>00                    ; #47 color B/1
        BYTE >00,>07                    ; #48 color C/1
        BYTE >07,>08                    ; #49 color C/1
-       BYTE >08,>07                    ; #4A color C/1
-       BYTE >08,>00                    ; #4B color C/1
-       BYTE >05,>06                    ; #4C color C/1
-       BYTE >06,>05                    ; #4D color C/1
+       BYTE >08,>00                    ; #4A color C/1
+       BYTE >05,>06                    ; #4B color C/1
+       BYTE >06,>05                    ; #4C color C/1
+       BYTE >FF,>FF                    ; #4D unused
        BYTE >FF,>FF                    ; #4E unused
        BYTE >FF,>FF                    ; #4F unused
        BYTE >00,>1C                    ; #50 color E/1
@@ -156,13 +156,13 @@ TCHARS BYTE >00,>00                    ; #00 color 2/1
        BYTE >00,>1B                    ; #5C color F/1
        BYTE >1B,>1B                    ; #5D color F/1
        BYTE >1B,>00                    ; #5E color F/1
+**
+* These special entries must be updated if the list above changes
+*
 ceiling:
        byte >10,>11,>08,>09
 floor:
-       byte >05,>06,>4C,>4D
-spring:
-       byte >41,>42,>43
-       byte >31,>32,>33
+       byte >05,>06,>4B,>4C
 spring_collapsed:
        byte >44,>45,>46
        byte >34,>35,>36

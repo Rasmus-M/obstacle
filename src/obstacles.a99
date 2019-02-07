@@ -1797,19 +1797,27 @@ txt_stats:
 map_chars:
        copy "map-chars.a99"
 maps:
+;      data map0,map0_end-map0
        data map1,map1_end-map1
        data map2,map2_end-map2
        data map3,map3_end-map3
        data map4,map4_end-map4
+map0:
+       bcopy "map0trim.lz4"
+map0_end
+       even
 map1:
        bcopy "map1trim.lz4"
 map1_end
+       even
 map2:
        bcopy "map2trim.lz4"
 map2_end
+       even
 map3:
        bcopy "map3trim.lz4"
 map3_end
+       even
 map4:
        bcopy "map4trim.lz4"
 map4_end

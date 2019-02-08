@@ -105,8 +105,10 @@ disp_score:
        equ  score+2
 status:
        equ  disp_score+2
-frame:
+demo:
        equ  status+2
+frame:
+       equ  demo+2
 scroll_x:                              ; Scroll offset in FP 12.4
        equ  frame+2
 scroll_x_pixels:                       ; Scroll offset in pixels
@@ -270,13 +272,14 @@ intro:
        clr  @level
        bl   @init_level
        clr  @ball_x
-       li   r0,>0140
+       li   r0,>01c0
        mov  r0,@ball_vx
        li   r0,>1000
        mov  r0,@ball_y
 *      Scroll intro screen
        li   r0,257
        mov  r0,@frame
+       seto @demo
        seto @status
        bl   @main_loop
 *      After scrolling
@@ -464,12 +467,22 @@ upload_sprites_1:
 *
 move_ball:
        .proc
-;       mov  @status,r0
-;       jlt  move_ball_5
+       abs  @demo
+       jeq  move_ball_14
+       a    @ball_vx,@ball_x
+       s    @scroll_vx,@ball_x
+       a    @ball_ay,@ball_vy
+       a    @ball_vy,@ball_y
+       mov  @ball_y,r0
+       ci   r0,16*8*256
+       jle  move_ball_10
+       li   r0,16*8*256
+       neg  @ball_vy
+       jmp  move_ball_10
 **
 *      X
 *      Check x velocity
-move
+move_ball_14:
        mov  @ball_vx,r0
        jlt  move_ball_1
        mov  @ball_x,r0
@@ -932,14 +945,7 @@ check_coinc_bottom:
        mov  @ball_vy,r0
        ci   r0,>0300
        jlt  check_coinc_bottom_4
-       mov  @status,r1
-       jlt  check_coinc_bottom_8
        li   r0,->0100
-       jmp  check_coinc_bottom_9
-check_coinc_bottom_8:
-       neg  r0
-       ai   r0,>0060
-check_coinc_bottom_9:
        mov  r0,@ball_rebounce          ; Rebounce
        jmp  check_coinc_bottom_5
 check_coinc_bottom_4:

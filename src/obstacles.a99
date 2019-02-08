@@ -272,7 +272,7 @@ intro:
        clr  @level
        bl   @init_level
        clr  @ball_x
-       li   r0,>01c0
+       li   r0,>01b8
        mov  r0,@ball_vx
        li   r0,>1000
        mov  r0,@ball_y

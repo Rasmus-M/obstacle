@@ -160,19 +160,19 @@ sfx_star:
        byte 16                         ; Freq start
        byte 0                          ; Freq step
 sfx_jump:
-       byte 6                          ; Frames
+       byte 8                          ; Frames
        byte T3
-       byte 32                         ; Attn start
-       byte 16                         ; Attn step
-       byte 192                        ; Freq start
-       byte 8                          ; Freq step
+       byte 0                          ; Attn start
+       byte 8                          ; Attn step
+       byte 80                         ; Freq start
+       byte -12                        ; Freq step
 sfx_long_jump:
        byte 32                         ; Frames
        byte T3
        byte 0                          ; Attn start
-       byte 0                          ; Attn step
-       byte 16                         ; Freq start
-       byte 4                          ; Freq step
+       byte 1                          ; Attn step
+       byte 80                         ; Freq start
+       byte -2                         ; Freq step
 sfx_die:
        byte 64                         ; Frames
        byte W1

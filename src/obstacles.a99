@@ -270,27 +270,16 @@ intro:
        clr  @level
        bl   @init_level
        clr  @ball_x
+       li   r0,>0140
+       mov  r0,@ball_vx
        li   r0,>1000
        mov  r0,@ball_y
-
-       li   r0,256
+*      Scroll intro screen
+       li   r0,257
        mov  r0,@frame
        seto @status
        bl   @main_loop
-
-;intro_1:
-;       bl   @vsync
-;       bl   @update_vdp_regs
-;       bl   @upload_sprites
-;       bl   @move_ball
-;       bl   @update_partial_name_table
-;       bl   @check_quit
-;       bl   @sfx_player
-;       bl   @scroll
-;       inc  @frame
-;       mov  @frame,r0
-;       ci   r0,256
-;       jle  intro_1
+*      After scrolling
        li   r0,21*32+8
        li   r1,title
        bl   @display_text
@@ -475,8 +464,8 @@ upload_sprites_1:
 *
 move_ball:
        .proc
-       mov  @status,r0
-       jlt  move_ball_5
+;       mov  @status,r0
+;       jlt  move_ball_5
 **
 *      X
 *      Check x velocity
@@ -943,8 +932,14 @@ check_coinc_bottom:
        mov  @ball_vy,r0
        ci   r0,>0300
        jlt  check_coinc_bottom_4
+       mov  @status,r1
+       jlt  check_coinc_bottom_8
        li   r0,->0100
-;       neg  r0
+       jmp  check_coinc_bottom_9
+check_coinc_bottom_8:
+       neg  r0
+       ai   r0,>0060
+check_coinc_bottom_9:
        mov  r0,@ball_rebounce          ; Rebounce
        jmp  check_coinc_bottom_5
 check_coinc_bottom_4:
@@ -1013,13 +1008,18 @@ check_coinc_top_3:
 *
 die:
        .proc
+       mov  @status,r0
+       jlt  die_1
        seto @status
        li   r2,animation_die           ; Animate
        mov  r2,@ball_animation_ptr
        li   r0,120
        mov  r0,@frame
        clr  @scroll_vx
+       clr  @ball_vx
+       clr  @ball_vy
        bl   @play_die
+die_1:
        .endproc
 *// die
 

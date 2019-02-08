@@ -269,8 +269,11 @@ one_time_init:
 *
 intro:
        .proc
+       .push @level
        clr  @level
        bl   @init_level
+       .pop @level
+       bl   @display_level
        clr  @ball_x
        li   r0,>01b8
        mov  r0,@ball_vx
@@ -354,6 +357,10 @@ init_level_1:
        clr  r1
        li   r2,(32-n_sprite_patterns)*32
        bl   @vsmw
+*      Sprite attributes
+       li   r0,spratb
+       li   r1,>d000
+       bl   @vsbw
 *      Screen on
        li   r0,>01e2
        bl   @vwtr
@@ -1468,10 +1475,6 @@ graphics_mode_1:
        li   r1,CLRSET
        mov  @CLRNUM,r2
        bl   @vmbw
-*      Sprite attributes
-       li   r0,spratb
-       li   r1,>d000
-       bl   @vsbw
 *      Return
        .endproc
 *      VDP registers

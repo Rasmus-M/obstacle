@@ -239,29 +239,12 @@ new_game:
        bl   @init_game
 new_level:
        bl   @init_level
-loop:
-       bl   @vsync
-       bl   @update_vdp_regs
-       bl   @upload_sprites
-       bl   @move_ball
-       bl   @move_other_sprites
-       bl   @update_partial_name_table
-       bl   @user_input
-       bl   @display_score
-       bl   @check_quit
-       bl   @sfx_player
-       bl   @scroll
+       bl   @main_loop
        mov  @status,r0
-       jgt  loop_1
-       jlt  loop_2
-       inc  @frame
-       jmp  loop
-loop_1:
+       jlt  lost_life
        inc  @level
        jmp  new_level
-loop_2:
-       dec  @frame
-       jne  loop
+lost_life:
        dec  @lives
        jne  new_level
        jmp  new_game
@@ -285,31 +268,29 @@ one_time_init:
 intro:
        .proc
        clr  @level
-       bl   @setup_display
-*      Ball variables
+       bl   @init_level
+       clr  @ball_x
        li   r0,>1000
        mov  r0,@ball_y
-       li   r0,>0018
-       mov  r0,@ball_ay
-       li   r0,>0000
-       mov  r0,@ball_x
-       li   r0,>0080
-       mov  r0,@ball_vx
-       li   r0,>800f
-       mov  r0,@ball_pattern_color
-intro_1:
-       bl   @vsync
-       bl   @update_vdp_regs
-       bl   @upload_sprites
-       bl   @move_ball
-       bl   @update_partial_name_table
-       bl   @check_quit
-       bl   @sfx_player
-       bl   @scroll
-       inc  @frame
-       mov  @frame,r0
-       ci   r0,256
-       jle  intro_1
+
+       li   r0,256
+       mov  r0,@frame
+       seto @status
+       bl   @main_loop
+
+;intro_1:
+;       bl   @vsync
+;       bl   @update_vdp_regs
+;       bl   @upload_sprites
+;       bl   @move_ball
+;       bl   @update_partial_name_table
+;       bl   @check_quit
+;       bl   @sfx_player
+;       bl   @scroll
+;       inc  @frame
+;       mov  @frame,r0
+;       ci   r0,256
+;       jle  intro_1
        li   r0,21*32+8
        li   r1,title
        bl   @display_text
@@ -340,36 +321,28 @@ init_game:
 *
 init_level:
        .proc
+*      Screen off
+       li   r0,>01a2
+       bl   @vwtr
 *      Scratch pad variables
-       li   r0,status
+       li   r0,disp_score
        li   r2,pad_max-status
 init_level_1:
        clr  *r0+
        dect r2
        jne  init_level_1
 *      Ball variables
+       li   r0,>4000
+       mov  r0,@ball_x
        li   r0,>8000
        mov  r0,@ball_y
        li   r0,>0018
        mov  r0,@ball_ay
-       li   r0,>4000
-       mov  r0,@ball_x
        li   r0,>800f
        mov  r0,@ball_pattern_color
-*      Setup display
-       bl   @setup_display
-       .endproc
-*// init_level
-
-***************************************************************
-*
-* Setup display
-*
-setup_display:
-       .proc
-*      Screen off
-       li   r0,>01a2
-       bl   @vwtr
+*      Scroll speed
+       li   r0,scroll_speed
+       mov  r0,@scroll_vx
 *      Setup display
        bl   @copy_map_to_vdp
        bl   @scroll_patterns
@@ -380,9 +353,6 @@ setup_display:
        bl   @display_text
        bl   @display_level
        bl   @display_lives
-*      Scroll speed
-       li   r0,scroll_speed
-       mov  r0,@scroll_vx
 *      Sprite patterns
        li   r0,sprptb+>400
        li   r1,SPR0
@@ -396,7 +366,37 @@ setup_display:
        li   r0,>01e2
        bl   @vwtr
        .endproc
-*// setup_display
+*// init_level
+
+*********************************************************************
+*
+* Main game loop
+*
+main_loop:
+       .proc
+main_loop_1:
+       bl   @vsync
+       bl   @update_vdp_regs
+       bl   @upload_sprites
+       bl   @move_ball
+       bl   @move_other_sprites
+       bl   @update_partial_name_table
+       bl   @user_input
+       bl   @display_score
+       bl   @check_quit
+       bl   @sfx_player
+       bl   @scroll
+       mov  @status,r0
+       jlt  main_loop_2
+       jgt  main_loop_3
+       inc  @frame
+       jmp  main_loop_1
+main_loop_2:
+       dec  @frame
+       jne  main_loop_1
+main_loop_3:
+       .endproc
+*// main_loop
 
 *********************************************************************
 *
@@ -517,9 +517,6 @@ move_ball_3:
        mov  r1,@ball_x
 **
 *      Y
-*      Check for animation
-       mov  @ball_animation_ptr,r0
-       jne  move_ball_8
 *      Check for rebounce
        mov  @ball_rebounce,r0
        jne  move_ball_12
@@ -530,11 +527,8 @@ move_ball_3:
        jeq  move_ball_4
        jlt  move_ball_6
 *      Moving down
-       li   r0,>8000
-       movb r0,@ball_pattern_color
 *      Check char below ball
 move_ball_4:
-       li   r0,>0800
        li   r1,>1000
        bl   @get_map_char
        movb r1,r1
@@ -542,8 +536,13 @@ move_ball_4:
        bl   @check_coinc_bottom
        jmp  move_ball_7
 *      Moving up
-*      Check char above ball
 move_ball_6:
+       ci   r0,->0080
+       jlt  move_ball_13
+       li   r0,>8000
+       movb r0,@ball_pattern_color
+*      Check char above ball
+move_ball_13:
        li   r0,>0a00
        li   r1,->0100
        bl   @get_map_char
@@ -553,7 +552,11 @@ move_ball_6:
 *      Move y
 move_ball_7:
        a    @ball_vy,@ball_y
-       jmp  move_ball_10
+       jmp  move_ball_5
+*      Rebounce
+move_ball_12
+       mov  r0,@ball_vy
+       clr  @ball_rebounce
 *      Animate
 move_ball_5:
        mov  @ball_animation_ptr,r0
@@ -571,11 +574,6 @@ move_ball_9:
        jmp  move_ball_10
 move_ball_11:
        dec  @ball_animation_count
-       jmp  move_ball_10
-*      Recounce
-move_ball_12
-       mov  r0,@ball_vy
-       clr  @ball_rebounce
 move_ball_10:
        .endproc
 *// move_ball
@@ -652,6 +650,8 @@ update_partial_name_table_1:
 *
 user_input:
        .proc
+       mov  @status,r0
+       jlt  user_input_5
        mov  @ball_vy,r0
        jne  user_input_4
        li   r0,JOY_FI
@@ -1029,7 +1029,7 @@ die:
 *
 jump:
        .proc
-       li   r0,->0280
+       li   r0,->02c0
        mov  r0,@ball_vy
        li   r0,>8c0f
        mov  r0,@ball_pattern_color
@@ -1820,9 +1820,9 @@ floor_ceil_table:
        data nametb+>0000,nametb+>0010,nametb+>0020,nametb+>0030
        data nametb+>0240,nametb+>0250,nametb+>0260,nametb+>0270
 animation_land:
-       byte >84,3
-       byte >88,3
-       byte >84,3
+;       byte >84,4
+       byte >88,6
+       byte >84,6
        byte >80,0
 animation_die:
        byte >80,6

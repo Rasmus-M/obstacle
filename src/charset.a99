@@ -58,3 +58,6 @@ charset:
 ;      byte 88    X    (Capital X)
 ;      byte 89    Y    (Capital Y)
 ;      byte 90    Z    (Capital Z)
+
+char_s_apo:
+       data >2629,>4804,>0201,>0906

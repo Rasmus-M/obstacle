@@ -285,7 +285,29 @@ intro:
        seto @demo
        seto @status
        bl   @main_loop
-*      After scrolling
+*      S'
+       li   r0,ptrntb+95*8
+       li   r1,char_s_apo
+       li   r2,8
+       bl   @vmbw
+       li   r0,3*32+31+nametb
+       li   r1,95*256
+       bl   @vsbw
+*      Move ball on
+       li   r0,>64
+       mov  r0,@frame
+intro_0:
+       bl   @vsync
+       bl   @upload_sprites
+       bl   @move_ball
+       dec  @frame
+       jne  intro_0
+*      Text
+       li   r2,30
+intro_1:
+       bl   @vsync
+       dec  r2
+       jne  intro_1
        li   r0,21*32+8
        li   r1,title
        bl   @display_text
@@ -481,10 +503,13 @@ move_ball:
        a    @ball_ay,@ball_vy
        a    @ball_vy,@ball_y
        mov  @ball_y,r0
-       ci   r0,16*8*256
+       li   r1,16*8*256
+       c    r0,r1
        jle  move_ball_10
-       li   r0,16*8*256
+       mov  r1,@ball_y
        neg  @ball_vy
+       li   r0,>0040
+       a    r0,@ball_vy
        jmp  move_ball_10
 **
 *      X

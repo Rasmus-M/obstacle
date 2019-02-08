@@ -65,7 +65,7 @@ n_sprite_patterns:
 chr_qst_mark:
        equ  112
 chr_zero:
-       equ  100
+       equ  101
 n_lives:
        equ  3
 n_levels:
@@ -223,7 +223,7 @@ program:
        data main
        byte 16
 title:
-       text 'OBSTACLES COURSE'
+       text 'OBSTACLE COURSE!'
        byte 0
 
 ***************************************************************
@@ -957,6 +957,8 @@ check_coinc_bottom_5:
        mov  r0,@ball_y
        li   r0,>800f
        mov  r0,@ball_pattern_color
+       mov  @ball_animation_ptr,r0
+       jne  check_coinc_bottom_6
        li   r0,animation_land          ; Animate
        mov  r0,@ball_animation_ptr
 check_coinc_bottom_6:

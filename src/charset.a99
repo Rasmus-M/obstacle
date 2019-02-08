@@ -1,6 +1,6 @@
 charset:
        byte 32         (Space)
-;      byte 33    !    (Exclamation mark)
+       byte 33    !    (Exclamation mark)
 ;      byte 34    "    (Quotation mark)            
 ;      byte 35    #    (Number sign)            
 ;      byte 36    $    (Dollar sign)            
@@ -28,7 +28,7 @@ charset:
        byte 58    :    (Colon)            
 ;      byte 59    ;    (Semicolon)            
 ;      byte 60    <    (Less-than sign)
-       byte 61    =    (Equals sign)            
+;      byte 61    =    (Equals sign)
 ;      byte 62    >    (Greater-than sign)
        byte 63    ?    (Question mark)
 ;      byte 64    @    (At sign)            

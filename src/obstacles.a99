@@ -521,7 +521,7 @@ move_ball_3:
        mov  @ball_animation_ptr,r0
        jne  move_ball_8
 *      Check for rebounce
-       abs  @ball_rebounce
+       mov  @ball_rebounce,r0
        jne  move_ball_12
 *      Accelerate
        a    @ball_ay,@ball_vy
@@ -574,7 +574,6 @@ move_ball_11:
        jmp  move_ball_10
 *      Recounce
 move_ball_12
-       li   r0,->0100
        mov  r0,@ball_vy
        clr  @ball_rebounce
 move_ball_10:
@@ -944,19 +943,21 @@ check_coinc_bottom:
        mov  @ball_vy,r0
        ci   r0,>0300
        jlt  check_coinc_bottom_4
-       seto @ball_rebounce             ; Rebounce
+       li   r0,->0100
+;       neg  r0
+       mov  r0,@ball_rebounce          ; Rebounce
        jmp  check_coinc_bottom_5
 check_coinc_bottom_4:
        ci   r0,>0020
        jlt  check_coinc_bottom_6
 check_coinc_bottom_5:
-       mov  @ball_y,r2                 ; Align to meta tile
-       andi r2,>f000
-       mov  r2,@ball_y
-       li   r2,>800f
-       mov  r2,@ball_pattern_color
-       li   r2,animation_land          ; Animate
-       mov  r2,@ball_animation_ptr
+       mov  @ball_y,r0                 ; Align to meta tile
+       andi r0,>f000
+       mov  r0,@ball_y
+       li   r0,>800f
+       mov  r0,@ball_pattern_color
+       li   r0,animation_land          ; Animate
+       mov  r0,@ball_animation_ptr
 check_coinc_bottom_6:
        clr  @ball_vy                   ; Stop movement
        jmp  check_coinc_bottom_3

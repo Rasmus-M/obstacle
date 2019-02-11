@@ -526,7 +526,6 @@ move_ball_0:
        li   r0,>1000
        li   r1,>0800
        bl   @get_map_char
-       movb r1,r1
        jeq  move_ball_2
        bl   @check_coinc_right
        jmp  move_ball_2
@@ -535,7 +534,6 @@ move_ball_1:
        li   r0,->0100
        li   r1,>0000
        bl   @get_map_char
-       movb r1,r1
        jeq  move_ball_2
        bl   @check_coinc_left
 *      Move x
@@ -565,7 +563,6 @@ move_ball_3:
 move_ball_4:
        li   r1,>1000
        bl   @get_map_char
-       movb r1,r1
        jeq  move_ball_7
        bl   @check_coinc_bottom
        jmp  move_ball_7
@@ -580,7 +577,6 @@ move_ball_13:
        li   r0,>0a00
        li   r1,->0100
        bl   @get_map_char
-       movb r1,r1
        jeq  move_ball_7
        bl   @check_coinc_top
 *      Move y
@@ -899,7 +895,6 @@ update_full_name_table_3:
 *
 check_coinc_right:
        .proc
-       srl  r1,8
        movb @char_props_table(r1),r2
        coc  @char_deadly,r2
        jeq  check_coinc_right_1
@@ -932,7 +927,6 @@ check_coinc_right_3:
 *
 check_coinc_left:
        .proc
-       srl  r1,8
        movb @char_props_table(r1),r2
        coc  @char_deadly,r2
        jeq  check_coinc_left_1
@@ -963,7 +957,6 @@ check_coinc_left_3:
 *
 check_coinc_bottom:
        .proc
-       srl  r1,8
        movb @char_props_table(r1),r2
        coc  @char_deadly,r2
        jeq  check_coinc_bottom_1
@@ -1020,7 +1013,6 @@ check_coinc_bottom_3:
 *
 check_coinc_top:
        .proc
-       srl  r1,8
        movb @char_props_table(r1),r2
        coc  @char_deadly,r2
        jeq  check_coinc_top_1
@@ -1122,7 +1114,7 @@ collect_star:
 * r0: x offset in MSB
 * r1: y offset in MSB
 *
-* On return r1 contains the from/to characters at position
+* On return r1 contains the 'from' character at position
 * and r0 contains the VDP address of the character
 *
 get_map_char:
@@ -1136,7 +1128,7 @@ get_map_char_1:
        dect r1                         ; Adjust for ceiling
        ci   r1,map_height              ; Below map?
        jl   get_map_char_2
-       li   r1,>0102                   ; Floor
+       li   r1,>0001                   ; Floor
        rt
 get_map_char_2:
        a    @ball_x,r0                 ; Add offset to x
@@ -1153,6 +1145,7 @@ get_map_char_2:
        srl  r1,8                       ; To LSB
        sla  r1,1                       ; To word
        mov  @TCHARS(r1),r1             ; Get from/to chars
+       srl  r1,8
        rt
 *// get_map_char
 

@@ -46,8 +46,10 @@ vmap3  equ  >3c00                      ; Map
 **
 * Constants
 *
-scroll_speed:
+scroll_speed_normal:
        equ  >0100
+scroll_speed_slow:
+       equ  >0080
 map_width:
        equ  256
 map_height:
@@ -364,8 +366,7 @@ init_level_1:
        li   r0,>800f
        mov  r0,@ball_pattern_color
 *      Scroll speed
-       li   r0,scroll_speed
-       mov  r0,@scroll_vx
+       bl   @normal_speed
 *      Setup display
        bl   @copy_map_to_vdp
        bl   @scroll_patterns
@@ -905,6 +906,10 @@ check_coinc_right:
        jeq  check_coinc_right_1
        coc  @char_collectable,r1
        jeq  check_coinc_right_2
+       coc  @char_slow_speed,r1
+       jeq  check_coinc_right_4
+       coc  @char_normal_speed,r1
+       jeq  check_coinc_right_5
        coc  @char_block_left,r1
        jne  check_coinc_right_3
 *      Collision with blocker
@@ -919,6 +924,14 @@ check_coinc_right_1:
 *      Collision with star
 check_coinc_right_2:
        bl   @collect_star
+       jmp  check_coinc_right_3
+*      Collision with slow
+check_coinc_right_4:
+       bl   @slow_speed
+       jmp  check_coinc_right_3
+*      Collision with normal
+check_coinc_right_5:
+       bl   @normal_speed
 check_coinc_right_3:
        .endproc
 *// check_coinc_right
@@ -1110,6 +1123,28 @@ collect_star:
        bl   @play_star
        .endproc
 *// collect_star
+
+***************************************************************
+*
+* Set scrolling to slow
+*
+slow_speed:
+       .proc
+       li   r0,scroll_speed_slow
+       mov  r0,@scroll_vx
+       .endproc
+*// slow_speed
+
+***************************************************************
+*
+* Set scrolling to normal
+*
+normal_speed:
+       .proc
+       li   r0,scroll_speed_normal
+       mov  r0,@scroll_vx
+       .endproc
+*// normal_speed
 
 ***************************************************************
 *
@@ -1321,7 +1356,7 @@ scroll_patterns_5:
        c    r2,@TCHNUM                      ;
        jlt  scroll_patterns_1
        .endproc
-*/
+*// scroll_patterns
 
 *********************************************************************
 *

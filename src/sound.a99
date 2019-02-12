@@ -22,6 +22,26 @@ mute_table:
 
 *********************************************************************
 *
+* Play jump
+*
+play_jump:
+       li   r0,sfx_jump
+       clr  r1
+       jmp  play_sfx
+*// play_axe
+
+*********************************************************************
+*
+* Play long jumo
+*
+play_long_jump:
+       li   r0,sfx_long_jump
+       clr  r1
+       jmp  play_sfx
+*// play_bomb
+
+*********************************************************************
+*
 * Play star
 *
 play_star:
@@ -32,23 +52,13 @@ play_star:
 
 *********************************************************************
 *
-* Play jump
+* Play slow
 *
-play_jump:
-       li   r0,sfx_jump
+play_slow:
+       li   r0,sfx_slow
        li r1,4
        jmp  play_sfx
-*// play_axe
-
-*********************************************************************
-*
-* Play long jumo
-*
-play_long_jump:
-       li   r0,sfx_long_jump
-       li   r1,4
-       jmp  play_sfx
-*// play_bomb
+*// play_slow
 
 *********************************************************************
 *
@@ -152,6 +162,20 @@ W0     equ  >E4
 W1     equ  >E5
 W2     equ  >E6
 
+sfx_jump:
+       byte 8                          ; Frames
+       byte T1
+       byte 0                          ; Attn start
+       byte 8                          ; Attn step
+       byte 80                         ; Freq start
+       byte -12                        ; Freq step
+sfx_long_jump:
+       byte 32                         ; Frames
+       byte T1
+       byte 0                          ; Attn start
+       byte 1                          ; Attn step
+       byte 80                         ; Freq start
+       byte -2                         ; Freq step
 sfx_star:
        byte 64                         ; Frames
        byte T2
@@ -159,20 +183,13 @@ sfx_star:
        byte 4                          ; Attn step
        byte 16                         ; Freq start
        byte 0                          ; Freq step
-sfx_jump:
-       byte 8                          ; Frames
-       byte T3
-       byte 0                          ; Attn start
-       byte 8                          ; Attn step
-       byte 80                         ; Freq start
-       byte -12                        ; Freq step
-sfx_long_jump:
+sfx_slow:
        byte 32                         ; Frames
        byte T3
        byte 0                          ; Attn start
-       byte 1                          ; Attn step
-       byte 80                         ; Freq start
-       byte -2                         ; Freq step
+       byte 0                          ; Attn step
+       byte 16                         ; Freq start
+       byte -6                         ; Freq step
 sfx_die:
        byte 64                         ; Frames
        byte W0

@@ -891,11 +891,11 @@ update_full_name_table_3:
 * Check collision to the right of ball
 *
 * r0: VDP address of collision char
-* r1: MSB contains collision char
+* r1: Collision char
+* r2: Collision char properties
 *
 check_coinc_right:
        .proc
-       movb @char_props_table(r1),r2
        coc  @char_deadly,r2
        jeq  check_coinc_right_1
        coc  @char_collectable,r2
@@ -923,11 +923,11 @@ check_coinc_right_3:
 * Check collision to the left of ball
 *
 * r0: VDP address of collision char
-* r1: MSB contains collision char
+* r1: Collision char
+* r2: Collision char properties
 *
 check_coinc_left:
        .proc
-       movb @char_props_table(r1),r2
        coc  @char_deadly,r2
        jeq  check_coinc_left_1
        coc  @char_collectable,r2
@@ -953,11 +953,11 @@ check_coinc_left_3:
 * Check collision below the ball
 *
 * r0: VDP address of collision char
-* r1: MSB contains collision char
+* r1: Collision char
+* r2: Collision char properties
 *
 check_coinc_bottom:
        .proc
-       movb @char_props_table(r1),r2
        coc  @char_deadly,r2
        jeq  check_coinc_bottom_1
        coc  @char_collectable,r2
@@ -1009,11 +1009,11 @@ check_coinc_bottom_3:
 * Check collision above the ball
 *
 * r0: VDP address of collision char
-* r1: MSB contains collision char
+* r1: Collision char
+* r2: Collision char properties
 *
 check_coinc_top:
        .proc
-       movb @char_props_table(r1),r2
        coc  @char_deadly,r2
        jeq  check_coinc_top_1
        coc  @char_collectable,r2
@@ -1114,7 +1114,8 @@ collect_star:
 * r0: x offset in MSB
 * r1: y offset in MSB
 *
-* On return r1 contains the 'from' character at position
+* On return r2 contains the properties of the character at position,
+* r1 contains the character,
 * and r0 contains the VDP address of the character
 *
 get_map_char:
@@ -1123,13 +1124,13 @@ get_map_char:
        ci   r1,2                       ; Above map?
        jhe  get_map_char_1
        clr  r1                         ; Space
-       rt
+       jmp  get_map_char_3
 get_map_char_1:
        dect r1                         ; Adjust for ceiling
        ci   r1,map_height              ; Below map?
        jl   get_map_char_2
        li   r1,>0001                   ; Floor
-       rt
+       jmp  get_map_char_3
 get_map_char_2:
        a    @ball_x,r0                 ; Add offset to x
        srl  r0,8                       ; To pixels
@@ -1146,6 +1147,8 @@ get_map_char_2:
        sla  r1,1                       ; To word
        mov  @TCHARS(r1),r1             ; Get from/to chars
        srl  r1,8
+get_map_char_3:
+       movb @char_props_table(r1),r2
        rt
 *// get_map_char
 

@@ -62,10 +62,12 @@ log_2_buffer_size:
        equ  5
 n_sprite_patterns:
        equ  18
-chr_qst_mark:
-       equ  112
+chr_space:
+       equ  96
 chr_zero:
        equ  101
+chr_qst_mark:
+       equ  112
 n_lives:
        equ  3
 n_levels:
@@ -249,6 +251,10 @@ new_level:
 lost_life:
        dec  @lives
        jne  new_level
+*      Game over
+       li   r0,21*32+8
+       li   r1,txt_game_over
+       bl   @display_text
        jmp  new_game
 
 *********************************************************************
@@ -1873,7 +1879,9 @@ sprite_200_pt:
 txt_stats:
        text "SCORE:000000 LEVEL:00 LIVES:00"
        byte 0
-
+txt_game_over:
+       text "   GAME  OVER   "
+       byte 0
        even
 
 *********************************************************************

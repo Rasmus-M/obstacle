@@ -897,16 +897,15 @@ update_full_name_table_3:
 * Check collision to the right of ball
 *
 * r0: VDP address of collision char
-* r1: Collision char
-* r2: Collision char properties
+* r1: Collision char properties
 *
 check_coinc_right:
        .proc
-       coc  @char_deadly,r2
+       coc  @char_deadly,r1
        jeq  check_coinc_right_1
-       coc  @char_collectable,r2
+       coc  @char_collectable,r1
        jeq  check_coinc_right_2
-       coc  @char_block_left,r2
+       coc  @char_block_left,r1
        jne  check_coinc_right_3
 *      Collision with blocker
        clr  @ball_vx
@@ -929,16 +928,15 @@ check_coinc_right_3:
 * Check collision to the left of ball
 *
 * r0: VDP address of collision char
-* r1: Collision char
-* r2: Collision char properties
+* r1: Collision char properties
 *
 check_coinc_left:
        .proc
-       coc  @char_deadly,r2
+       coc  @char_deadly,r1
        jeq  check_coinc_left_1
-       coc  @char_collectable,r2
+       coc  @char_collectable,r1
        jeq  check_coinc_left_2
-       coc  @char_block_right,r2
+       coc  @char_block_right,r1
        jne  check_coinc_left_3
 *      Collision with blocker
        clr  @ball_vx
@@ -959,18 +957,17 @@ check_coinc_left_3:
 * Check collision below the ball
 *
 * r0: VDP address of collision char
-* r1: Collision char
-* r2: Collision char properties
+* r1: Collision char properties
 *
 check_coinc_bottom:
        .proc
-       coc  @char_deadly,r2
+       coc  @char_deadly,r1
        jeq  check_coinc_bottom_1
-       coc  @char_collectable,r2
+       coc  @char_collectable,r1
        jeq  check_coinc_bottom_2
-       coc  @char_long_jump,r2
+       coc  @char_long_jump,r1
        jeq  check_coinc_bottom_7
-       coc  @char_block_top,r2
+       coc  @char_block_top,r1
        jne  check_coinc_bottom_3
 *      Collision with blocker
        mov  @ball_vy,r0
@@ -1015,16 +1012,15 @@ check_coinc_bottom_3:
 * Check collision above the ball
 *
 * r0: VDP address of collision char
-* r1: Collision char
-* r2: Collision char properties
+* r1: Collision char properties
 *
 check_coinc_top:
        .proc
-       coc  @char_deadly,r2
+       coc  @char_deadly,r1
        jeq  check_coinc_top_1
-       coc  @char_collectable,r2
+       coc  @char_collectable,r1
        jeq  check_coinc_top_2
-       coc  @char_block_bottom,r2
+       coc  @char_block_bottom,r1
        jne  check_coinc_top_3
 *      Collision with blocker
        clr  @ball_vy
@@ -1097,6 +1093,8 @@ long_jump:
 *
 * Collect a star
 *
+* r0: VDP address of a character in the star metatile
+*
 collect_star:
        .proc
        bl   @remove_meta_tile
@@ -1120,23 +1118,25 @@ collect_star:
 * r0: x offset in MSB
 * r1: y offset in MSB
 *
-* On return r2 contains the properties of the character at position,
-* r1 contains the character,
-* and r0 contains the VDP address of the character
+* On return:
+* r0 contains the VDP address of the character
+* r1 contains the properties of the character
 *
 get_map_char:
        a    @ball_y,r1                 ; Add offset to y
        srl  r1,11                      ; To chars
        ci   r1,2                       ; Above map?
        jhe  get_map_char_1
-       clr  r1                         ; Space
-       jmp  get_map_char_3
+       clr  r0                         ; No VDP address
+       clr  r1                         ; Space properites
+       rt
 get_map_char_1:
        dect r1                         ; Adjust for ceiling
        ci   r1,map_height              ; Below map?
        jl   get_map_char_2
-       li   r1,>0001                   ; Floor
-       jmp  get_map_char_3
+       clr  r0                         ; No VDP address
+       li   r1,:0000000000001111       ; Floor properties
+       rt
 get_map_char_2:
        a    @ball_x,r0                 ; Add offset to x
        srl  r0,8                       ; To pixels
@@ -1152,9 +1152,9 @@ get_map_char_2:
        srl  r1,8                       ; To LSB
        sla  r1,1                       ; To word
        mov  @TCHARS(r1),r1             ; Get from/to chars
-       srl  r1,8
-get_map_char_3:
-       movb @char_props_table(r1),r2
+       srl  r1,8                       ; To LSB
+       sla  r1,1                       ; To word
+       mov  @char_props_table(r1),r1   ; Get properties
        rt
 *// get_map_char
 
@@ -1268,7 +1268,8 @@ scroll_patterns_2:
        mov  r5,r8                      ; Copy
        sla  r5,3                       ; Multiply by 8
        ai   r5,pat0                    ; Address of from pattern
-       movb @char_props_table(r8),r9   ; Check for vertical scrolling
+       sla  r8,1                       ; To word offset
+       mov  @char_props_table(r8),r9   ; Check for vertical scrolling
        coc  @char_vert_scroll,r9
        jne  !
        mov  r5,r0
@@ -1280,7 +1281,8 @@ scroll_patterns_2:
        mov  r6,r8                      ; Copy
        sla  r6,3                       ; Multiply by 8
        ai   r6,pat0                    ; Address of to pattern
-       movb @char_props_table(r8),r9   ; Check for vertical scrolling
+       sla  r8,1                       ; To word offset
+       mov  @char_props_table(r8),r9   ; Check for vertical scrolling
        coc  @char_vert_scroll,r9
        jne  !
        mov  r6,r0

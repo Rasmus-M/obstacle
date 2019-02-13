@@ -366,7 +366,8 @@ init_level_1:
        li   r0,>800f
        mov  r0,@ball_pattern_color
 *      Scroll speed
-       bl   @normal_speed
+       li   r0,scroll_speed_normal
+       mov  r0,@scroll_vx
 *      Setup display
        bl   @copy_map_to_vdp
        bl   @scroll_patterns
@@ -1130,8 +1131,13 @@ collect_star:
 *
 slow_speed:
        .proc
+       mov  @scroll_vx,r0
+       ci   r0,scroll_speed_slow
+       jeq  slow_speed_1
        li   r0,scroll_speed_slow
        mov  r0,@scroll_vx
+       bl   @play_slow
+slow_speed_1:
        .endproc
 *// slow_speed
 
@@ -1141,8 +1147,13 @@ slow_speed:
 *
 normal_speed:
        .proc
+       mov  @scroll_vx,r0
+       ci   r0,scroll_speed_normal
+       jeq  normal_speed_1
        li   r0,scroll_speed_normal
        mov  r0,@scroll_vx
+       bl   @play_normal
+normal_speed_1:
        .endproc
 *// normal_speed
 

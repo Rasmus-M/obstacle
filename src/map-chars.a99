@@ -12,12 +12,12 @@ PAT7   DATA >003F,>3F35,>2A3F,>0000    ; #07 (0B) arrow
 PAT8   DATA >10F8,>FC56,>ACF8,>1000    ; #08 (0C) arrow
 PAT9   DATA >7FFF,>BFDF,>AFD7,>ABD5    ; #09 (10) box
 PAT10  DATA >FEFE,>FDFA,>F5EA,>D5AA    ; #0A (11) box
-PAT11  DATA >FD46,>3BBA,>DA27,>D8D7    ; #0B (12) ceiling
-PAT12  DATA >BCFB,>0BF4,>FB7B,>B64E    ; #0C (13) ceiling
+PAT11  DATA >3BEC,>D756,>544C,>2810    ; #0B (12) ceiling
+PAT12  DATA >73ED,>EDED,>554B,>4B06    ; #0C (13) ceiling
 PAT13  DATA >ABD6,>ACD8,>B0E0,>C07F    ; #0D (18) box
 PAT14  DATA >D56A,>351A,>0D06,>03FE    ; #0E (19) box
-PAT15  DATA >3BEC,>D756,>544C,>2810    ; #0F (1A) ceiling
-PAT16  DATA >73ED,>EDED,>554B,>4B06    ; #10 (1B) ceiling
+PAT15  DATA >FD46,>3BBA,>DA27,>D8D7    ; #0F (1A) ceiling
+PAT16  DATA >BCFB,>0BF4,>FB7B,>B64E    ; #10 (1B) ceiling
 PAT17  DATA >0101,>0303,>0707,>0F0F    ; #11 (20) triangle up
 PAT18  DATA >8080,>C0C0,>6060,>B0B0    ; #12 (21) triangle up
 PAT19  DATA >FFFF,>606F,>3737,>1B1B    ; #13 (22) triangle down
@@ -42,7 +42,7 @@ PAT37  DATA >FFFF,>000E,>F10E,>000E    ; #25 (46) spring
 PAT38  DATA >FF57,>5545,>0101,>0000    ; #26 (48) platform
 PAT39  DATA >FF57,>5555,>5111,>1110    ; #27 (49) platform
 PAT40  DATA >FF75,>5551,>4040,>0000    ; #28 (4A) platform
-PAT41  DATA >0D06,>0F1F,>1E38,>2000    ; #29 (4B) star
+PAT41  DATA >0C06,>0F1F,>1E38,>2000    ; #29 (4B) star
 PAT42  DATA >60C0,>E0F0,>F038,>0800    ; #2A (4C) star
 PAT43  DATA >0F70,>8070,>0F70,>807F    ; #2B (4D) spring
 PAT44  DATA >F10E,>000E,>F10E,>00FF    ; #2C (4E) spring
@@ -161,7 +161,7 @@ TCHARS BYTE >00,>00                    ; #00 color 2/1
 * must be updated if the list changes
 *
 ceiling:
-       byte >10,>11,>08,>09
+       byte >08,>09,>10,>11
 floor:
        byte >05,>06,>4B,>4C
 spring_collapsed:

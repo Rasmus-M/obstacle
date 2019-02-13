@@ -32,7 +32,7 @@ play_jump:
 
 *********************************************************************
 *
-* Play long jumo
+* Play long jump
 *
 play_long_jump:
        li   r0,sfx_long_jump
@@ -59,6 +59,16 @@ play_slow:
        li r1,4
        jmp  play_sfx
 *// play_slow
+
+*********************************************************************
+*
+* Play normal
+*
+play_normal:
+       li   r0,sfx_normal
+       li r1,4
+       jmp  play_sfx
+*// play_normal
 
 *********************************************************************
 *
@@ -189,6 +199,13 @@ sfx_slow:
        byte 0                          ; Attn start
        byte 0                          ; Attn step
        byte 16                         ; Freq start
+       byte 6                          ; Freq step
+sfx_normal:
+       byte 32                         ; Frames
+       byte T3
+       byte 0                          ; Attn start
+       byte 0                          ; Attn step
+       byte 208                        ; Freq start
        byte -6                         ; Freq step
 sfx_die:
        byte 64                         ; Frames

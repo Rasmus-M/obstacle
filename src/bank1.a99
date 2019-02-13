@@ -1,0 +1,28 @@
+***************************************************************
+*
+* Bank 1
+*
+       aorg >6000,1
+
+***************************************************************
+*
+* Cartridge header
+*
+       byte >AA,1,1,0
+       data 0
+       data program_bank_1
+       data 0,0
+program_bank_1:
+       data 0
+       data main_bank_1
+       byte 15
+       text 'OBSTACLE COURSE!'
+       byte 0
+
+***************************************************************
+*
+* Stub for switching to bank 0
+*
+main_bank_1:
+       seto @bank_0
+

@@ -58,6 +58,12 @@ one_time_init:
        .proc
        li   r14,vdprd                  ; Do not change
        li   r15,vdpwd                  ; Do not change
+*      Trampoline code
+       li   r0,bank_0_exec_code
+       li   r1,bank_0_exec
+       li   r2,bank_1_exec_code_end-bank_0_exec_code
+       bl   @copy
+*      Graphics mode
        bl   @graphics_mode
        .endproc
 *// one_time_init
@@ -142,11 +148,8 @@ init_level:
        bl   @vwtr
 *      Scratch pad variables
        li   r0,disp_score
-       li   r2,pad_max-status
-init_level_1:
-       clr  *r0+
-       dect r2
-       jne  init_level_1
+       li   r2,bank_0_exec-disp_score
+       bl   @clear
 *      Ball variables
        li   r0,>4000
        mov  r0,@ball_x
@@ -160,7 +163,8 @@ init_level_1:
        li   r0,scroll_speed_normal
        mov  r0,@scroll_vx
 *      Setup display
-       bl   @copy_map_to_vdp
+       li   r13,copy_map_to_vdp_bank_1
+       bl   @bank_1_exec
        bl   @scroll_patterns
        bl   @read_grom_chars
        bl   @update_full_name_table
@@ -1042,50 +1046,6 @@ replace_meta_tile:
 
 ***************************************************************
 *
-* Unpack and copy map to VDP RAM
-*
-copy_map_to_vdp:
-       .proc
-       mov  @level,r3
-       jeq  copy_map_to_vdp_1
-       dec  r3
-       andi r3,n_levels-1
-       inc  r3
-       sla  r3,2
-*      Upload
-copy_map_to_vdp_1:
-       li   r0,>2000
-       mov  @maps(r3),r1
-       mov  @maps+2(r3),r2
-       bl   @vmbw
-*      Unpack
-       li   r0,>2000
-       li   r1,>1000
-       li   r2,>2000
-       a    @maps+2(r3),r2
-       bl   @unpack_lz4_from_to_vdp
-*      Rearrange
-       li   r0,>1000
-       li   r1,vmap0
-       li   r2,>400
-       bl   @vdp_to_vdp_copy_fast
-       li   r0,>1400
-       li   r1,vmap1
-       li   r2,>400
-       bl   @vdp_to_vdp_copy_fast
-       li   r0,>1800
-       li   r1,vmap2
-       li   r2,>400
-       bl   @vdp_to_vdp_copy_fast
-       li   r0,>1c00
-       li   r1,vmap3
-       li   r2,>400
-       bl   @vdp_to_vdp_copy_fast
-       .endproc
-*// copy_map_to_vdp
-
-***************************************************************
-*
 * Scroll patterns horizontally and upload to VDP
 *
 scroll_patterns:
@@ -1684,6 +1644,67 @@ check_key:
 
 *********************************************************************
 *
+* CPU space to CPU space copy
+*
+* r0: source
+* r1: destination
+* r2: number of bytes
+*
+copy:
+       mov  *r0+,*r1+
+       dect r2
+       jne  copy
+       rt
+*// copy
+
+*********************************************************************
+*
+* CPU space clear
+*
+* r0: start
+* r2: number of bytes
+*
+clear:
+       clr  *r0+
+       dect r2
+       jne  clear
+       rt
+*// clear
+
+*********************************************************************
+*
+* Trampoline code for executing bank 0 routine
+* Copied into scratchpad at bank_0_exec
+*
+* r13: address of bank 0 routine
+*
+bank_0_exec_code:
+       .proc
+       seto @bank_0
+       bl   *r13
+       seto @bank_1
+       .endproc
+bank_0_exec_code_end
+*// bank_0_exec_code
+
+*********************************************************************
+*
+* Trampoline code for executing bank 1 routine
+* Copied into scratchpad at bank_1_exec
+*
+* r13: address of bank 1 routine
+*
+bank_1_exec_code:
+       .proc
+       seto @bank_1
+       bl   *r13
+       seto @bank_0
+       .endproc
+bank_1_exec_code_end
+*// bank_1_exec_code
+
+*********************************************************************
+*
 * Data
 *
 map_row_table:
@@ -1727,34 +1748,8 @@ txt_game_over:
 *
 * Includes
 *
-       copy "unlz4-vdp.a99"
        copy "sound.a99"
        copy "sprite-patterns.a99"
        copy "charset.a99"
 map_chars:
        copy "map-chars.a99"
-maps:
-       data map0,map0_end-map0
-       data map1,map1_end-map1
-       data map2,map2_end-map2
-       data map3,map3_end-map3
-       data map4,map4_end-map4
-map0:
-       bcopy "map0trim.lz4"
-map0_end
-       even
-map1:
-       bcopy "map1trim.lz4"
-map1_end
-       even
-map2:
-       bcopy "map2trim.lz4"
-map2_end
-       even
-map3:
-       bcopy "map3trim.lz4"
-map3_end
-       even
-map4:
-       bcopy "map4trim.lz4"
-map4_end

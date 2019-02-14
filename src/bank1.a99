@@ -26,3 +26,88 @@ program_bank_1:
 main_bank_1:
        seto @bank_0
 
+***************************************************************
+*
+* Unpack and copy map to VDP RAM
+*
+copy_map_to_vdp:
+       .proc
+       mov  @level,r3
+       jeq  copy_map_to_vdp_1
+       dec  r3
+       andi r3,n_levels-1
+       inc  r3
+       sla  r3,2
+*      Upload
+copy_map_to_vdp_1:
+       li   r0,>2000
+       bl   @vwad
+       mov  @maps(r3),r1
+       mov  @maps+2(r3),r2
+copy_map_to_vdp_2:
+       movb *r1+,*r15                  ; Write byte to VDP RAM
+       movb *r1+,*r15                  ; Write byte to VDP RAM
+       dect r2
+       jne  copy_map_to_vdp_2
+*      Unpack
+       li   r0,>2000                   ; Source
+       li   r1,>1000                   ; Destination
+       li   r2,>2000                   ; Source end
+       a    @maps+2(r3),r2
+       bl   @unpack_lz4_from_to_vdp
+*      Rearrange
+       li   r0,>1000
+       li   r1,vmap0
+       li   r2,>400
+       li   r13,vdp_to_vdp_copy_fast_bank_0
+       bl   @bank_0_exec
+       li   r0,>1400
+       li   r1,vmap1
+       li   r2,>400
+       li   r13,vdp_to_vdp_copy_fast_bank_0
+       bl   @bank_0_exec
+       li   r0,>1800
+       li   r1,vmap2
+       li   r2,>400
+       li   r13,vdp_to_vdp_copy_fast_bank_0
+       bl   @bank_0_exec
+       li   r0,>1c00
+       li   r1,vmap3
+       li   r2,>400
+       li   r13,vdp_to_vdp_copy_fast_bank_0
+       bl   @bank_0_exec
+       .endproc
+*// copy_map_to_vdp
+
+*********************************************************************
+*
+* Includes
+*
+       copy "unlz4-vdp.a99"
+maps:
+       data map0,map0_end-map0
+       data map1,map1_end-map1
+       data map2,map2_end-map2
+       data map3,map3_end-map3
+       data map4,map4_end-map4
+map0:
+       bcopy "map0trim.lz4"
+map0_end
+       even
+map1:
+       bcopy "map1trim.lz4"
+map1_end
+       even
+map2:
+       bcopy "map2trim.lz4"
+map2_end
+       even
+map3:
+       bcopy "map3trim.lz4"
+map3_end
+       even
+map4:
+       bcopy "map4trim.lz4"
+map4_end
+
+

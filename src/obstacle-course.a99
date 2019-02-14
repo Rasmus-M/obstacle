@@ -50,6 +50,8 @@ bank_0:
        equ  >6002
 bank_1:
        equ  >6000
+trampoline_code_size:
+       equ  18
 scroll_speed_normal:
        equ  >0100
 scroll_speed_slow:
@@ -98,7 +100,7 @@ r7lb   equ  wrksp+15
 r8lb   equ  wrksp+17
 r9lb   equ  wrksp+19
 stack  equ  wrksp+>20                  ; Stack (grows up)
-padvar equ  stack+>10                  ; Start of pad variables
+padvar equ  stack+>18                  ; Start of pad variables
 
 **
 * PAD variables
@@ -183,8 +185,12 @@ sfx_freq_4:                            ; Sound fx frequency channel 4
        equ  sfx_freq_3+2
 buffer:
        equ  sfx_freq_4+2
-pad_max:
+bank_0_exec:
        equ  buffer+buffer_size
+bank_1_exec:
+       equ  bank_0_exec+trampoline_code_size
+pad_max:
+       equ  bank_1_exec+trampoline_code_size
 
 **
 * Macros
@@ -216,6 +222,13 @@ pad_max:
 * Cartridge banks
 *
        copy "bank0.a99"
+
+vdp_to_vdp_copy_fast_bank_0:
+       equ  vdp_to_vdp_copy_fast
+
        copy "bank1.a99"
+
+copy_map_to_vdp_bank_1:
+       equ  copy_map_to_vdp
 
        end

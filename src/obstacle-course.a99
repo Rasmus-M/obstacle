@@ -223,12 +223,14 @@ pad_max:
 *
        copy "bank0.a99"
 
-vdp_to_vdp_copy_fast_bank_0:
+vdp_to_vdp_copy_fast_bank0:
        equ  vdp_to_vdp_copy_fast
 
        copy "bank1.a99"
 
-copy_map_to_vdp_bank_1:
+copy_map_to_vdp_bank1:
        equ  copy_map_to_vdp
+upload_sprite_patterns_bank1:
+       equ  upload_sprite_patterns
 
        end

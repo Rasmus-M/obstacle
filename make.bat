@@ -1,4 +1,4 @@
-cd mag
+cd maps
 call lz4map.bat
 cd ..
 

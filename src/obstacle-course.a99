@@ -16,10 +16,10 @@ vdpwa  equ  >8c02                      ; VDP set read/write address
 vdprd  equ  >8800                      ; VDP read data
 vdpsta equ  >8802                      ; VDP status
 sound  equ  >8400
-grmrd  equ  >9800                      ; GROM read data (GROM base)
-grmra  equ  >9802                      ; GROM read address+1
-grmwd  equ  >9C00
-grmwa  equ  >9C02
+grmrd  equ  >9800                      ; GROM read data
+grmra  equ  >9802                      ; GROM address read
+grmwd  equ  >9C00                      ; GROM write data
+grmwa  equ  >9C02                      ; GROM address write
 
 **
 * VDP memory map

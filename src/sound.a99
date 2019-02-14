@@ -183,7 +183,7 @@ snd_jump:
        byte T1
        byte 0                          ; Attn start
        byte 16                         ; Attn step
-       byte 140                         ; Freq start
+       byte 140                        ; Freq start
        byte -2                         ; Freq step
 snd_long_jump:
        byte 32                         ; Frames
@@ -203,14 +203,14 @@ snd_slow:
        byte 32                         ; Frames
        byte T3
        byte 0                          ; Attn start
-       byte 0                          ; Attn step
+       byte 4                          ; Attn step
        byte 16                         ; Freq start
        byte 6                          ; Freq step
 snd_normal:
        byte 32                         ; Frames
        byte T3
        byte 0                          ; Attn start
-       byte 0                          ; Attn step
+       byte 4                          ; Attn step
        byte 208                        ; Freq start
        byte -6                         ; Freq step
 snd_die:

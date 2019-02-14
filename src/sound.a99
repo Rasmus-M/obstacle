@@ -84,7 +84,7 @@ play_die:
 *
 * Play sound
 *
-* r0: Contains address of sound fx to play
+* r0: Contains address of sound to play
 * r1: Channel offset (0 = channel 1, 2 = channel 2, 4 = channel 3, 6 = channel 4)
 *
 * Modifies r0-r2
@@ -119,7 +119,7 @@ snd_player_1:
        movb @snd_operation(r3),r0      ; Get operation
        mov  @snd_duration_1(r2),r1     ; Are we done?
        jgt  snd_player_2               ; No - jump
-*      FX finished
+*      Sound finished
        clr  @snd_addr_1(r2)            ; Finished - clear sound address
        ori  r0,>1f00                   ; Full attenuation
        movb r0,@sound                  ; Mute
@@ -157,7 +157,7 @@ snd_player_4:
        jeq  snd_player_1               ; Loop
        rt                              ; Return
 
-* Sound FX structure
+* Sound structure
 snd_duration:                          ; Number of frames
        equ  0
 snd_operation:                         ; 80=T1, A0=T2, C0=T3, E4=W0, E5=W1, E6=W2

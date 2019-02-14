@@ -151,40 +151,40 @@ points_sprite_x:
        equ  points_sprite_y+2
 points_sprite_pattern_color:
        equ  points_sprite_x+2
-sfx_addr_1:                            ; Sound fx address channel 1
+snd_addr_1:                            ; Sound fx address channel 1
        equ  points_sprite_pattern_color+2
-sfx_addr_2:                            ; Sound fx address channel 2
-       equ  sfx_addr_1+2
-sfx_addr_3:                            ; Sound fx address channel 3
-       equ  sfx_addr_2+2
-sfx_addr_4:                            ; Sound fx address channel 4
-       equ  sfx_addr_3+2
-sfx_duration_1:                        ; Sound fx counter channel 1
-       equ  sfx_addr_4+2
-sfx_duration_2:                        ; Sound fx counter channel 2
-       equ  sfx_duration_1+2
-sfx_duration_3:                        ; Sound fx counter channel 3
-       equ  sfx_duration_2+2
-sfx_duration_4:                        ; Sound fx counter channel 4
-       equ  sfx_duration_3+2
-sfx_attn_1:                            ; Sound fx attenuation channel 1
-       equ  sfx_duration_4+2
-sfx_attn_2:                            ; Sound fx attenuation channel 2
-       equ  sfx_attn_1+2
-sfx_attn_3:                            ; Sound fx attenuation channel 3
-       equ  sfx_attn_2+2
-sfx_attn_4:                            ; Sound fx attenuation channel 4
-       equ  sfx_attn_3+2
-sfx_freq_1:                            ; Sound fx frequency channel 1
-       equ  sfx_attn_4+2
-sfx_freq_2:                            ; Sound fx frequency channel 2
-       equ  sfx_freq_1+2
-sfx_freq_3:                            ; Sound fx frequency channel 3
-       equ  sfx_freq_2+2
-sfx_freq_4:                            ; Sound fx frequency channel 4
-       equ  sfx_freq_3+2
+snd_addr_2:                            ; Sound fx address channel 2
+       equ  snd_addr_1+2
+snd_addr_3:                            ; Sound fx address channel 3
+       equ  snd_addr_2+2
+snd_addr_4:                            ; Sound fx address channel 4
+       equ  snd_addr_3+2
+snd_duration_1:                        ; Sound fx counter channel 1
+       equ  snd_addr_4+2
+snd_duration_2:                        ; Sound fx counter channel 2
+       equ  snd_duration_1+2
+snd_duration_3:                        ; Sound fx counter channel 3
+       equ  snd_duration_2+2
+snd_duration_4:                        ; Sound fx counter channel 4
+       equ  snd_duration_3+2
+snd_attn_1:                            ; Sound fx attenuation channel 1
+       equ  snd_duration_4+2
+snd_attn_2:                            ; Sound fx attenuation channel 2
+       equ  snd_attn_1+2
+snd_attn_3:                            ; Sound fx attenuation channel 3
+       equ  snd_attn_2+2
+snd_attn_4:                            ; Sound fx attenuation channel 4
+       equ  snd_attn_3+2
+snd_freq_1:                            ; Sound fx frequency channel 1
+       equ  snd_attn_4+2
+snd_freq_2:                            ; Sound fx frequency channel 2
+       equ  snd_freq_1+2
+snd_freq_3:                            ; Sound fx frequency channel 3
+       equ  snd_freq_2+2
+snd_freq_4:                            ; Sound fx frequency channel 4
+       equ  snd_freq_3+2
 buffer:
-       equ  sfx_freq_4+2
+       equ  snd_freq_4+2
 bank_0_exec:
        equ  buffer+buffer_size
 bank_1_exec:

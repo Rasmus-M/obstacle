@@ -9,7 +9,7 @@ mute_sound_1:
        movb *r0+,@sound
        dec  r2
        jne  mute_sound_1
-       li   r0,sfx_addr_1
+       li   r0,snd_addr_1
        clr  *r0+
        clr  *r0+
        clr  *r0+
@@ -25,9 +25,9 @@ mute_table:
 * Play jump
 *
 play_jump:
-       li   r0,sfx_jump
+       li   r0,snd_jump
        clr  r1
-       jmp  play_sfx
+       jmp  play_snd
 *// play_axe
 
 *********************************************************************
@@ -35,9 +35,9 @@ play_jump:
 * Play long jump
 *
 play_long_jump:
-       li   r0,sfx_long_jump
+       li   r0,snd_long_jump
        clr  r1
-       jmp  play_sfx
+       jmp  play_snd
 *// play_bomb
 
 *********************************************************************
@@ -45,9 +45,9 @@ play_long_jump:
 * Play star
 *
 play_star:
-       li   r0,sfx_star
+       li   r0,snd_star
        li r1,2
-       jmp  play_sfx
+       jmp  play_snd
 *// play_star
 
 *********************************************************************
@@ -55,9 +55,9 @@ play_star:
 * Play slow
 *
 play_slow:
-       li   r0,sfx_slow
+       li   r0,snd_slow
        li r1,4
-       jmp  play_sfx
+       jmp  play_snd
 *// play_slow
 
 *********************************************************************
@@ -65,9 +65,9 @@ play_slow:
 * Play normal
 *
 play_normal:
-       li   r0,sfx_normal
+       li   r0,snd_normal
        li r1,4
-       jmp  play_sfx
+       jmp  play_snd
 *// play_normal
 
 *********************************************************************
@@ -75,64 +75,64 @@ play_normal:
 * Play die
 *
 play_die:
-       li   r0,sfx_die
+       li   r0,snd_die
        li   r1,6
-       jmp  play_sfx
+       jmp  play_snd
 *// play_die
 
 *********************************************************************
 *
-* Play sound fx
+* Play sound
 *
 * r0: Contains address of sound fx to play
 * r1: Channel offset (0 = channel 1, 2 = channel 2, 4 = channel 3, 6 = channel 4)
 *
 * Modifies r0-r2
 *
-play_sfx:
+play_snd:
        .proc
-       mov  r0,@sfx_addr_1(r1)
-       movb *r0+,@sfx_duration_1+1(r1) ; Duration (assume MSB is zero)
+       mov  r0,@snd_addr_1(r1)
+       movb *r0+,@snd_duration_1+1(r1) ; Duration (assume MSB is zero)
        movb *r0+,r2                    ; Operation
-       movb *r0+,@sfx_attn_1(r1)       ; Init attenuation
+       movb *r0+,@snd_attn_1(r1)       ; Init attenuation
        ci   r2,>e000                   ; Test for noise
-       jhe  play_sfx_1                 ; Yes - skip frequency
+       jhe  play_snd_1                 ; Yes - skip frequency
        inc  r0                         ; Skip attenuation step
-       movb *r0,@sfx_freq_1(r1)        ; Init frequency
-play_sfx_1:
+       movb *r0,@snd_freq_1(r1)        ; Init frequency
+play_snd_1:
        movb r2,@sound                  ; Write operation
-       bl   @sfx_player                ; Play first note
+       bl   @snd_player                ; Play first note
        .endproc
        rt
 
 *********************************************************************
 *
-* Sound fx player
+* Sound player
 *
 * Modifies r0-r3
 *
-sfx_player:
+snd_player:
        li   r1,sound
        li   r2,6
-sfx_player_1:
-       mov  @sfx_addr_1(r2),r3         ; Is channel active?
-       jeq  sfx_player_4               ; No - do next
-       movb @sfx_operation(r3),r0      ; Get operation
-       mov  @sfx_duration_1(r2),r4     ; Are we done?
-       jgt  sfx_player_2               ; No - jump
+snd_player_1:
+       mov  @snd_addr_1(r2),r3         ; Is channel active?
+       jeq  snd_player_4               ; No - do next
+       movb @snd_operation(r3),r0      ; Get operation
+       mov  @snd_duration_1(r2),r4     ; Are we done?
+       jgt  snd_player_2               ; No - jump
 *      FX finished
-       clr  @sfx_addr_1(r2)            ; Finished - clear sound address
+       clr  @snd_addr_1(r2)            ; Finished - clear sound address
        ori  r0,>1f00                   ; Full attenuation
        movb r0,@sound                  ; Mute
-       jmp  sfx_player_4               ; Return
-sfx_player_2:
+       jmp  snd_player_4               ; Return
+snd_player_2:
 *      Check noise or tone
        ci   r0,>e000                   ; Noise?
-       jhe  sfx_player_3               ; Yes, skip operation
-       mov  @sfx_freq_step(r3),r4      ; Check frequency step
-       jeq  sfx_player_3               ; If zero skip operation
+       jhe  snd_player_3               ; Yes, skip operation
+       mov  @snd_freq_step(r3),r4      ; Check frequency step
+       jeq  snd_player_3               ; If zero skip operation
 *      Frequency
-       movb @sfx_freq_1(r2),r4         ; Get frequency x 4
+       movb @snd_freq_1(r2),r4         ; Get frequency x 4
        srl  r4,2                       ; Frequency MSB
        movb @r4lb,r1                   ; Copy least significant frequency bits
        andi r1,>c000
@@ -141,35 +141,35 @@ sfx_player_2:
        movb r0,@sound                  ; Write operation and lower frequency nybble
        movb r4,@sound                  ; Write frequency
 *      Attenuation
-sfx_player_3:
+snd_player_3:
        andi r0,>f000                   ; Operation
        ori  r0,>1000                   ; Change operation to attenuation
-       movb @sfx_attn_1(r2),r4         ; Get attenuation x 16
+       movb @snd_attn_1(r2),r4         ; Get attenuation x 16
        srl  r4,4                       ; Attenuation
        socb r4,r0                      ; Combine with operation
        movb r0,@sound                  ; Write attenuation
 *      Change and loop
-       ab   @sfx_freq_step(r3),@sfx_freq_1(r2)    ; Change frequency
-       ab   @sfx_attn_step(r3),@sfx_attn_1(r2)    ; Change attenuation
-       dec  @sfx_duration_1(r2)        ; Count down duration
-sfx_player_4:
+       ab   @snd_freq_step(r3),@snd_freq_1(r2)    ; Change frequency
+       ab   @snd_attn_step(r3),@snd_attn_1(r2)    ; Change attenuation
+       dec  @snd_duration_1(r2)        ; Count down duration
+snd_player_4:
        dect r2                         ; Next channel
-       jgt  sfx_player_1               ; Loop
-       jeq  sfx_player_1               ; Loop
+       jgt  snd_player_1               ; Loop
+       jeq  snd_player_1               ; Loop
        rt                              ; Return
 
 * Sound FX structure
-sfx_duration:                          ; Number of frames
+snd_duration:                          ; Number of frames
        equ  0
-sfx_operation:                         ; 80=T1, A0=T2, C0=T3, E4=W0, E5=W1, E6=W2
+snd_operation:                         ; 80=T1, A0=T2, C0=T3, E4=W0, E5=W1, E6=W2
        equ  1
-sfx_attn_start:                        ; 0-255
+snd_attn_start:                        ; 0-255
        equ  2
-sfx_attn_step:                         ; Signed
+snd_attn_step:                         ; Signed
        equ  3
-sfx_freq_start:                        ; 0-255, n/a for noise                                ;
+snd_freq_start:                        ; 0-255, n/a for noise                                ;
        equ  4
-sfx_freq_step:                         ; Signed, n/a for noise
+snd_freq_step:                         ; Signed, n/a for noise
        equ  5
 
 T1     equ  >80
@@ -179,42 +179,42 @@ W0     equ  >E4
 W1     equ  >E5
 W2     equ  >E6
 
-sfx_jump:
+snd_jump:
        byte 16                         ; Frames
        byte T1
        byte 0                          ; Attn start
        byte 12                         ; Attn step
        byte 140                         ; Freq start
        byte -2                         ; Freq step
-sfx_long_jump:
+snd_long_jump:
        byte 32                         ; Frames
        byte T1
        byte 0                          ; Attn start
        byte 6                          ; Attn step
        byte 140                        ; Freq start
        byte -4                         ; Freq step
-sfx_star:
+snd_star:
        byte 64                         ; Frames
        byte T2
        byte 0                          ; Attn start
        byte 4                          ; Attn step
        byte 16                         ; Freq start
        byte 0                          ; Freq step
-sfx_slow:
+snd_slow:
        byte 32                         ; Frames
        byte T3
        byte 0                          ; Attn start
        byte 0                          ; Attn step
        byte 16                         ; Freq start
        byte 6                          ; Freq step
-sfx_normal:
+snd_normal:
        byte 32                         ; Frames
        byte T3
        byte 0                          ; Attn start
        byte 0                          ; Attn step
        byte 208                        ; Freq start
        byte -6                         ; Freq step
-sfx_die:
+snd_die:
        byte 64                         ; Frames
        byte W0
        byte 0                          ; Attn start

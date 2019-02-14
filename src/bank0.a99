@@ -107,7 +107,7 @@ intro_0:
        bl   @vsync
        bl   @upload_sprites
        bl   @move_ball
-       bl   @sfx_player
+       bl   @snd_player
        dec  @frame
        jne  intro_0
 *      Text
@@ -205,7 +205,7 @@ main_loop_1:
        bl   @user_input
        bl   @display_score
        bl   @check_quit
-       bl   @sfx_player
+       bl   @snd_player
        bl   @scroll
        mov  @status,r0
        jlt  main_loop_2

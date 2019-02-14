@@ -80,7 +80,7 @@ intro:
        .pop @level
        bl   @display_level
        clr  @ball_x
-       li   r0,>01b8
+       li   r0,>0180
        mov  r0,@ball_vx
        li   r0,>1000
        mov  r0,@ball_y
@@ -99,12 +99,15 @@ intro:
        li   r1,95*256
        bl   @vsbw
 *      Move ball on
-       li   r0,>64
+       li   r0,80
        mov  r0,@frame
+       li   r0,>029a
+       mov  r0,@ball_vx
 intro_0:
        bl   @vsync
        bl   @upload_sprites
        bl   @move_ball
+       bl   @sfx_player
        dec  @frame
        jne  intro_0
 *      Text
@@ -307,6 +310,7 @@ move_ball:
        neg  @ball_vy
        li   r0,>0040
        a    r0,@ball_vy
+       bl   @play_jump
        jmp  move_ball_10
 **
 *      X

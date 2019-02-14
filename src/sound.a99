@@ -112,7 +112,6 @@ play_sfx_1:
 * Modifies r0-r3
 *
 sfx_player:
-       .push r4
        li   r1,sound
        li   r2,6
 sfx_player_1:
@@ -123,24 +122,34 @@ sfx_player_1:
        jgt  sfx_player_2               ; No - jump
        clr  @sfx_addr_1(r2)            ; Finished - clear sound address
        ori  r0,>1f00                   ; Full attenuation
-       movb r0,*r1                     ; Mute
+       movb r0,@sound                  ; Mute
        jmp  sfx_player_4               ; Return
 sfx_player_2:
        ci   r0,>e000                   ; Noise?
        jhe  sfx_player_3               ; Yes, skip op
        mov  @sfx_freq_step(r3),r4      ; Check frequency step
        jeq  sfx_player_3               ; If zero skip operation
-       movb r0,*r1                     ; Write op and lower frequency nybble=0
+
        movb @sfx_freq_1(r2),r4         ; Get frequency x 4
-       srl  r4,2                       ; Frequency
-       movb r4,*r1                     ; Write frequency
+       srl  r4,2                       ; Frequency MSB
+       mov  @r4lb,r1                   ; Copy least significant frequency bits
+       srl  r1,4                       ; Shift to lower nybble
+       socb r0,r1                      ; Combine with op
+       mov  r1,@sound                  ; Write op and lower frequency nybble
+       mov  r4,@sound                  ; Write frequency
+
+;       movb r0,@sound                  ; Write op and lower frequency nybble=0
+;       movb @sfx_freq_1(r2),r4         ; Get frequency x 4
+;       srl  r4,2                       ; Frequency
+;       movb r4,@sound                  ; Write frequency
+
 sfx_player_3:
        andi r0,>f000                   ; Operation
        ori  r0,>1000                   ; Change operation to attenuation
        movb @sfx_attn_1(r2),r4         ; Get attenuation x 16
        srl  r4,4                       ; Attenuation
        socb r4,r0                      ; Combine with operation
-       movb r0,*r1                     ; Write attenuation
+       movb r0,@sound                  ; Write attenuation
        ab   @sfx_freq_step(r3),@sfx_freq_1(r2)    ; Change frequency
        ab   @sfx_attn_step(r3),@sfx_attn_1(r2)    ; Change attenuation
        dec  @sfx_duration_1(r2)        ; Count down duration
@@ -148,7 +157,6 @@ sfx_player_4:
        dect r2                         ; Next channel
        jgt  sfx_player_1               ; Loop
        jeq  sfx_player_1               ; Loop
-       .pop r4
        rt                              ; Return
 
 * Sound FX structure
@@ -173,17 +181,17 @@ W1     equ  >E5
 W2     equ  >E6
 
 sfx_jump:
-       byte 8                          ; Frames
+       byte 16                         ; Frames
        byte T1
        byte 0                          ; Attn start
-       byte 8                          ; Attn step
+       byte 12                         ; Attn step
        byte 80                         ; Freq start
-       byte -12                        ; Freq step
+       byte -4                         ; Freq step
 sfx_long_jump:
        byte 32                         ; Frames
        byte T1
        byte 0                          ; Attn start
-       byte 1                          ; Attn step
+       byte 6                          ; Attn step
        byte 80                         ; Freq start
        byte -2                         ; Freq step
 sfx_star:

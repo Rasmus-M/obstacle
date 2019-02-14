@@ -907,9 +907,18 @@ collect_star:
        mov  @ball_x,r0
        ai   r0,>1000
        mov  r0,@points_sprite_x
-       mov  @sprite_100_pt,@points_sprite_pattern_color
-       li   r0,100
-       a    r0,@score
+       mov  @scroll_vx,r0
+       ci   r0,scroll_speed_normal
+       jne  collect_star_1
+       li   r0,sprite_100_pt
+       li   r1,100
+       jmp  collect_star_2
+collect_star_1:
+       li   r0,sprite_50_pt
+       li   r1,50
+collect_star_2:
+       mov  *r0,@points_sprite_pattern_color
+       a    r1,@score
        bl   @play_star
        .endproc
 *// collect_star
@@ -1728,8 +1737,8 @@ animation_die:
        byte >d0,0
 sprite_100_pt:
        byte >c0,>0f
-sprite_200_pt:
-       byte >c4,>0a
+sprite_50_pt:
+       byte >c4,>0e
 txt_stats:
        text "SCORE:000000 LEVEL:00 LIVES:00"
        byte 0

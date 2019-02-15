@@ -43,7 +43,7 @@ lost_life:
        dec  @lives
        jne  new_level
 *      Game over
-       li   r0,21*32+5
+       li   r0,21*32+6
        li   r1,txt_game_over
        bl   @display_text
        jmp  new_game
@@ -112,17 +112,17 @@ intro_0:
        li   r9,30
 intro_1:
        li   r7,txt_title
-       li   r8,3
+       li   r8,4
 intro_2:
        mov  r9,r2
        bl   @wait
        tb   0
        jne  intro_3
-       li   r0,21*32+5
+       li   r0,21*32+6
        mov  r7,r1
        bl   @display_text
-       ai   r7,22
-       li   r9,120
+       ai   r7,20
+       li   r9,180
        dec  r8
        jne  intro_2
        jmp  intro_1
@@ -1775,16 +1775,19 @@ txt_stats:
        text "SCORE:000000 LEVEL:00 LIVES:00"
        byte 0
 txt_title:
-       text "   OBSTACLE COURSE   "
+       text "  OBSTACLE COURSE  "
        byte 0
 txt_credits:
-       text "BY RASMUS MOUSTGAARD "
+       text " RASMUS MOUSTGAARD "
+       byte 0
+txt_year:
+       text "        2019       "
        byte 0
 txt_fire_to_begin:
-       text " PRESS FIRE TO BEGIN "
+       text "PRESS FIRE TO BEGIN"
        byte 0
 txt_game_over:
-       text "      GAME OVER      "
+       text "     GAME OVER     "
        byte 0
        even
 

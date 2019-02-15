@@ -297,25 +297,10 @@ upload_sprites_1:
 move_ball:
        .proc
        abs  @demo
-       jeq  move_ball_14
-       a    @ball_vx,@ball_x
-       s    @scroll_vx,@ball_x
-       a    @ball_ay,@ball_vy
-       a    @ball_vy,@ball_y
-       mov  @ball_y,r0
-       li   r1,16*8*256
-       c    r0,r1
-       jle  move_ball_10
-       mov  r1,@ball_y
-       neg  @ball_vy
-       li   r0,>0040
-       a    r0,@ball_vy
-       bl   @play_jump
-       jmp  move_ball_10
+       jne  move_ball_14
 **
 *      X
 *      Check x velocity
-move_ball_14:
        mov  @ball_vx,r0
        jlt  move_ball_1
        mov  @ball_x,r0
@@ -405,6 +390,22 @@ move_ball_9:
        jmp  move_ball_10
 move_ball_11:
        dec  @ball_animation_count
+       jmp  move_ball_10
+*      Intro
+move_ball_14:
+       a    @ball_vx,@ball_x
+       s    @scroll_vx,@ball_x
+       a    @ball_ay,@ball_vy
+       a    @ball_vy,@ball_y
+       mov  @ball_y,r0
+       li   r1,16*8*256
+       c    r0,r1
+       jle  move_ball_10
+       mov  r1,@ball_y
+       neg  @ball_vy
+       li   r0,>0040
+       a    r0,@ball_vy
+       bl   @play_jump
 move_ball_10:
        .endproc
 *// move_ball

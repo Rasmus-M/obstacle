@@ -83,6 +83,18 @@ n_levels:
 start_level:
        equ  1
 
+* Sound channel strcuture
+snd_channel_addr:
+       equ  0
+snd_channel_duration:
+       equ  2
+snd_channel_attn:
+       equ  3
+snd_channel_freq:
+       equ  4
+snd_channel_size:
+       equ  6
+
 **
 * Scratch pad
 *
@@ -151,40 +163,14 @@ points_sprite_x:
        equ  points_sprite_y+2
 points_sprite_pattern_color:
        equ  points_sprite_x+2
-snd_addr_1:                            ; Sound fx address channel 1
+snd_channel_1:
        equ  points_sprite_pattern_color+2
-snd_addr_2:                            ; Sound fx address channel 2
-       equ  snd_addr_1+2
-snd_addr_3:                            ; Sound fx address channel 3
-       equ  snd_addr_2+2
-snd_addr_4:                            ; Sound fx address channel 4
-       equ  snd_addr_3+2
-snd_duration_1:                        ; Sound fx counter channel 1
-       equ  snd_addr_4+2
-snd_duration_2:                        ; Sound fx counter channel 2
-       equ  snd_duration_1+2
-snd_duration_3:                        ; Sound fx counter channel 3
-       equ  snd_duration_2+2
-snd_duration_4:                        ; Sound fx counter channel 4
-       equ  snd_duration_3+2
-snd_attn_1:                            ; Sound fx attenuation channel 1
-       equ  snd_duration_4+2
-snd_attn_2:                            ; Sound fx attenuation channel 2
-       equ  snd_attn_1+2
-snd_attn_3:                            ; Sound fx attenuation channel 3
-       equ  snd_attn_2+2
-snd_attn_4:                            ; Sound fx attenuation channel 4
-       equ  snd_attn_3+2
-snd_freq_1:                            ; Sound fx frequency channel 1
-       equ  snd_attn_4+2
-snd_freq_2:                            ; Sound fx frequency channel 2
-       equ  snd_freq_1+2
-snd_freq_3:                            ; Sound fx frequency channel 3
-       equ  snd_freq_2+2
-snd_freq_4:                            ; Sound fx frequency channel 4
-       equ  snd_freq_3+2
+snd_channel_2:
+       equ  snd_channel_1+snd_channel_size
+snd_channel_3:
+       equ  snd_channel_2+snd_channel_size
 buffer:
-       equ  snd_freq_4+2
+       equ  snd_channel_3+snd_channel_size
 bank_0_exec:
        equ  buffer+buffer_size
 bank_1_exec:

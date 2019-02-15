@@ -174,8 +174,9 @@ snd_player_4:
        rt                              ; Return
 snd_byte_01:
        byte >01
-
+**
 * Sound structure
+*
 snd_operation:                         ; 80=T1, A0=T2, C0=T3, E4=W0, E5=W1, E6=W2
        equ  0
 snd_duration:                          ; Number of frames
@@ -189,13 +190,95 @@ snd_freq_start:                        ; 0-255, n/a for noise                   
 snd_freq_step:                         ; Signed, n/a for noise
        equ  5
 
-T1     equ  >80
-T2     equ  >A0
-T3     equ  >C0
-W0     equ  >E4
-W1     equ  >E5
-W2     equ  >E6
+**
+* Operations
+*
+T1     equ  >80                        ; Tone generator 1
+T2     equ  >A0                        ; Tone generator 2
+T3     equ  >C0                        ; Tone generator 3
+W0     equ  >E4                        ; White noise type 0
+W1     equ  >E5                        ; White noise type 1
+W2     equ  >E6                        ; White noise type 2
 
+**
+* Node frequencies
+*
+A1     byte >fe
+A#1    byte >f0
+B1     byte >e2
+C1     byte >d5
+C#1    byte >c9
+D1     byte >be
+D#1    byte >b3
+E1     byte >a9
+F1     byte >a0
+F#1    byte >97
+G1     byte >8e
+G#1    byte >86
+A2     byte >7f
+A#2    byte >78
+B2     byte >71
+C2     byte >6b
+C#2    byte >65
+D2     byte >5f
+D#2    byte >5a
+E2     byte >54
+F2     byte >50
+F#2    byte >4b
+G2     byte >47
+G#2    byte >43
+A3     byte >3f
+A#3    byte >3c
+B3     byte >38
+C3     byte >35
+C#3    byte >32
+D3     byte >2f
+D#3    byte >2d
+E3     byte >2a
+F3     byte >28
+F#3    byte >25
+G3     byte >23
+G#3    byte >21
+A4     byte >1f
+A#4    byte >1e
+B4     byte >1c
+C4     byte >1a
+C#4    byte >19
+D4     byte >17
+D#4    byte >16
+E4     byte >15
+F4     byte >14
+F#4    byte >13
+G4     byte >11
+G#4    byte >10
+A5     byte >10
+A#5    byte >0f
+B5     byte >0e
+C5     byte >0d
+C#5    byte >0c
+D5     byte >0c
+D#5    byte >0b
+E5     byte >0a
+F5     byte >0a
+F#5    byte >09
+G5     byte >09
+G#5    byte >08
+A6     byte >08
+A#6    byte >07
+B6     byte >07
+C6     byte >06
+C#6    byte >06
+D6     byte >06
+D#6    byte >05
+E6     byte >05
+F6     byte >05
+F#6    byte >04
+G6     byte >04
+G#6    byte >04
+
+**
+* Sounds
+*
 snd_jump:
        byte T1
        byte 16                         ; Frames
@@ -236,3 +319,4 @@ snd_die:
        byte 64                         ; Frames
        byte 0                          ; Attn start
        byte 4                          ; Attn step
+

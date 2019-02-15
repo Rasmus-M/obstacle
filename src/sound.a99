@@ -23,7 +23,6 @@ mute_table:
 * Play jump
 *
 play_jump:
-       rt
        li   r0,snd_jump
        li   r1,snd_channel_1
        jmp  play_snd

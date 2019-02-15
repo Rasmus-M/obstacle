@@ -73,9 +73,9 @@ n_sprite_patterns:
 chr_space:
        equ  96
 chr_zero:
-       equ  101
+       equ  97
 chr_qst_mark:
-       equ  112
+       equ  108
 n_lives:
        equ  3
 n_levels:

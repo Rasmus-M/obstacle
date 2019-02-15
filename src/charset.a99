@@ -1,6 +1,6 @@
 charset:
        byte 32         (Space)
-       byte 33    !    (Exclamation mark)
+;      byte 33    !    (Exclamation mark)
 ;      byte 34    "    (Quotation mark)            
 ;      byte 35    #    (Number sign)            
 ;      byte 36    $    (Dollar sign)            
@@ -10,10 +10,10 @@ charset:
 ;      byte 40    (    (Round brackets start)
 ;      byte 41    )    (Round brackets end)
 ;      byte 42    *    (Asterisk)            
-       byte 43    +    (Plus sign)
+;      byte 43    +    (Plus sign)
 ;      byte 44    ,    (Comma)
-       byte 45    -    (Hyphen)            
-       byte 46    .    (Full stop , dot)   Not used
+;      byte 45    -    (Hyphen)
+;      byte 46    .    (Full stop , dot)   Not used
 ;      byte 47    /    (Slash)            
        byte 48    0    (Number zero)
        byte 49    1    (Number one)
@@ -35,7 +35,7 @@ charset:
        byte 65    A    (Capital A)
        byte 66    B    (Capital B)
        byte 67    C    (Capital C)
-;      byte 68    D    (Capital D)
+       byte 68    D    (Capital D)
        byte 69    E    (Capital E)
        byte 70    F    (Capital F)
        byte 71    G    (Capital G)
@@ -45,9 +45,9 @@ charset:
 ;      byte 75    K    (Capital K)
        byte 76    L    (Capital L)
        byte 77    M    (Capital M)
-;      byte 78    N    (Capital N)
+       byte 78    N    (Capital N)
        byte 79    O    (Capital O)
-;      byte 80    P    (Capital P)
+       byte 80    P    (Capital P)
 ;      byte 81    Q    (Capital Q)
        byte 82    R    (Capital R)
        byte 83    S    (Capital S)
@@ -56,7 +56,7 @@ charset:
        byte 86    V    (Capital V)
 ;      byte 87    W    (Capital W)
 ;      byte 88    X    (Capital X)
-;      byte 89    Y    (Capital Y)
+       byte 89    Y    (Capital Y)
 ;      byte 90    Z    (Capital Z)
 
 char_s_apo:

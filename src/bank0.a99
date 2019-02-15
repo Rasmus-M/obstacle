@@ -16,9 +16,7 @@ program:
        data 0
        data main
        byte 15
-title:
-       text 'OBSTACLE COURSE!'
-       byte 0
+       text 'OBSTACLE COURSE'
 
 ***************************************************************
 *
@@ -45,7 +43,7 @@ lost_life:
        dec  @lives
        jne  new_level
 *      Game over
-       li   r0,21*32+8
+       li   r0,21*32+5
        li   r1,txt_game_over
        bl   @display_text
        jmp  new_game
@@ -111,18 +109,24 @@ intro_0:
        dec  @frame
        jne  intro_0
 *      Text
-       li   r2,30
+       li   r9,30
 intro_1:
-       bl   @vsync
-       dec  r2
-       jne  intro_1
-       li   r0,21*32+8
-       li   r1,title
-       bl   @display_text
+       li   r7,txt_title
+       li   r8,3
 intro_2:
-       li   r0,JOY_FI
-       bl   @check_key
-       jeq  intro_2
+       mov  r9,r2
+       bl   @wait
+       tb   0
+       jne  intro_3
+       li   r0,21*32+5
+       mov  r7,r1
+       bl   @display_text
+       ai   r7,22
+       li   r9,120
+       dec  r8
+       jne  intro_2
+       jmp  intro_1
+intro_3:
        .endproc
 *// intro
 
@@ -1195,6 +1199,8 @@ read_grom_chars_4:
 * r0: Screen offset
 * r1: Points to zero terminated ascii text
 *
+* Modifies r0-r6
+*
 display_text:
        .proc
        ai   r0,nametb
@@ -1570,6 +1576,27 @@ vmbr_1:
 
 *********************************************************************
 *
+* Wait until fire or timeout
+*
+* r2: Number of frames to wait
+*
+* Modifies R0-R2
+*
+wait:
+       .proc
+wait_1:
+       bl   @vsync
+       li   r0,JOY_FI
+       bl   @check_key
+       jne  wait_2
+       dec  r2
+       jne  wait_1
+wait_2:
+       .endproc
+*// wait
+
+*********************************************************************
+*
 * Check key
 *
 * r0: Column in MSB: >0000 - >0700, Row in LSB: >0006 - >0014
@@ -1747,8 +1774,17 @@ sprite_50_pt:
 txt_stats:
        text "SCORE:000000 LEVEL:00 LIVES:00"
        byte 0
+txt_title:
+       text "   OBSTACLE COURSE   "
+       byte 0
+txt_credits:
+       text "BY RASMUS MOUSTGAARD "
+       byte 0
+txt_fire_to_begin:
+       text " PRESS FIRE TO BEGIN "
+       byte 0
 txt_game_over:
-       text "   GAME  OVER   "
+       text "      GAME OVER      "
        byte 0
        even
 

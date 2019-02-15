@@ -201,7 +201,7 @@ W1     equ  >E5                        ; White noise type 1
 W2     equ  >E6                        ; White noise type 2
 
 **
-* Node frequencies
+* Note frequencies
 *
 A1     byte >fe
 A#1    byte >f0

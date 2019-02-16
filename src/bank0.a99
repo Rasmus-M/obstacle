@@ -127,6 +127,9 @@ intro_2:
        jne  intro_2
        jmp  intro_1
 intro_3:
+       li   r0,21*32+6
+       li   r1,txt_title
+       bl   @display_text
        .endproc
 *// intro
 

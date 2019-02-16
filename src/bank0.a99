@@ -395,7 +395,7 @@ move_ball_9:
 move_ball_11:
        dec  @ball_animation_count
        jmp  move_ball_10
-*      Intro
+*      Demo
 move_ball_14:
        a    @ball_vx,@ball_x
        s    @scroll_vx,@ball_x
@@ -1586,6 +1586,7 @@ wait:
        .proc
 wait_1:
        bl   @vsync
+       bl   @check_quit
        li   r0,JOY_FI
        bl   @check_key
        jne  wait_2
@@ -1777,11 +1778,11 @@ txt_stats:
 txt_title:
        text "  OBSTACLE COURSE  "
        byte 0
+txt_copyright:
+       text "  COPYRIGHT 2019   "
+       byte 0
 txt_credits:
        text " RASMUS MOUSTGAARD "
-       byte 0
-txt_year:
-       text "        2019       "
        byte 0
 txt_fire_to_begin:
        text "PRESS FIRE TO BEGIN"

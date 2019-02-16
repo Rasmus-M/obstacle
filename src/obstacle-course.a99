@@ -75,7 +75,7 @@ chr_space:
 chr_zero:
        equ  97
 chr_qst_mark:
-       equ  108
+       equ  chr_space
 n_lives:
        equ  3
 n_levels:

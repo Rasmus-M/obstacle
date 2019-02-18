@@ -1,108 +1,298 @@
-**
-* Note frequencies
+*********************************************************************
 *
-A1     data >03f9
-A#1    data >03c0
-B1     data >038a
-C1     data >0357
-C#1    data >0327
-D1     data >02fa
-D#1    data >02cf
-E1     data >02a7
-F1     data >0281
-F#1    data >025d
-G1     data >023b
-G#1    data >021b
-A2     data >01fc
-A#2    data >01e0
-B2     data >01c5
-C2     data >01ac
-C#2    data >0194
-D2     data >017d
-D#2    data >0168
-E2     data >0153
-F2     data >0140
-F#2    data >012e
-G2     data >011d
-G#2    data >010d
-A3     data >00fe
-A#3    data >00f0
-B3     data >00e2
-C3     data >00d6
-C#3    data >00ca
-D3     data >00be
-D#3    data >00b4
-E3     data >00aa
-F3     data >00a0
-F#3    data >0097
-G3     data >008f
-G#3    data >0087
-A4     data >007f
-A#4    data >0078
-B4     data >0071
-C4     data >006b
-C#4    data >0065
-D4     data >005f
-D#4    data >005a
-E4     data >0055
-F4     data >0050
-F#4    data >004c
-G4     data >0047
-G#4    data >0043
-A5     data >0040
-A#5    data >003c
-B5     data >0039
-C5     data >0035
-C#5    data >0032
-D5     data >0030
-D#5    data >002d
-E5     data >002a
-F5     data >0028
-F#5    data >0026
-G5     data >0024
-G#5    data >0022
-A6     data >0020
-A#6    data >001e
-B6     data >001c
-C6     data >001b
-C#6    data >0019
-D6     data >0018
-D#6    data >0016
-E6     data >0015
-F6     data >0014
-F#6    data >0013
-G6     data >0012
-G#6    data >0011
+* Play module
+*
+* r0: Address of module to play
+*
+play_module:
+       li   r2,snd_track_1
+play_module_1:
+       mov  *r0+,r1                    ; Get address of track
+       jeq  play_module_2              ; Zero = end
+       mov  *r1+,*r2+                  ; Set snd_track_channel
+       mov  r1,*r2+                    ; Set snd_track_location
+       mov  *r1,*r2+                   ; Set snd_track_seq_location
+       clr  *r2+                       ; Clear snd_track_duration_count
+       clr  *r2+                       ; Clear snd_track_repeat_count
+       jmp  play_module_1
+play_module_2:
+       rt
+*// play_module
+
+*********************************************************************
+*
+* Module player
+*
+module_player:
+       .proc
+       li   r5,snd_track_1
+module_player_1:
+       mov  *r5,r1                     ; Get snd_track_channel
+       jeq  module_player_6
+       mov  @snd_track_duration_count(r5),r6
+       jeq  module_player_2
+*      Wait
+       dec  @snd_track_duration_count(r5)
+       jmp  module_player_5
+module_player_2:
+*      Next sequence part
+       mov  @snd_track_seq_location(r5),r6
+       mov  *r6+,r3                    ; Get node addr or wait
+       jne  module_player_3
+*      End of sequence - next track part
+       mov  @snd_track_location(r5),r6
+       inct r6
+module_player_10:
+       mov  r6,@snd_track_location(r5)
+       mov  *r6+,r3
+       jne  module_player_11
+*      End of track
+       clr  *r5
+       jmp  module_player_5
+module_player_11:
+       ci   r3,-1                      ; Repeat?
+       jne  module_player_9
+*      Repeat
+       mov  @snd_track_repeat_count(r5),r4    ; Repeat already in progress?
+       jeq  module_player_8
+*      Repeat in progress
+       dec  @snd_track_repeat_count(r5)
+       jne  module_player_7
+*      Repeat over
+       ai   r6,4                       ; Skip over repeat data
+       jmp  module_player_10           ; Next track part
+*      Repeat not over
+module_player_7:
+       inct r6
+       mov  *r6,r6                     ; Load new location
+       jmp  module_player_10
+*      New repeat
+module_player_8:
+       mov  *r6+,@snd_track_repeat_count(r5)
+       mov  *r6,r6                     ; Load new location
+       jmp  module_player_10
+module_player_9:
+*      Next sequence
+       mov  r3,@snd_track_seq_location(r5)
+       jmp  module_player_2
+module_player_3:
+*      Not end of sequence
+       mov  r6,@snd_track_seq_location(r5)
+       ci   r3,255
+       jh   module_player_4
+*      Init wait
+       mov  r3,@snd_track_duration_count(r5)
+       jmp  module_player_5
+module_player_4:
+*      Play note
+       mov  *r3+,r0                    ; Get instrument
+       mov  *r3,r2                     ; Get frequency TODO: not for noise
+       bl   @play_snd
+module_player_5:
+       ai   r5,snd_track_size
+       ci   r5,snd_track_2
+       jle  module_player_1
+module_player_6:
+       .endproc
+*// module_player
 
 **
-* Sequence structure
+* Module
 *
+* A module is a zero terminated list of pointers to up to 4 tracks.
+mod_spider:
+       data trk_lead
+       data trk_percussion
+       data 0
 
+**
+* Tracks
+*
+* First word is a pointer to the channel where the track is played.
+* Then follows a list of pointers to sequences,
+* or repeat commands (-1, number of repeats, repeat address)
+* Zero terminates the list.
+*
+trk_lead:
+       data snd_channel_2              ; Channel
+trk_lead_1:
+       data seq_piano_1
+       data seq_piano_2
+       data -1                         ; Repeat
+       data 4                          ; Number of repeats
+       data trk_lead_1                 ; Repeat address
+       data 0                          ; End
+trk_percussion:
+       data snd_channel_3              ; Channel
+trk_percussion_1:
+       data seq_rhythm
+       data -1                         ; Repeat
+       data 8                          ; Number of repeats
+       data trk_percussion_1           ; Repeat address
+       data 0                          ; End
+
+**
+* Sequences
+*
+* A sequence is a list of pointers to notes,
+* or pauses represented by a number 0 < n < 256
+* Zero terminates the list.
+*
+seq_piano_1:
+       data note_piano_c2
+       data note_piano_c2
+       data note_piano_c2
+       data note_piano_d2
+       data note_piano_e2
+       data note_piano_e2
+       data note_piano_e2
+       data 1
+       data 0
+seq_piano_2:
+       data note_piano_d2
+       data note_piano_d2
+       data note_piano_d2
+       data note_piano_e2
+       data note_piano_c2
+       data 1
+       data note_piano_c2
+       data 1
+       data 0
+seq_rhythm:
+       data note_hi_hat
+       data 2
+       data note_hi_hat
+       data note_hi_hat
+       data 3
+       data 0
 **
 * Note structure
 *
 note_instr:
        equ  0
 note_freq:
+       equ  2
 
+**
+* Note frequencies
+*
+A1     equ  >03f9
+A#1    equ  >03c0
+B1     equ  >038a
+C1     equ  >0357
+C#1    equ  >0327
+D1     equ  >02fa
+D#1    equ  >02cf
+E1     equ  >02a7
+F1     equ  >0281
+F#1    equ  >025d
+G1     equ  >023b
+G#1    equ  >021b
+A2     equ  >01fc
+A#2    equ  >01e0
+B2     equ  >01c5
+C2     equ  >01ac
+C#2    equ  >0194
+D2     equ  >017d
+D#2    equ  >0168
+E2     equ  >0153
+F2     equ  >0140
+F#2    equ  >012e
+G2     equ  >011d
+G#2    equ  >010d
+A3     equ  >00fe
+A#3    equ  >00f0
+B3     equ  >00e2
+C3     equ  >00d6
+C#3    equ  >00ca
+D3     equ  >00be
+D#3    equ  >00b4
+E3     equ  >00aa
+F3     equ  >00a0
+F#3    equ  >0097
+G3     equ  >008f
+G#3    equ  >0087
+A4     equ  >007f
+A#4    equ  >0078
+B4     equ  >0071
+C4     equ  >006b
+C#4    equ  >0065
+D4     equ  >005f
+D#4    equ  >005a
+E4     equ  >0055
+F4     equ  >0050
+F#4    equ  >004c
+G4     equ  >0047
+G#4    equ  >0043
+A5     equ  >0040
+A#5    equ  >003c
+B5     equ  >0039
+C5     equ  >0035
+C#5    equ  >0032
+D5     equ  >0030
+D#5    equ  >002d
+E5     equ  >002a
+F5     equ  >0028
+F#5    equ  >0026
+G5     equ  >0024
+G#5    equ  >0022
+A6     equ  >0020
+A#6    equ  >001e
+B6     equ  >001c
+C6     equ  >001b
+C#6    equ  >0019
+D6     equ  >0018
+D#6    equ  >0016
+E6     equ  >0015
+F6     equ  >0014
+F#6    equ  >0013
+G6     equ  >0012
+G#6    equ  >0011
 
-
+**
+* Notes
+*
+note_piano_c2:
+       data instr_piano,C2
+note_piano_d2:
+       data instr_piano,D2
+note_piano_e2:
+       data instr_piano,E2
+note_piano_f2:
+       data instr_piano,F2
+note_piano_g2:
+       data instr_piano,G2
+note_piano_a2:
+       data instr_piano,A2
+note_piano_b2:
+       data instr_piano,B2
+note_hi_hat:
+       data instr_hi_hat
 
 **
 * Instruments (sound structure)
 *
-       data instr_piano
-       data instr_hi_hat
-
 instr_piano:
-       byte T2
+       byte T1
        byte 32                         ; Frames
        byte 0                          ; Attn start
        byte 4                          ; Attn step
-       byte 0                          ; Freq start
-       byte 0                          ; Freq step
+       data 0                          ; Freq step
+instr_pause_t1:
+       byte T1
+       byte 64                         ; Frames
+       byte 255                        ; Attn start
+       byte 0                          ; Attn step
+       data 0                          ; Freq step
 instr_hi_hat:
        byte W0
        byte 12                         ; Frames
        byte 0                          ; Attn start
        byte 16                         ; Attn step
+instr_pause_n:
+       byte W0
+       byte 32                         ; Frames
+       byte 255                        ; Attn start
+       byte 0                          ; Attn step
+
+       even

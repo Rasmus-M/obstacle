@@ -190,6 +190,9 @@ init_level:
        li   r0,spratb
        li   r1,>d000
        bl   @vsbw
+*      Music
+       li   r0,mod_spider
+       bl   @play_module
 *      Screen on
        li   r0,>01e2
        bl   @vwtr
@@ -212,6 +215,7 @@ main_loop_1:
        bl   @user_input
        bl   @display_score
        bl   @check_quit
+       bl   @module_player
        bl   @snd_player
        bl   @scroll
        mov  @status,r0
@@ -1800,6 +1804,7 @@ txt_game_over:
 * Includes
 *
        copy "sound.a99"
+       copy "music.a99"
        copy "charset.a99"
 map_chars:
        copy "map-chars.a99"

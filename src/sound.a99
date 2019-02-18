@@ -175,7 +175,8 @@ snd_player_4:
        rt                              ; Return
 snd_byte_01:
        byte >01
-       even
+snd_byte_e0:
+       byte >e0
 **
 * Sound structure
 *
@@ -192,6 +193,18 @@ snd_freq_step:                         ; Signed word, n/a for noise
 
 **
 * Operations
+*
+* T1: 1000ffff
+* T2: 1010ffff
+* T3: 1100ffff
+* P0: 11100000
+* P1: 11100001
+* P2: 11100010
+* P3: 11100011
+* W0: 11100100
+* W1: 11100101
+* W2: 11100110
+* W3: 11100111
 *
 T1     equ  >80                        ; Tone generator 1
 T2     equ  >A0                        ; Tone generator 2
@@ -238,3 +251,5 @@ snd_die:
        byte 64                         ; Frames
        byte 0                          ; Attn start
        byte 4                          ; Attn step
+
+       even

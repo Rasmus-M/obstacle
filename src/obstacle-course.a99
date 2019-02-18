@@ -83,7 +83,7 @@ n_levels:
 start_level:
        equ  1
 
-* Sound channel strcuture
+* Sound channel structure
 snd_channel_addr:
        equ  0
 snd_channel_duration:
@@ -94,6 +94,20 @@ snd_channel_freq:
        equ  4
 snd_channel_size:
        equ  6
+
+* Sound track structure
+snd_track_channel:                     ; Channel to play track in, zero of track inactive
+       equ  0
+snd_track_location:                    ; Location in track, points to sequence pointer or command
+       equ  2
+snd_track_seq_location:                ; Location in active sequecne
+       equ  4
+snd_track_duration_count:              ; Node (within sequence) duration counter
+       equ  6
+snd_track_repeat_count:                ; Repeat count for track loops
+       equ  8
+snd_track_size:
+       equ  10
 
 **
 * Scratch pad
@@ -169,8 +183,12 @@ snd_channel_2:
        equ  snd_channel_1+snd_channel_size
 snd_channel_3:
        equ  snd_channel_2+snd_channel_size
-buffer:
+snd_track_1:
        equ  snd_channel_3+snd_channel_size
+snd_track_2:
+       equ  snd_track_1+snd_track_size
+buffer:
+       equ  snd_track_2+snd_track_size
 bank_0_exec:
        equ  buffer+buffer_size
 bank_1_exec:

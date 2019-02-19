@@ -3,8 +3,11 @@
 * Play module
 *
 * r0: Address of module to play
+* r1: Speed (1-..)
 *
 play_module:
+       dec  r1
+       mov  r1,@module_speed
        li   r2,snd_track_1
 play_module_1:
        mov  *r0+,r1                    ; Get address of track
@@ -79,16 +82,20 @@ module_player_3:
 *      Not end of sequence
        mov  r6,@snd_track_seq_location(r5)
        ci   r3,255
-       jh   module_player_4
-*      Init wait
-       mov  r3,@snd_track_duration_count(r5)
-       jmp  module_player_5
-module_player_4:
+       jle   module_player_4
 *      Play note
        mov  *r3+,r0                    ; Get instrument
        mov  *r3,r2                     ; Get frequency TODO: not for noise
        bl   @play_snd
-module_player_5:
+       li   r3,1
+*      Init wait
+module_player_4:
+       mov  @module_speed,r0
+       jeq  module_player_12
+       sla  r3,0
+module_player_12:
+       mov  r3,@snd_track_duration_count(r5)
+*      Next track
        ai   r5,snd_track_size
        ci   r5,snd_track_2
        jle  module_player_1

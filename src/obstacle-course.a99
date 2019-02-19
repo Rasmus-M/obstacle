@@ -187,8 +187,10 @@ snd_track_1:
        equ  snd_channel_3+snd_channel_size
 snd_track_2:
        equ  snd_track_1+snd_track_size
-buffer:
+module_speed:
        equ  snd_track_2+snd_track_size
+buffer:
+       equ  module_speed+2
 bank_0_exec:
        equ  buffer+buffer_size
 bank_1_exec:

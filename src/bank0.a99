@@ -192,6 +192,7 @@ init_level:
        bl   @vsbw
 *      Music
        li   r0,mod_spider
+       li   r1,5
        bl   @play_module
 *      Screen on
        li   r0,>01e2

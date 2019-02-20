@@ -53,7 +53,7 @@ bank_1:
 trampoline_code_size:
        equ  18
 scroll_speed_normal:
-       equ  >0100
+       equ  >0000
 scroll_speed_slow:
        equ  >0080
 map_width:

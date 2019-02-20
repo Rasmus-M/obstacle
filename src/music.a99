@@ -6,7 +6,6 @@
 * r1: Speed (1-..)
 *
 play_module:
-       dec  r1
        mov  r1,@module_speed
        li   r2,snd_track_1
 play_module_1:
@@ -32,7 +31,7 @@ module_player:
 module_player_1:
        mov  *r5,r1                     ; Get snd_track_channel
        jeq  module_player_6
-       mov  @snd_track_duration_count(r5),r6
+       mov  @snd_track_duration_count(r5),r6    ; Count in progress?
        jeq  module_player_2
 *      Wait
        dec  @snd_track_duration_count(r5)
@@ -47,16 +46,16 @@ module_player_2:
        inct r6
 module_player_10:
        mov  r6,@snd_track_location(r5)
-       mov  *r6+,r3
+       mov  *r6+,r4                    ; Get sequence addr or repeat command
        jne  module_player_11
 *      End of track
        clr  *r5
        jmp  module_player_5
 module_player_11:
-       ci   r3,-1                      ; Repeat?
+       ci   r4,-1                      ; Repeat?
        jne  module_player_9
 *      Repeat
-       mov  @snd_track_repeat_count(r5),r4    ; Repeat already in progress?
+       mov  @snd_track_repeat_count(r5),r2    ; Repeat already in progress?
        jeq  module_player_8
 *      Repeat in progress
        dec  @snd_track_repeat_count(r5)
@@ -71,31 +70,37 @@ module_player_7:
        jmp  module_player_10
 *      New repeat
 module_player_8:
-       mov  *r6+,@snd_track_repeat_count(r5)
+       mov  *r6+,r2
+       dec  r2                         ; Already did one
+       mov  r2,@snd_track_repeat_count(r5)
        mov  *r6,r6                     ; Load new location
        jmp  module_player_10
-module_player_9:
 *      Next sequence
-       mov  r3,@snd_track_seq_location(r5)
+module_player_9:
+       mov  r4,@snd_track_seq_location(r5)
        jmp  module_player_2
 module_player_3:
-*      Not end of sequence
+*      Not end of sequence - play or wait
        mov  r6,@snd_track_seq_location(r5)
        ci   r3,255
        jle   module_player_4
-*      Play note
+*      Play note (and wait 1)
        mov  *r3+,r0                    ; Get instrument
        mov  *r3,r2                     ; Get frequency TODO: not for noise
        bl   @play_snd
-       li   r3,1
+       li   r3,1                       ; Wait 1
+;       mov  @module_speed,r0
+;       sla  r3,0
+;       dec  r3
+;       jmp  module_player_12
 *      Init wait
 module_player_4:
        mov  @module_speed,r0
-       jeq  module_player_12
        sla  r3,0
 module_player_12:
        mov  r3,@snd_track_duration_count(r5)
 *      Next track
+module_player_5:
        ai   r5,snd_track_size
        ci   r5,snd_track_2
        jle  module_player_1
@@ -280,13 +285,13 @@ note_hi_hat:
 * Instruments (sound structure)
 *
 instr_piano:
-       byte T1
+       byte T2
        byte 32                         ; Frames
        byte 0                          ; Attn start
        byte 4                          ; Attn step
        data 0                          ; Freq step
 instr_pause_t1:
-       byte T1
+       byte T2
        byte 64                         ; Frames
        byte 255                        ; Attn start
        byte 0                          ; Attn step

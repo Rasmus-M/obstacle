@@ -25,6 +25,8 @@ play_module_2:
 *
 * Module player
 *
+* modifies r0-r6
+*
 * snd_track_location points to current track location
 * snd_track_seq_location points to next sequence location
 *
@@ -96,7 +98,7 @@ module_player_3:
 module_player_4:
        mov  @module_speed,r0
        sla  r3,0
-module_player_12:
+       dec  r3                         ; Already did one
        mov  r3,@snd_track_duration_count(r5)
 *      Next track
 module_player_5:
@@ -104,6 +106,7 @@ module_player_5:
        ci   r5,snd_track_2
        jle  module_player_1
 module_player_6:
+       bl   @snd_player
        .endproc
 *// module_player
 

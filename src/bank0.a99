@@ -105,7 +105,7 @@ intro_0:
        bl   @vsync
        bl   @upload_sprites
        bl   @move_ball
-       bl   @snd_player
+       bl   @module_player
        dec  @frame
        jne  intro_0
 *      Text
@@ -114,7 +114,7 @@ intro_1:
        li   r7,txt_title
        li   r8,4
 intro_2:
-       mov  r9,r2
+       mov  r9,@frame
        bl   @wait
        tb   0
        jne  intro_3
@@ -156,6 +156,8 @@ init_level:
 *      Screen off
        li   r0,>01a2
        bl   @vwtr
+*      Mute sound
+       bl   @mute_sound
 *      Scratch pad variables
        li   r0,disp_score
        li   r2,bank_0_exec-disp_score
@@ -217,7 +219,6 @@ main_loop_1:
        bl   @display_score
        bl   @check_quit
        bl   @module_player
-       bl   @snd_player
        bl   @scroll
        mov  @status,r0
        jlt  main_loop_2
@@ -1586,19 +1587,20 @@ vmbr_1:
 *
 * Wait until fire or timeout
 *
-* r2: Number of frames to wait
+* @frame: Number of frames to wait
 *
-* Modifies R0-R2
+* Modifies r0-r6
 *
 wait:
        .proc
 wait_1:
        bl   @vsync
+       bl   @module_player
        bl   @check_quit
        li   r0,JOY_FI
        bl   @check_key
        jne  wait_2
-       dec  r2
+       dec  @frame
        jne  wait_1
 wait_2:
        .endproc

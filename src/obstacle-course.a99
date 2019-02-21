@@ -105,9 +105,9 @@ snd_track_seq_location:                ; Location in active sequecne
 snd_track_duration_count:              ; Node (within sequence) duration counter
        equ  6
 snd_track_repeat_count:                ; Repeat count for track loops
-       equ  8
+       equ  7
 snd_track_size:
-       equ  10
+       equ  8
 
 **
 * Scratch pad

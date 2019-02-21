@@ -14,8 +14,7 @@ play_module_1:
        mov  *r1+,*r2+                  ; Set snd_track_channel
        mov  r1,*r2+                    ; Set snd_track_location
        mov  *r1,*r2+                   ; Set snd_track_seq_location
-       clr  *r2+                       ; Clear snd_track_duration_count
-       clr  *r2+                       ; Clear snd_track_repeat_count
+       clr  *r2+                       ; Clear snd_track_duration_count and snd_track_repeat_count
        jmp  play_module_1
 play_module_2:
        rt
@@ -36,10 +35,10 @@ module_player:
 module_player_1:
        mov  *r5,r1                     ; Get snd_track_channel
        jeq  module_player_6
-       mov  @snd_track_duration_count(r5),r6    ; Count in progress?
+       movb @snd_track_duration_count(r5),r6    ; Count in progress?
        jeq  module_player_2
 *      Wait
-       dec  @snd_track_duration_count(r5)
+       sb   @snd_byte_01,@snd_track_duration_count(r5)
        jmp  module_player_5
 module_player_2:
 *      Next sequence part
@@ -64,10 +63,10 @@ module_player_11:
        jmp  module_player_2
 *      Repeat
 module_player_9:
-       mov  @snd_track_repeat_count(r5),r2    ; Repeat already in progress?
+       movb @snd_track_repeat_count(r5),r2    ; Repeat already in progress?
        jeq  module_player_8
 *      Repeat in progress
-       dec  @snd_track_repeat_count(r5)
+       sb   @snd_byte_01,@snd_track_repeat_count(r5)
        jne  module_player_7
 *      Repeat over
        ai   r6,4                       ; Skip over repeat data
@@ -81,7 +80,7 @@ module_player_7:
 module_player_8:
        mov  *r6+,r2
        dec  r2                         ; Already did one
-       mov  r2,@snd_track_repeat_count(r5)
+       movb @r2lb,@snd_track_repeat_count(r5)
        mov  *r6,r6                     ; Load new location
        jmp  module_player_10
 module_player_3:
@@ -99,7 +98,7 @@ module_player_4:
        mov  @module_speed,r0
        sla  r3,0
        dec  r3                         ; Already did one
-       mov  r3,@snd_track_duration_count(r5)
+       movb @r3lb,@snd_track_duration_count(r5)
 *      Next track
 module_player_5:
        ai   r5,snd_track_size

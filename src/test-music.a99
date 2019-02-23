@@ -1,0 +1,105 @@
+**
+* Module
+*
+test_module:
+       data trk_lead
+       data trk_percussion
+       data 0
+
+**
+* Tracks
+*
+trk_lead:
+       data snd_channel_2              ; Channel
+trk_lead_1:
+       data seq_piano_1
+       data seq_piano_2
+       data 4                          ; Number of repeats
+       data trk_lead_1                 ; Repeat address
+       data 0                          ; End
+trk_percussion:
+       data snd_channel_3              ; Channel
+trk_percussion_1:
+       data seq_rhythm
+       data 8                          ; Number of repeats
+       data trk_percussion_1           ; Repeat address
+       data 0                          ; End
+
+**
+* Sequences
+*
+seq_piano_1:
+       data note_piano_c2
+       data note_piano_c2
+       data note_piano_c2
+       data note_piano_d2
+       data note_piano_e2
+       data note_piano_e2
+       data note_piano_e2
+       data 1
+       data 0
+seq_piano_2:
+       data note_piano_d2
+       data note_piano_d2
+       data note_piano_d2
+       data note_piano_e2
+       data note_piano_c2
+       data 1
+       data note_piano_c2
+       data 1
+       data 0
+seq_rhythm:
+       data note_hi_hat
+       data 2
+       data note_hi_hat
+       data note_hi_hat
+       data 3
+       data 0
+
+**
+* Notes
+*
+note_piano_c2:
+       data instr_piano,C2
+note_piano_d2:
+       data instr_piano,D2
+note_piano_e2:
+       data instr_piano,E2
+note_piano_f2:
+       data instr_piano,F2
+note_piano_g2:
+       data instr_piano,G2
+note_piano_a2:
+       data instr_piano,A2
+note_piano_b2:
+       data instr_piano,B2
+note_hi_hat:
+       data instr_hi_hat
+
+**
+* Instruments
+*
+instr_piano:
+       byte T2
+       byte 32                         ; Frames
+       byte 0                          ; Attn start
+       byte 4                          ; Attn step
+       data 0                          ; Freq step
+instr_pause_t1:
+       byte T2
+       byte 64                         ; Frames
+       byte 255                        ; Attn start
+       byte 0                          ; Attn step
+       data 0                          ; Freq step
+instr_hi_hat:
+       byte W0
+       byte 12                         ; Frames
+       byte 0                          ; Attn start
+       byte 16                         ; Attn step
+instr_pause_n:
+       byte W0
+       byte 32                         ; Frames
+       byte 255                        ; Attn start
+       byte 0                          ; Attn step
+
+       even

@@ -193,7 +193,7 @@ init_level:
        li   r1,>d000
        bl   @vsbw
 *      Music
-       li   r0,mod_spider
+       li   r0,test_module
        li   r1,4
        bl   @play_module
 *      Screen on
@@ -1806,8 +1806,11 @@ txt_game_over:
 *
 * Includes
 *
-       copy "sound.a99"
-       copy "music.a99"
+       copy "sound-defs.a99"
+       copy "sound-player.a99"
+       copy "music-player.a99"
+       copy "sound-fx.a99"
+       copy "test-music.a99"
        copy "charset.a99"
 map_chars:
        copy "map-chars.a99"

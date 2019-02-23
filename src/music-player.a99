@@ -1,0 +1,109 @@
+*********************************************************************
+*
+* Play module
+*
+* r0: Address of module to play
+* r1: Speed (1-..)
+*
+play_module:
+       mov  r1,@module_speed
+       li   r2,snd_track_1
+play_module_1:
+       mov  *r0+,r1                    ; Get address of track
+       jeq  play_module_2              ; Zero = end
+       mov  *r1+,*r2+                  ; Set snd_track_channel
+       mov  r1,*r2+                    ; Set snd_track_location
+       mov  *r1,*r2+                   ; Set snd_track_seq_location
+       clr  *r2+                       ; Clear snd_track_duration_count and snd_track_repeat_count
+       jmp  play_module_1
+play_module_2:
+       rt
+*// play_module
+
+*********************************************************************
+*
+* Module player
+*
+* modifies r0-r6
+*
+* snd_track_location points to current track location
+* snd_track_seq_location points to next sequence location
+*
+module_player:
+       .proc
+       li   r5,snd_track_1
+module_player_1:
+       mov  *r5,r1                     ; Get snd_track_channel
+       jeq  module_player_6
+       movb @snd_track_duration_count(r5),r6    ; Count in progress?
+       jeq  module_player_2
+*      Wait
+       sb   @snd_byte_01,@snd_track_duration_count(r5)
+       jmp  module_player_5
+module_player_2:
+*      Next sequence part
+       mov  @snd_track_seq_location(r5),r6
+       mov  *r6+,r3                    ; Get node addr or wait command; Advance seq pointer
+       jne  module_player_3
+*      End of sequence - next track part
+       mov  @snd_track_location(r5),r6
+       inct r6
+module_player_10:
+       mov  r6,@snd_track_location(r5)
+       mov  *r6+,r4                    ; Get sequence addr or repeat command
+       jne  module_player_11
+*      End of track
+       clr  *r5
+       jmp  module_player_5
+module_player_11:
+       ci   r4,256                      ; Repeat?
+       jlt  module_player_9
+*      Next sequence
+       mov  r4,@snd_track_seq_location(r5)
+       jmp  module_player_2
+*      Repeat
+module_player_9:
+       movb @snd_track_repeat_count(r5),r2    ; Repeat already in progress?
+       jeq  module_player_8
+*      Repeat in progress
+       sb   @snd_byte_01,@snd_track_repeat_count(r5)
+       jne  module_player_7
+*      Repeat over
+       inct r6                         ; Skip over repeat address
+       jmp  module_player_10           ; Next track part
+*      Repeat not over
+module_player_7:
+       mov  *r6,r6                     ; Load new location
+       jmp  module_player_10
+*      New repeat
+module_player_8:
+       dec  r4                         ; Already did one
+       movb @r4lb,@snd_track_repeat_count(r5)
+       mov  *r6,r6                     ; Load new location
+       jmp  module_player_10
+module_player_3:
+*      Not end of sequence - play or wait
+       mov  r6,@snd_track_seq_location(r5)
+       ci   r3,255
+       jle   module_player_4
+*      Play note (and wait 1)
+       mov  *r3+,r0                    ; Get instrument
+       mov  *r3,r2                     ; Get frequency (not for noise)
+       bl   @play_snd
+       li   r3,1                       ; Wait 1
+*      Init wait
+module_player_4:
+       mov  @module_speed,r0
+       sla  r3,0
+       dec  r3                         ; Already did one
+       movb @r3lb,@snd_track_duration_count(r5)
+*      Next track
+module_player_5:
+       ai   r5,snd_track_size
+       ci   r5,snd_track_2
+       jle  module_player_1
+module_player_6:
+       bl   @snd_player
+       .endproc
+*// module_player
+

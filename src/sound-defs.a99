@@ -113,7 +113,7 @@ G#6    equ  >0011
 **
 * Module structure
 *
-* First word is the speed (>= 1).
+* First word is the speed 0-x.
 * Then follows a zero terminated list of pointers to up to 4 tracks.
 *
 * Track structure

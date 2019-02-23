@@ -3,10 +3,9 @@
 * Play module
 *
 * r0: Address of module to play
-* r1: Speed (1-..)
 *
 play_module:
-       mov  r1,@module_speed
+       mov  *r0+,@module_speed
        li   r2,snd_track_1
 play_module_1:
        mov  *r0+,r1                    ; Get address of track

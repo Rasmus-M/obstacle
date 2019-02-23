@@ -2,6 +2,7 @@
 * Module
 *
 test_module:
+       data 4                          ; Speed
        data trk_lead
        data trk_percussion
        data 0

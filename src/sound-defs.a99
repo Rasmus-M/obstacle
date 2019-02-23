@@ -113,7 +113,8 @@ G#6    equ  >0011
 **
 * Module structure
 *
-* A module is a zero terminated list of pointers to up to 4 tracks.
+* First word is the speed (>= 1).
+* Then follows a zero terminated list of pointers to up to 4 tracks.
 *
 * Track structure
 *

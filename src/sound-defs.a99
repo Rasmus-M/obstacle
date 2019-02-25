@@ -30,9 +30,14 @@ snd_freq_step:                         ; Signed word, n/a for noise
 T1     equ  >80                        ; Tone generator 1
 T2     equ  >A0                        ; Tone generator 2
 T3     equ  >C0                        ; Tone generator 3
+P0     equ  >E0                        ; Periodic noise type 0
+P1     equ  >E1                        ; Periodic noise type 1
+P2     equ  >E2                        ; Periodic noise type 2
+P3     equ  >E3                        ; Periodic noise type 3
 W0     equ  >E4                        ; White noise type 0
 W1     equ  >E5                        ; White noise type 1
 W2     equ  >E6                        ; White noise type 2
+W3     equ  >E7                        ; White noise type 3
 
 **
 * Note frequencies

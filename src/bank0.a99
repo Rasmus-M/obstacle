@@ -193,7 +193,7 @@ init_level:
        li   r1,>d000
        bl   @vsbw
 *      Music
-       li   r0,test_module
+       li   r0,obstacles_module
        bl   @play_module
 *      Screen on
        li   r0,>01e2
@@ -1809,7 +1809,7 @@ txt_game_over:
        copy "sound-player.a99"
        copy "music-player.a99"
        copy "sound-fx.a99"
-       copy "test-music.a99"
+       copy "obstacles-music.a99"
        copy "charset.a99"
 map_chars:
        copy "map-chars.a99"

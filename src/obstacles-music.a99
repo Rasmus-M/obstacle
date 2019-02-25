@@ -1,0 +1,319 @@
+obstacles_module:
+       data 1
+       data track_01
+       data track_02
+       data track_03
+       data >0000
+track_01:
+       data snd_channel_2
+       data seq_007C
+       data seq_007C
+       data seq_0086
+       data seq_0086
+       data seq_0090
+       data seq_0098
+       data >0000
+track_02:
+       data snd_channel_3
+       data seq_00A5
+       data seq_00A5
+       data seq_00B0
+       data seq_00B0
+       data seq_00BB
+       data seq_00BB
+       data >0000
+track_03:
+       data snd_channel_4
+       data seq_00C7
+       data seq_00C7
+       data seq_00C7
+       data seq_00C7
+       data seq_00C7
+       data seq_00D9
+       data >0000
+seq_007C:
+       data note_00EB
+       data >000E
+       data note_00EE
+       data >0003
+       data note_00F1
+       data >0007
+       data note_00F4
+       data >0010
+       data note_00EE
+       data >0003
+       data note_00F1
+       data >000B
+       data >0000
+seq_00A5:
+       data note_0115
+       data >0007
+       data note_0118
+       data >0003
+       data note_0115
+       data >000E
+       data note_0115
+       data >000B
+       data note_0118
+       data >0003
+       data note_0115
+       data >000E
+       data note_0115
+       data >0003
+       data >0000
+seq_00C7:
+       data note_012D
+       data >0003
+       data note_012D
+       data >0003
+       data note_012F
+       data >0003
+       data note_012D
+       data >0003
+       data note_012D
+       data >0003
+       data note_012D
+       data >0003
+       data note_012F
+       data >0003
+       data note_012D
+       data >0003
+       data note_012D
+       data >0003
+       data note_012D
+       data >0003
+       data note_012F
+       data >0003
+       data note_012D
+       data >0003
+       data note_012D
+       data >0003
+       data note_012D
+       data >0003
+       data note_012F
+       data >0003
+       data note_012D
+       data >0003
+       data >0000
+seq_0086:
+       data note_00EB
+       data >0003
+       data note_00EB
+       data >000B
+       data note_00EE
+       data >0003
+       data note_00F1
+       data >0007
+       data note_00F4
+       data >000B
+       data note_00F4
+       data >0007
+       data note_00EE
+       data >0003
+       data note_00F1
+       data >000B
+       data >0000
+seq_00B0:
+       data note_011B
+       data >0007
+       data note_011E
+       data >0003
+       data note_011B
+       data >000E
+       data note_011B
+       data >000B
+       data note_011E
+       data >0003
+       data note_011B
+       data >000E
+       data note_011B
+       data >0003
+       data >0000
+seq_0090:
+       data note_00F7
+       data >000B
+       data note_00FA
+       data >000B
+       data note_00F1
+       data >0007
+       data note_00FD
+       data >000B
+       data note_0100
+       data >000B
+       data note_0103
+       data >0007
+       data >0000
+seq_00BB:
+       data note_0121
+       data >0007
+       data note_0124
+       data >0003
+       data note_0121
+       data >000E
+       data note_0121
+       data >0003
+       data note_0127
+       data >0007
+       data note_012A
+       data >0003
+       data note_0127
+       data >000E
+       data note_0127
+       data >0003
+       data >0000
+seq_0098:
+       data note_00F7
+       data >000B
+       data note_00FA
+       data >000B
+       data note_00F1
+       data >0007
+       data note_0106
+       data >0003
+       data note_0109
+       data >0003
+       data note_010C
+       data >0003
+       data note_0109
+       data >0003
+       data note_0106
+       data >0003
+       data note_0103
+       data >0003
+       data note_010F
+       data >0003
+       data note_0112
+       data >0003
+       data >0000
+seq_00D9:
+       data note_012D
+       data >0003
+       data note_012D
+       data >0003
+       data note_012F
+       data >0003
+       data note_012D
+       data >0003
+       data note_012D
+       data >0003
+       data note_012D
+       data >0003
+       data note_012F
+       data >0003
+       data note_012D
+       data >0003
+       data note_012D
+       data >0003
+       data note_012D
+       data >0003
+       data note_012F
+       data >0003
+       data note_012D
+       data >0003
+       data note_012D
+       data >0003
+       data note_012F
+       data >0003
+       data note_012F
+       data >0003
+       data note_012D
+       data >0003
+       data >0000
+note_00EB:
+       data instr_00
+       data G3
+note_00EE:
+       data instr_00
+       data D3
+note_00F1:
+       data instr_00
+       data E3
+note_00F4:
+       data instr_00
+       data B3
+note_0115:
+       data instr_01
+       data >005B
+note_0118:
+       data instr_01
+       data E1
+note_012D:
+       data instr_02
+       data >00E3
+note_012F:
+       data instr_03
+       data >00E4
+note_011B:
+       data instr_01
+       data >0072
+note_011E:
+       data instr_01
+       data C1
+note_00F7:
+       data instr_00
+       data A3
+note_00FA:
+       data instr_00
+       data C3
+note_00FD:
+       data instr_00
+       data D#3
+note_0100:
+       data instr_00
+       data F#3
+note_0103:
+       data instr_00
+       data C4
+note_0121:
+       data instr_01
+       data G#3
+note_0124:
+       data instr_01
+       data A1
+note_0127:
+       data instr_01
+       data >0079
+note_012A:
+       data instr_01
+       data B1
+note_0106:
+       data instr_00
+       data D#4
+note_0109:
+       data instr_00
+       data E4
+note_010C:
+       data instr_00
+       data F#4
+note_010F:
+       data instr_00
+       data B4
+note_0112:
+       data instr_00
+       data A4
+instr_00:                              ;
+       byte T2
+       byte 32
+       byte 32
+       byte 4
+       byte 0
+       byte 0
+instr_01:
+       byte T3
+       byte 32
+       byte 255
+       byte 0
+       byte 0
+       byte 0
+instr_03:
+       byte P3
+       byte 32
+       byte 0
+       byte 8
+       byte 0
+       byte 0
+instr_02:
+       byte W0
+       byte 8
+       byte 0
+       byte 32

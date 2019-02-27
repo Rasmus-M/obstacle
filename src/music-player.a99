@@ -56,7 +56,7 @@ module_player_3:
        clr  *r5
        jmp  module_player_11
 module_player_4:
-       ci   r4,256                      ; Repeat?
+       ci   r4,256                     ; Repeat?
        jlt  module_player_5
 *      Next sequence
        mov  r4,@snd_track_seq_location(r5)
@@ -70,7 +70,7 @@ module_player_5:
        jne  module_player_6
 *      Repeat over
        inct r6                         ; Skip over repeat address
-       jmp  module_player_3           ; Next track part
+       jmp  module_player_3            ; Next track part
 *      Repeat not over
 module_player_6:
        mov  *r6,r6                     ; Load new location
@@ -93,12 +93,9 @@ module_player_8:
        li   r3,1                       ; Wait 1
 *      Init wait
 module_player_9:
-       mov  @module_speed,r0
-       jeq  module_player_10
-       sla  r3,0
-module_player_10:
-       dec  r3                         ; Already did one
-       movb @r3lb,@snd_track_duration_count(r5)
+       mpy  @module_speed,r3
+       dec  r4                         ; Already did one
+       movb @r4lb,@snd_track_duration_count(r5)
 *      Next track
 module_player_11:
        ai   r5,snd_track_size

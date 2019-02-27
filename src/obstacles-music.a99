@@ -305,9 +305,9 @@ note_0112:
        data A4
 instr_00:                              ;
        byte T2
-       byte 32
-       byte 32
-       byte 4
+       byte 48
+       byte 47
+       byte 2
        byte 0
        byte 0
 instr_01:
@@ -319,13 +319,13 @@ instr_01:
        byte 0
 instr_02:
        byte P3
-       byte 32
+       byte 24
        byte 0
-       byte 8
+       byte 10
        byte 0
        byte 0
 instr_03:
        byte W0
        byte 8
        byte 0
-       byte 32
+       byte 31

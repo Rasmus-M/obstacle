@@ -13,9 +13,9 @@ track_01_1:
        data seq_0086
        data seq_0090
        data seq_0098
-       data 4
+       data 255
        data track_01_1
-       data >0000
+       data 0
 track_02:
        data snd_channel_3
 track_02_1:
@@ -25,21 +25,19 @@ track_02_1:
        data seq_00B0
        data seq_00BB
        data seq_00BB
-       data 4
+       data 255
        data track_02_1
-       data >0000
+       data 0
 track_03:
        data snd_channel_4
 track_03_1:
        data seq_00C7
-       data seq_00C7
-       data seq_00C7
-       data seq_00C7
-       data seq_00C7
-       data seq_00D9
-       data 4
+       data 5
        data track_03_1
-       data >0000
+       data seq_00D9
+       data 255
+       data track_03_1
+       data 0
 seq_0078:
        data >0020
        data >0000
@@ -308,22 +306,19 @@ instr_00:                              ;
        byte 48
        byte 47
        byte 2
-       byte 0
-       byte 0
+       data 0
 instr_01:
        byte T3
        byte 32
        byte 255
        byte 0
-       byte 0
-       byte 0
+       data 0
 instr_02:
        byte P3
        byte 24
        byte 0
        byte 10
-       byte 0
-       byte 0
+       data 0
 instr_03:
        byte W0
        byte 8

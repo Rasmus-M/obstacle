@@ -145,8 +145,10 @@ demo:
        equ  status+2
 frame:
        equ  demo+2
-scroll_x:                              ; Scroll offset in FP 12.4
+vdp_status:
        equ  frame+2
+scroll_x:                              ; Scroll offset in FP 12.4
+       equ  vdp_status+2
 scroll_x_pixels:                       ; Scroll offset in pixels
        equ  scroll_x+2
 scroll_vx:                             ; FP 8.8

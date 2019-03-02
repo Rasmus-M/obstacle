@@ -215,6 +215,7 @@ main_loop_1:
        bl   @upload_sprites
        bl   @move_ball
        bl   @move_other_sprites
+       bl   @check_enemy_collision
        bl   @update_partial_name_table
        bl   @user_input
        bl   @display_score
@@ -242,7 +243,7 @@ vsync:
 vsync_1:
        tb   2                          ; Test CRU bit for VDP interrupt
        jeq  vsync_1
-       movb @vdpsta,r12
+       movb @vdpsta,@vdp_status
        rt
 *// vsync
 
@@ -497,6 +498,31 @@ move_other_sprites_4:
 move_other_sprites_5:
        .endproc
 *// move_other_sprites
+
+***************************************************************
+*
+* Check for collision with enemy
+*
+check_enemy_collision:
+       .proc
+       mov  @vdp_status,r0
+       andi r0,>2000
+       jeq  check_enemy_collision_1
+       mov  @enemy_y,r0
+       jeq  check_enemy_collision_1
+       s    @ball_y,r0
+       abs  r0
+       ci   r0,>1000
+       jgt  check_enemy_collision_1
+       mov  @enemy_x,r0
+       s    @ball_x,r0
+       abs  r0
+       ci   r0,>1000
+       jgt  check_enemy_collision_1
+       bl   @die
+check_enemy_collision_1:
+       .endproc
+*// check_enemy_collision
 
 ***************************************************************
 *

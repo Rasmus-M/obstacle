@@ -171,14 +171,8 @@ init_level:
        mov  r0,@ball_ay
        li   r0,>800f
        mov  r0,@ball_pattern_color
-
-;       li   r0,>ff00
-;       mov  r0,@enemy_x
-;       li   r1,>2000
-;       mov  r1,@enemy_y
-;       li   r0,>fe00
-;       mov  r0,@enemy_vx
-
+       li   r0,enemy_list
+       mov  r0,@enemy_list_ptr
 *      Scroll speed
        li   r0,scroll_speed_normal
        mov  r0,@scroll_vx
@@ -304,7 +298,7 @@ upload_sprites_1:
        mov  @enemy_x,r1
        li   r2,>800f
        bl   @upload_sprite
-       ai   r2,>10f7
+       ai   r2,>10fe
        bl   @upload_sprite
 *      End marker
 upload_sprites_2:
@@ -464,18 +458,43 @@ move_other_sprites_1:
 move_other_sprites_2:
 *      Enemy
        mov  @enemy_y,r0
-       jeq  move_other_sprites_3
+       jeq  move_other_sprites_4
        a    @enemy_vx,@enemy_x
        a    @ball_ay,@enemy_vy
        mov  @enemy_x,r0
+       ci   r0,>0100
+       jh   move_other_sprites_6
+       clr  @enemy_y
+       jmp  move_other_sprites_5
+move_other_sprites_6:
+       mov  @enemy_vy,r0
+       jlt  move_other_sprites_3
+       mov  @enemy_x,r0
+       ai   r0,>0800
        mov  @enemy_y,r1
        ai   r1,>1000
        bl   @get_map_char
        coc  @char_block_top,r1
        jne  move_other_sprites_3
-       clr  @enemy_vy
+       mov  @enemy_vy,r1
+       ai   r1,->0050
+       neg  r1
+       mov  r1,@enemy_vy
 move_other_sprites_3:
        a    @enemy_vy,@enemy_y
+       jmp  move_other_sprites_5
+move_other_sprites_4:
+       mov  @enemy_list_ptr,r0
+       c    @scroll_x_pixels,*r0+
+       jne  move_other_sprites_5
+       mov  r0,@enemy_list_ptr
+       li   r0,>ff00
+       mov  r0,@enemy_x
+       li   r1,>3000
+       mov  r1,@enemy_y
+       li   r0,>fe80
+       mov  r0,@enemy_vx
+move_other_sprites_5:
        .endproc
 *// move_other_sprites
 
@@ -1816,6 +1835,8 @@ sprite_100_pt:
        byte >c0,>0f
 sprite_50_pt:
        byte >c4,>0e
+enemy_list:
+       data >0300,>0600,>0000
 txt_stats:
        text "SCORE:000000 LEVEL:00 LIVES:00"
        byte 0

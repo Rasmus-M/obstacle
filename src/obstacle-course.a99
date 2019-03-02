@@ -171,8 +171,16 @@ ball_animation_count:
        equ  ball_animation_ptr+2
 ball_rebounce:
        equ  ball_animation_count+2
-points_sprite_y:
+enemy_x:
        equ  ball_rebounce+2
+enemy_vx:
+       equ  enemy_x+2
+enemy_y:
+       equ  enemy_vx+2
+enemy_vy:
+       equ  enemy_y+2
+points_sprite_y:
+       equ  enemy_vy+2
 points_sprite_x:
        equ  points_sprite_y+2
 points_sprite_pattern_color:

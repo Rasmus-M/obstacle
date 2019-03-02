@@ -171,6 +171,14 @@ init_level:
        mov  r0,@ball_ay
        li   r0,>800f
        mov  r0,@ball_pattern_color
+
+;       li   r0,>ff00
+;       mov  r0,@enemy_x
+;       li   r1,>2000
+;       mov  r1,@enemy_y
+;       li   r0,>fe00
+;       mov  r0,@enemy_vx
+
 *      Scroll speed
        li   r0,scroll_speed_normal
        mov  r0,@scroll_vx
@@ -276,30 +284,39 @@ upload_sprites:
 *      Ball
        mov  @ball_y,r0
        ai   r0,->0100
-       mov  @ball_pattern_color,r1
-       movb r0,*r15
-       movb @ball_x,*r15
-       movb r1,*r15
-       movb @r1lb,*r15
-       movb r0,*r15
-       movb @ball_x,*r15
-       ai   r1,>10f8
-       movb r1,*r15
-       movb @r1lb,*r15
+       mov  @ball_x,r1
+       mov  @ball_pattern_color,r2
+       bl   @upload_sprite
+       ai   r2,>10f8
+       bl   @upload_sprite
 *      Points
-       li   r0,points_sprite_y
-       mov  *r0+,r1
+       mov  @points_sprite_y,r0
        jeq  upload_sprites_1
-       ai   r1,->0100
-       movb r1,*r15                    ; y
-       mov  *r0+,*r15                  ; x
-       movb *r0+,*r15                  ; Pattern
-       movb *r0,*r15                   ; Color
-*      End marker
+       ai   r0,->0100
+       mov  @points_sprite_x,r1
+       mov  @points_sprite_pattern_color,r2
+       bl   @upload_sprite
 upload_sprites_1:
+*      Enemy
+       mov  @enemy_y,r0
+       jeq  upload_sprites_2
+       ai   r0,->0100
+       mov  @enemy_x,r1
+       li   r2,>800f
+       bl   @upload_sprite
+       ai   r2,>10f7
+       bl   @upload_sprite
+*      End marker
+upload_sprites_2:
        li   r1,>d000
        movb r1,*r15
        .endproc
+upload_sprite:
+       movb r0,*r15                    ; y
+       movb r1,*r15                    ; x
+       movb r2,*r15                    ; Pattern
+       movb @r2lb,*r15                 ; Color
+       rt
 *// upload_sprites
 
 ***************************************************************
@@ -323,7 +340,7 @@ move_ball:
 move_ball_0:
        li   r0,>1000
        li   r1,>0800
-       bl   @get_map_char
+       bl   @get_map_char_ball
        jeq  move_ball_2
        bl   @check_coinc_right
        jmp  move_ball_2
@@ -331,7 +348,7 @@ move_ball_0:
 move_ball_1:
        li   r0,->0100
        li   r1,>0000
-       bl   @get_map_char
+       bl   @get_map_char_ball
        jeq  move_ball_2
        bl   @check_coinc_left
 *      Move x
@@ -359,8 +376,9 @@ move_ball_3:
 *      Moving down
 *      Check char below ball
 move_ball_4:
+       li   r0,>0800
        li   r1,>1000
-       bl   @get_map_char
+       bl   @get_map_char_ball
        jeq  move_ball_7
        bl   @check_coinc_bottom
        jmp  move_ball_7
@@ -374,7 +392,7 @@ move_ball_6:
 move_ball_13:
        li   r0,>0a00
        li   r1,->0100
-       bl   @get_map_char
+       bl   @get_map_char_ball
        jeq  move_ball_7
        bl   @check_coinc_top
 *      Move y
@@ -430,20 +448,34 @@ move_other_sprites:
        .proc
 *      Points sprite
        mov  @points_sprite_y,r0
-       jeq  move_other_sprites_1
+       jeq  move_other_sprites_2
        ci   r0,>1000
-       jl   move_other_sprites_2
+       jl   move_other_sprites_1
        ai   r0,->0100
        mov  r0,@points_sprite_y
        mov  @points_sprite_x,r0
        ci   r0,>0200
-       jl   move_other_sprites_2
+       jl   move_other_sprites_1
        s    @scroll_vx,r0
        mov  r0,@points_sprite_x
-       jmp  move_other_sprites_1
-move_other_sprites_2:
-       clr  @points_sprite_y
+       jmp  move_other_sprites_2
 move_other_sprites_1:
+       clr  @points_sprite_y
+move_other_sprites_2:
+*      Enemy
+       mov  @enemy_y,r0
+       jeq  move_other_sprites_3
+       a    @enemy_vx,@enemy_x
+       a    @ball_ay,@enemy_vy
+       mov  @enemy_x,r0
+       mov  @enemy_y,r1
+       ai   r1,>1000
+       bl   @get_map_char
+       coc  @char_block_top,r1
+       jne  move_other_sprites_3
+       clr  @enemy_vy
+move_other_sprites_3:
+       a    @enemy_vy,@enemy_y
        .endproc
 *// move_other_sprites
 
@@ -979,12 +1011,17 @@ normal_speed_1:
 * r0: x offset in MSB
 * r1: y offset in MSB
 *
+* Call get_map_char to specify the absolute position
+* in r0 and r1 instead.
+*
 * On return:
 * r0 contains the VDP address of the character
 * r1 contains the properties of the character
 *
+get_map_char_ball:
+       a    @ball_y,r1                 ; Add y to offset
+       a    @ball_x,r0                 ; Add x to offset
 get_map_char:
-       a    @ball_y,r1                 ; Add offset to y
        srl  r1,11                      ; To chars
        ci   r1,2                       ; Above map?
        jhe  get_map_char_1
@@ -999,7 +1036,6 @@ get_map_char_1:
        li   r1,:0000000000001111       ; Floor properties
        rt
 get_map_char_2:
-       a    @ball_x,r0                 ; Add offset to x
        srl  r0,8                       ; To pixels
        a    @scroll_x_pixels,r0        ; Add scroll offset
        srl  r0,3                       ; To chars
@@ -1763,7 +1799,6 @@ floor_ceil_table:
        data nametb+>0000,nametb+>0010,nametb+>0020,nametb+>0030
        data nametb+>0240,nametb+>0250,nametb+>0260,nametb+>0270
 animation_land:
-;       byte >84,4
        byte >88,6
        byte >84,6
        byte >80,0

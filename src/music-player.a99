@@ -34,7 +34,7 @@ module_player:
        li   r5,snd_track_1
 module_player_1:
        mov  *r5,r1                     ; Get snd_track_channel
-       jeq  module_player_12
+       jeq  module_player_11
        movb @snd_track_duration_count(r5),r6    ; Count in progress?
        jeq  module_player_2
 *      Wait

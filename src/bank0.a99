@@ -33,10 +33,14 @@ new_game:
        bl   @intro
        bl   @init_game
 new_level:
+       li   r0,ready
+       bl   @speak
        bl   @init_level
        bl   @main_loop
        mov  @status,r0
        jlt  lost_life
+       li   r0,finish
+       bl   @speak
        inc  @level
        jmp  new_level
 lost_life:
@@ -950,6 +954,8 @@ die:
        clr  @ball_vx
        clr  @ball_vy
        bl   @play_die
+       li   r0,no
+       bl   @speak
 die_1:
        .endproc
 *// die
@@ -983,6 +989,8 @@ long_jump:
        mov  r0,@ball_pattern_color
        clr  @ball_rebounce
        bl   @play_long_jump
+       li   r0,long
+       bl   @speak
        .endproc
 *// long_jump
 
@@ -1014,6 +1022,8 @@ collect_star_2:
        mov  *r0,@points_sprite_pattern_color
        a    r1,@score
        bl   @play_star
+;       li   r0,yes
+;       bl   @speak
        .endproc
 *// collect_star
 
@@ -1029,6 +1039,8 @@ slow_speed:
        li   r0,scroll_speed_slow
        mov  r0,@scroll_vx
        bl   @play_slow
+       li   r0,uhoh
+       bl   @speak
 slow_speed_1:
        .endproc
 *// slow_speed
@@ -1045,6 +1057,8 @@ normal_speed:
        li   r0,scroll_speed_normal
        mov  r0,@scroll_vx
        bl   @play_normal
+       li   r0,double
+       bl   @speak
 normal_speed_1:
        .endproc
 *// normal_speed
@@ -1828,6 +1842,46 @@ bank_1_exec_code:
        .endproc
 bank_1_exec_code_end
 *// bank_1_exec_code
+
+*********************************************************************
+*
+* Speak a word from the resident vocabulary
+*
+* r0: points to the word to say.
+*
+long   equ  >40d3                      ; Long jump
+point  equ  >50ec                      ; Bonus points
+uhoh   equ  >71f4                      ; Confusion
+good   equ  >30d6                      ;
+finish equ  >2b94                      ; Level completed
+more   equ  >4642                      ; Extra life
+top    equ  >6f8d                      ; Energy
+yes    equ  >7d58                      ;
+no     equ  >3c4f                      ; Space
+connec equ  >208b                      ; Switch
+fine   equ  >2b1e                      ; Immunity
+double equ  >2599                      ; Speed
+ready  equ  >56b3
+ah     equ  >1700
+oh     equ  >4b7d
+*
+speak:
+       li   r2,4
+speak_1:
+       src  r0,4
+       mov  r0,r1
+       src  r1,4
+       andi r1,>0f00
+       ori  r1,>4000
+       movb r1,@spchwt
+       dec  r2
+       jne  speak_1
+       li   r0,>4000
+       movb r0,@spchwt
+       li   r0,>5000
+       movb r0,@spchwt
+       rt
+*// speak
 
 *********************************************************************
 *

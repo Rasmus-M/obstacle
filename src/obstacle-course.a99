@@ -135,8 +135,10 @@ padvar equ  stack+>18                  ; Start of pad variables
 *
 level:
        equ  padvar
-lives:
+mod_level:
        equ  level+2
+lives:
+       equ  mod_level+2
 score:
        equ  lives+2
 disp_score:

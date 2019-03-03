@@ -31,14 +31,9 @@ main_bank_1:
 *
 copy_map_to_vdp:
        .proc
-       mov  @level,r3
-       jeq  copy_map_to_vdp_1
-       dec  r3
-       andi r3,n_levels-1
-       inc  r3
+       mov  @mod_level,r3
        sla  r3,2
 *      Upload
-copy_map_to_vdp_1:
        li   r0,>2000
        mov  @maps(r3),r1
        mov  @maps+2(r3),r2

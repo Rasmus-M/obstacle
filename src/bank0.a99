@@ -76,10 +76,10 @@ one_time_init:
 *
 intro:
        .proc
-       .push @level
-       clr  @level
+       .push @level                    ; Save level reached
+       clr  @level                     ; Intro is level 0
        bl   @init_level
-       .pop @level
+       .pop @level                     ; Restore level reached (for display)
        bl   @display_level
        clr  @ball_x
        li   r0,>0180
@@ -166,6 +166,17 @@ init_level:
        li   r0,disp_score
        li   r2,bank_0_exec-disp_score
        bl   @clear
+*      Modified level
+       mov  @level,r1
+       jeq  init_level_1
+       dec  r1
+       andi r1,n_levels-1
+       inc  r1
+init_level_1:
+       mov  r1,@mod_level
+*      Enemy list pointer
+       sla  r1,1
+       mov  @enemy_lists(r1),@enemy_list_ptr
 *      Ball variables
        li   r0,>4000
        mov  r0,@ball_x
@@ -175,8 +186,6 @@ init_level:
        mov  r0,@ball_ay
        li   r0,>800f
        mov  r0,@ball_pattern_color
-       li   r0,enemy_list
-       mov  r0,@enemy_list_ptr
 *      Scroll speed
        li   r0,scroll_speed_normal
        mov  r0,@scroll_vx
@@ -1915,8 +1924,22 @@ sprite_100_pt:
        byte >c0,>0f
 sprite_50_pt:
        byte >c4,>0e
-enemy_list:
-       data >0300,>0600,>0000
+enemy_lists:
+       data enemy_list_0
+       data enemy_list_1
+       data enemy_list_2
+       data enemy_list_3
+       data enemy_list_4
+enemy_list_0:
+       data -1
+enemy_list_1:
+       data >600,-1
+enemy_list_2:
+       data >300,-1
+enemy_list_3:
+       data >300,>600,-1
+enemy_list_4:
+       data >200,>400,>600,-1
 txt_stats:
        text "SCORE:000000 LEVEL:00 LIVES:00"
        byte 0

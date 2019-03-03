@@ -80,7 +80,7 @@ play_normal:
 *
 play_die:
        li   r0,snd_die
-       li   r1,snd_channel_1
+       li   r1,snd_channel_4
        jmp  play_snd
 *// play_die
 

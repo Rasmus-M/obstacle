@@ -113,7 +113,7 @@ intro_0:
        dec  @frame
        jne  intro_0
 *      Text
-       li   r9,30
+       li   r9,47
 intro_1:
        li   r7,txt_title
        li   r8,4
@@ -126,7 +126,7 @@ intro_2:
        mov  r7,r1
        bl   @display_text
        ai   r7,20
-       li   r9,180
+       li   r9,192
        dec  r8
        jne  intro_2
        jmp  intro_1

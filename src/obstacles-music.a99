@@ -1,326 +1,796 @@
 obstacles_module:
-       data 6
+       data >0006
        data track_01
        data track_02
        data track_03
        data >0000
 track_01:
        data snd_channel_2
-track_01_1:
-       data seq_007C
-       data seq_007C
-       data seq_0086
-       data seq_0086
-       data seq_0090
-       data seq_0098
-       data 255
-       data track_01_1
-       data 0
+track_01_rpt:
+       data seq_00FC
+       data seq_0106
+       data seq_0110
+       data seq_0110
+       data seq_011A
+       data seq_0122
+       data seq_012F
+       data seq_0137
+       data seq_012F
+       data seq_0140
+       data seq_0149
+       data seq_015B
+       data seq_0149
+       data seq_0168
+       data >00FF
+       data track_01_rpt
+       data >0000
 track_02:
        data snd_channel_3
-track_02_1:
-       data seq_00A5
-       data seq_00A5
-       data seq_00B0
-       data seq_00B0
-       data seq_00BB
-       data seq_00BB
-       data 255
-       data track_02_1
-       data 0
+track_02_rpt:
+       data seq_016F
+       data seq_016F
+       data seq_017A
+       data seq_017A
+       data seq_0185
+       data seq_0191
+       data seq_019D
+       data seq_01AB
+       data seq_019D
+       data seq_01AB
+       data seq_01B9
+       data seq_01CA
+       data seq_01B9
+       data seq_01DB
+       data >00FF
+       data track_02_rpt
+       data >0000
 track_03:
        data snd_channel_4
-track_03_1:
-       data seq_00C7
-       data 5
-       data track_03_1
-       data seq_00D9
-       data 255
-       data track_03_1
-       data 0
-seq_0078:
+track_03_rpt:
+       data seq_01ED
+       data seq_01ED
+       data seq_01ED
+       data seq_01ED
+       data seq_01ED
+       data seq_01FF
+       data seq_0211
+       data seq_0211
+       data seq_0211
+       data seq_0211
+       data seq_0223
+       data seq_0223
+       data seq_0223
+       data seq_0223
+       data >00FF
+       data track_03_rpt
+       data >0000
+seq_00F8:
        data >0020
        data >0000
-seq_007C:
-       data note_00EB
+seq_00FC:
+       data note_0235
        data >0007
-       data note_00EE
+       data note_0238
        data >0001
-       data note_00F1
+       data note_023B
        data >0003
-       data note_00F4
+       data note_023E
        data >0009
-       data note_00EE
+       data note_0238
        data >0001
-       data note_00F1
+       data note_023B
        data >0005
        data >0000
-seq_00A5:
-       data note_0115
+seq_016F:
+       data note_0286
        data >0003
-       data note_0118
+       data note_0289
        data >0001
-       data note_0115
+       data note_0286
        data >0007
-       data note_0115
+       data note_0286
        data >0005
-       data note_0118
+       data note_0289
        data >0001
-       data note_0115
+       data note_0286
        data >0007
-       data note_0115
+       data note_0286
        data >0001
        data >0000
-seq_00C7:
-       data note_012D
+seq_01ED:
+       data note_02B3
        data >0001
-       data note_012D
+       data note_02B3
        data >0001
-       data note_012F
+       data note_02B5
        data >0001
-       data note_012D
+       data note_02B3
        data >0001
-       data note_012D
+       data note_02B3
        data >0001
-       data note_012D
+       data note_02B3
        data >0001
-       data note_012F
+       data note_02B5
        data >0001
-       data note_012D
+       data note_02B3
        data >0001
-       data note_012D
+       data note_02B3
        data >0001
-       data note_012D
+       data note_02B3
        data >0001
-       data note_012F
+       data note_02B5
        data >0001
-       data note_012D
+       data note_02B3
        data >0001
-       data note_012D
+       data note_02B3
        data >0001
-       data note_012D
+       data note_02B3
        data >0001
-       data note_012F
+       data note_02B5
        data >0001
-       data note_012D
+       data note_02B3
        data >0001
        data >0000
-seq_0086:
-       data note_00EB
-       data >0001
-       data note_00EB
-       data >0005
-       data note_00EE
-       data >0001
-       data note_00F1
-       data >0003
-       data note_00F4
-       data >0005
-       data note_00F4
-       data >0003
-       data note_00EE
-       data >0001
-       data note_00F1
-       data >0005
-       data >0000
-seq_00B0:
-       data note_011B
-       data >0003
-       data note_011E
-       data >0001
-       data note_011B
+seq_0106:
+       data note_0235
        data >0007
-       data note_011B
-       data >0005
-       data note_011E
+       data note_0238
        data >0001
-       data note_011B
+       data note_023B
+       data >0003
+       data note_023E
+       data >0009
+       data note_0238
+       data >0001
+       data note_023B
+       data >0005
+       data >0000
+seq_0110:
+       data note_0235
+       data >0001
+       data note_0241
+       data >0005
+       data note_0238
+       data >0001
+       data note_023B
+       data >0003
+       data note_023E
+       data >0005
+       data note_023E
+       data >0003
+       data note_0238
+       data >0001
+       data note_023B
+       data >0005
+       data >0000
+seq_017A:
+       data note_028C
+       data >0003
+       data note_028F
+       data >0001
+       data note_028C
        data >0007
-       data note_011B
+       data note_028C
+       data >0005
+       data note_028F
        data >0001
-       data >0000
-seq_0090:
-       data note_00F7
-       data >0005
-       data note_00FA
-       data >0005
-       data note_00F1
-       data >0003
-       data note_00FD
-       data >0005
-       data note_0100
-       data >0005
-       data note_0103
-       data >0003
-       data >0000
-seq_00BB:
-       data note_0121
-       data >0003
-       data note_0124
-       data >0001
-       data note_0121
+       data note_028C
        data >0007
-       data note_0121
+       data note_028C
        data >0001
-       data note_0127
+       data >0000
+seq_011A:
+       data note_0244
+       data >0005
+       data note_0247
+       data >0005
+       data note_023B
        data >0003
-       data note_012A
+       data note_024A
+       data >0005
+       data note_024D
+       data >0005
+       data note_0250
+       data >0003
+       data >0000
+seq_0185:
+       data note_0292
+       data >0003
+       data note_0295
        data >0001
-       data note_0127
+       data note_0292
        data >0007
-       data note_0127
+       data note_0292
        data >0001
-       data >0000
-seq_0098:
-       data note_00F7
-       data >0005
-       data note_00FA
-       data >0005
-       data note_00F1
+       data note_0298
        data >0003
-       data note_0106
+       data note_029B
        data >0001
-       data note_0109
-       data >0001
-       data note_010C
-       data >0001
-       data note_0109
-       data >0001
-       data note_0106
-       data >0001
-       data note_0103
-       data >0001
-       data note_010F
-       data >0001
-       data note_0112
+       data note_0298
+       data >0007
+       data note_0298
        data >0001
        data >0000
-seq_00D9:
-       data note_012D
+seq_0122:
+       data note_0244
+       data >0005
+       data note_0247
+       data >0005
+       data note_023B
+       data >0003
+       data note_0253
        data >0001
-       data note_012D
+       data note_0256
        data >0001
-       data note_012F
+       data note_0259
        data >0001
-       data note_012D
+       data note_0256
        data >0001
-       data note_012D
+       data note_0253
        data >0001
-       data note_012D
+       data note_0250
        data >0001
-       data note_012F
+       data note_025C
        data >0001
-       data note_012D
-       data >0001
-       data note_012D
-       data >0001
-       data note_012D
-       data >0001
-       data note_012F
-       data >0001
-       data note_012D
-       data >0001
-       data note_012D
-       data >0001
-       data note_012F
-       data >0001
-       data note_012F
-       data >0001
-       data note_012D
+       data note_025F
        data >0001
        data >0000
-note_00EB:
+seq_0191:
+       data note_0292
+       data >0003
+       data note_0295
+       data >0001
+       data note_0292
+       data >0007
+       data note_0292
+       data >0001
+       data note_0298
+       data >0003
+       data note_029B
+       data >0001
+       data note_0298
+       data >0007
+       data note_0298
+       data >0001
+       data >0000
+seq_01FF:
+       data note_02B3
+       data >0001
+       data note_02B3
+       data >0001
+       data note_02B5
+       data >0001
+       data note_02B3
+       data >0001
+       data note_02B3
+       data >0001
+       data note_02B3
+       data >0001
+       data note_02B5
+       data >0001
+       data note_02B3
+       data >0001
+       data note_02B3
+       data >0001
+       data note_02B3
+       data >0001
+       data note_02B5
+       data >0001
+       data note_02B3
+       data >0001
+       data note_02B3
+       data >0001
+       data note_02B5
+       data >0001
+       data note_02B5
+       data >0001
+       data note_02B3
+       data >0001
+       data >0000
+seq_012F:
+       data note_0262
+       data >0005
+       data note_0265
+       data >0005
+       data note_0238
+       data >0003
+       data note_0247
+       data >0005
+       data note_023E
+       data >0005
+       data note_0265
+       data >0003
+       data >0000
+seq_019D:
+       data >0002
+       data note_029E
+       data >0001
+       data note_02A1
+       data >0001
+       data note_029E
+       data >0003
+       data note_029E
+       data >0001
+       data note_02A4
+       data >0001
+       data note_029E
+       data >0003
+       data note_029E
+       data >0001
+       data note_02A1
+       data >0001
+       data note_029E
+       data >0005
+       data note_02A4
+       data >0001
+       data note_029E
+       data >0001
+       data >0000
+seq_0211:
+       data note_02B7
+       data >0001
+       data note_02B3
+       data >0001
+       data note_02B5
+       data >0001
+       data note_02B3
+       data >0001
+       data note_02B7
+       data >0001
+       data note_02B3
+       data >0001
+       data note_02B5
+       data >0001
+       data note_02B3
+       data >0001
+       data note_02B7
+       data >0001
+       data note_02B3
+       data >0001
+       data note_02B5
+       data >0001
+       data note_02B3
+       data >0001
+       data note_02B7
+       data >0001
+       data note_02B7
+       data >0001
+       data note_02B5
+       data >0001
+       data note_02B3
+       data >0001
+       data >0000
+seq_0137:
+       data note_0247
+       data >0005
+       data note_023E
+       data >0005
+       data note_0265
+       data >0003
+       data note_0244
+       data >0007
+       data note_0268
+       data >0007
+       data >0000
+seq_01AB:
+       data >0002
+       data note_02A7
+       data >0001
+       data note_02AA
+       data >0001
+       data note_02A7
+       data >0003
+       data note_02A7
+       data >0001
+       data note_02A4
+       data >0001
+       data note_02A7
+       data >0003
+       data note_02A7
+       data >0001
+       data note_02AA
+       data >0001
+       data note_02A7
+       data >0005
+       data note_02A4
+       data >0001
+       data note_02A7
+       data >0001
+       data >0000
+seq_0140:
+       data note_0247
+       data >0005
+       data note_023E
+       data >0005
+       data note_0265
+       data >0003
+       data note_0244
+       data >000B
+       data note_026B
+       data >0001
+       data note_026E
+       data >0001
+       data >0000
+seq_0149:
+       data note_0271
+       data >0001
+       data note_0274
+       data >0001
+       data note_0277
+       data >0001
+       data note_0274
+       data >0001
+       data note_0271
+       data >0001
+       data note_0274
+       data >0001
+       data note_0277
+       data >0001
+       data note_0274
+       data >0001
+       data note_027A
+       data >0001
+       data note_0274
+       data >0001
+       data note_026E
+       data >0001
+       data note_0274
+       data >0001
+       data note_027A
+       data >0001
+       data note_0274
+       data >0001
+       data note_026E
+       data >0001
+       data note_0274
+       data >0001
+       data >0000
+seq_01B9:
+       data note_028C
+       data >0001
+       data note_028C
+       data >0001
+       data note_028F
+       data >0001
+       data note_028C
+       data >0001
+       data note_028C
+       data >0001
+       data note_028C
+       data >0001
+       data note_028F
+       data >0001
+       data note_028C
+       data >0001
+       data note_0298
+       data >0001
+       data note_0298
+       data >0001
+       data note_029B
+       data >0001
+       data note_0298
+       data >0001
+       data note_0298
+       data >0001
+       data note_0298
+       data >0001
+       data note_029B
+       data >0003
+       data >0000
+seq_0223:
+       data note_02B3
+       data >0001
+       data note_02B3
+       data >0001
+       data note_02B5
+       data >0001
+       data note_02B3
+       data >0001
+       data note_02B3
+       data >0001
+       data note_02B3
+       data >0001
+       data note_02B5
+       data >0001
+       data note_02B3
+       data >0001
+       data note_02B3
+       data >0001
+       data note_02B3
+       data >0001
+       data note_02B5
+       data >0001
+       data note_02B3
+       data >0001
+       data note_02B3
+       data >0001
+       data note_02B5
+       data >0001
+       data note_02B5
+       data >0001
+       data note_02B5
+       data >0001
+       data >0000
+seq_015B:
+       data note_027D
+       data >0001
+       data note_0274
+       data >0001
+       data note_026B
+       data >0001
+       data note_0274
+       data >0001
+       data note_027D
+       data >0001
+       data note_0274
+       data >0001
+       data note_026B
+       data >0001
+       data note_0274
+       data >0001
+       data note_0280
+       data >0005
+       data note_026B
+       data >0005
+       data note_026E
+       data >0003
+       data >0000
+seq_01CA:
+       data note_0292
+       data >0001
+       data note_0292
+       data >0001
+       data note_0295
+       data >0001
+       data note_0292
+       data >0001
+       data note_0292
+       data >0001
+       data note_0292
+       data >0001
+       data note_0295
+       data >0001
+       data note_0292
+       data >0001
+       data note_02AD
+       data >0001
+       data note_02AD
+       data >0001
+       data note_02A1
+       data >0001
+       data note_02AD
+       data >0001
+       data note_02AD
+       data >0001
+       data note_02AD
+       data >0001
+       data note_02A1
+       data >0003
+       data >0000
+seq_0168:
+       data note_026B
+       data >0005
+       data note_0280
+       data >0005
+       data note_0274
+       data >0003
+       data note_0283
+       data >000F
+       data >0000
+seq_01DB:
+       data note_0292
+       data >0001
+       data note_0292
+       data >0001
+       data note_0295
+       data >0001
+       data note_0292
+       data >0001
+       data note_0292
+       data >0001
+       data note_0292
+       data >0001
+       data note_0295
+       data >0001
+       data note_0292
+       data >0001
+       data note_02A7
+       data >0001
+       data note_02A7
+       data >0001
+       data note_02B0
+       data >0001
+       data note_02A7
+       data >0001
+       data note_02A7
+       data >0001
+       data note_02A7
+       data >0001
+       data note_02B0
+       data >0001
+       data note_02A7
+       data >0001
+       data >0000
+note_0235:
        data instr_00
        data G3
-note_00EE:
+note_0238:
        data instr_00
        data D3
-note_00F1:
+note_023B:
        data instr_00
        data E3
-note_00F4:
+note_023E:
        data instr_00
        data B3
-note_0115:
+note_0286:
        data instr_01
        data >005B
-note_0118:
-       data instr_01
+note_0289:
+       data instr_05
        data E1
-note_012D:
+note_02B3:
        data instr_02
        data P3
-note_012F:
+note_02B5:
        data instr_03
        data W0
-note_011B:
+note_0241:
+       data instr_07
+       data G3
+note_028C:
        data instr_01
        data >0072
-note_011E:
-       data instr_01
+note_028F:
+       data instr_05
        data C1
-note_00F7:
+note_0244:
        data instr_00
        data A3
-note_00FA:
+note_0247:
        data instr_00
        data C3
-note_00FD:
+note_024A:
        data instr_00
        data D#3
-note_0100:
+note_024D:
        data instr_00
        data F#3
-note_0103:
+note_0250:
        data instr_00
        data C4
-note_0121:
+note_0292:
        data instr_01
        data G#3
-note_0124:
-       data instr_01
+note_0295:
+       data instr_05
        data A1
-note_0127:
+note_0298:
        data instr_01
        data >0079
-note_012A:
-       data instr_01
+note_029B:
+       data instr_05
        data B1
-note_0106:
+note_0253:
        data instr_00
        data D#4
-note_0109:
+note_0256:
        data instr_00
        data E4
-note_010C:
+note_0259:
        data instr_00
        data F#4
-note_010F:
+note_025C:
        data instr_00
        data B4
-note_0112:
+note_025F:
        data instr_00
        data A4
-instr_00:                              ;
+note_0262:
+       data instr_00
+       data D2
+note_0265:
+       data instr_00
+       data G2
+note_029E:
+       data instr_01
+       data F#4
+note_02A1:
+       data instr_05
+       data G1
+note_02A4:
+       data instr_05
+       data G4
+note_02B7:
+       data instr_04
+       data W2
+note_0268:
+       data instr_00
+       data A#3
+note_02A7:
+       data instr_01
+       data C#4
+note_02AA:
+       data instr_05
+       data D1
+note_026B:
+       data instr_06
+       data C3
+note_026E:
+       data instr_06
+       data D3
+note_0271:
+       data instr_06
+       data E2
+note_0274:
+       data instr_06
+       data G2
+note_0277:
+       data instr_06
+       data E3
+note_027A:
+       data instr_06
+       data D2
+note_027D:
+       data instr_06
+       data C2
+note_0280:
+       data instr_06
+       data B3
+note_02AD:
+       data instr_01
+       data >0099
+note_0283:
+       data instr_06
+       data A3
+note_02B0:
+       data instr_05
+       data D4
+instr_00:
        byte T2
        byte 48
        byte 47
        byte 2
-       data 0
+       data >0000
 instr_01:
        byte T3
        byte 32
        byte 255
        byte 0
-       data 0
+       data >0000
 instr_02:
        byte P3
        byte 24
        byte 0
        byte 10
-       data 0
+       data >0000
 instr_03:
        byte W0
        byte 8
        byte 0
        byte 31
+       data >0000
+instr_04:
+       byte W2
+       byte 12
+       byte 0
+       byte 21
+       data >0000
+instr_05:
+       byte T3
+       byte 10
+       byte 0
+       byte 25
+       data >0000
+instr_06:
+       byte T2
+       byte 46
+       byte 143
+       byte -3
+       data >0000
+instr_07:
+       byte T2
+       byte 48
+       byte 63
+       byte 2
+       data >0000

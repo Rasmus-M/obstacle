@@ -71,7 +71,7 @@ buffer_size:
 log_2_buffer_size:
        equ  5
 n_sprite_patterns:
-       equ  18
+       equ  19
 chr_space:
        equ  96
 chr_zero:
@@ -171,8 +171,10 @@ ball_ay:                               ; FP 8.8
        equ  ball_vy+2
 ball_pattern_color:
        equ  ball_ay+2
-ball_animation_ptr:
+ball_pattern_color_offset:
        equ  ball_pattern_color+2
+ball_animation_ptr:
+       equ  ball_pattern_color_offset+2
 ball_animation_count:
        equ  ball_animation_ptr+2
 ball_rebounce:

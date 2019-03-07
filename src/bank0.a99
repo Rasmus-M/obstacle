@@ -996,7 +996,7 @@ long_jump:
        clr  @ball_rebounce
        bl   @play_long_jump
        li   r0,long
-;       bl   @speak
+       bl   @speak
        .endproc
 *// long_jump
 

@@ -52,8 +52,6 @@ bank_0:
        equ  >6002
 bank_1:
        equ  >6000
-trampoline_code_size:
-       equ  18
 scroll_speed_normal:
        equ  >0100
 scroll_speed_slow:
@@ -213,12 +211,8 @@ module_speed:
        equ  snd_track_3+snd_track_size
 buffer:
        equ  module_speed+2
-bank_0_exec:
-       equ  buffer+buffer_size
-bank_1_exec:
-       equ  bank_0_exec+trampoline_code_size
 pad_max:
-       equ  bank_1_exec+trampoline_code_size
+       equ  buffer+buffer_size
 
 **
 * Macros
@@ -246,19 +240,68 @@ pad_max:
        mov  @-2(r10),#1
        .endm
 
-**
+***************************************************************
+*
+* Cartridge all banks
+*
+       aorg >6000
+       bank all
+
+***************************************************************
+*
+* Cartridge header
+*
+       byte >AA,1,1,0
+       data 0
+       data program
+       data 0,0
+program:
+       data 0
+       data main
+       byte 15
+       text 'OBSTACLE COURSE'
+
+
+*********************************************************************
+*
+* Trampoline code for executing bank 0 routine
+*
+* r13: address of bank 0 routine
+*
+bank_0_exec:
+       .proc
+       seto @bank_0
+       bl   *r13
+       seto @bank_1
+       .endproc
+*// bank_0_exec
+
+*********************************************************************
+*
+* Trampoline code for executing bank 1 routine
+*
+* r13: address of bank 1 routine
+*
+bank_1_exec:
+       .proc
+       seto @bank_1
+       bl   *r13
+       seto @bank_0
+       .endproc
+*// bank_1_exec
+
+*********************************************************************
+*
+* Program stub for switching to bank 0
+*
+main:
+       seto @bank_0
+
+***************************************************************
+*
 * Cartridge banks
 *
        copy "bank0.a99"
-
-vdp_to_vdp_copy_fast_bank0:
-       equ  vdp_to_vdp_copy_fast
-
        copy "bank1.a99"
-
-copy_map_to_vdp_bank1:
-       equ  copy_map_to_vdp
-upload_sprite_patterns_bank1:
-       equ  upload_sprite_patterns
 
        end

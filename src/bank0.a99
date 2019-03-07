@@ -2,28 +2,12 @@
 *
 * Bank 0
 *
-       aorg >6000,0
-
-***************************************************************
-*
-* Cartridge header
-*
-       byte >AA,1,1,0
-       data 0
-       data program
-       data 0,0
-program:
-       data 0
-       data main
-       byte 15
-       text 'OBSTACLE COURSE'
+       bank 0
 
 ***************************************************************
 *
 * Main program
 *
-main:
-       seto @bank_0
        limi 0                          ; Interrupts off
        lwpi wrksp                      ; Setup workspace
        li   r10,stack                  ; Setup stack pointer
@@ -60,11 +44,6 @@ one_time_init:
        .proc
        li   r14,vdprd                  ; Do not change
        li   r15,vdpwd                  ; Do not change
-*      Trampoline code
-       li   r0,bank_0_exec_code
-       li   r1,bank_0_exec
-       li   r2,bank_1_exec_code_end-bank_0_exec_code
-       bl   @copy
 *      Graphics mode
        bl   @graphics_mode
        .endproc
@@ -188,7 +167,7 @@ init_level_1:
        li   r0,scroll_speed_normal
        mov  r0,@scroll_vx
 *      Setup display
-       li   r13,copy_map_to_vdp_bank1
+       li   r13,copy_map_to_vdp#
        bl   @bank_1_exec
        bl   @scroll_patterns
        bl   @read_grom_chars
@@ -199,7 +178,7 @@ init_level_1:
        bl   @display_level
        bl   @display_lives
 *      Sprite patterns
-       li   r13,upload_sprite_patterns_bank1
+       li   r13,upload_sprite_patterns#
        bl   @bank_1_exec
 *      Sprite attributes
        li   r0,spratb
@@ -1837,38 +1816,6 @@ clear:
        jne  clear
        rt
 *// clear
-
-*********************************************************************
-*
-* Trampoline code for executing bank 0 routine
-* Copied into scratchpad at bank_0_exec
-*
-* r13: address of bank 0 routine
-*
-bank_0_exec_code:
-       .proc
-       seto @bank_0
-       bl   *r13
-       seto @bank_1
-       .endproc
-bank_0_exec_code_end
-*// bank_0_exec_code
-
-*********************************************************************
-*
-* Trampoline code for executing bank 1 routine
-* Copied into scratchpad at bank_1_exec
-*
-* r13: address of bank 1 routine
-*
-bank_1_exec_code:
-       .proc
-       seto @bank_1
-       bl   *r13
-       seto @bank_0
-       .endproc
-bank_1_exec_code_end
-*// bank_1_exec_code
 
 *********************************************************************
 *

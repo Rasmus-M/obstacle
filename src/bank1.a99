@@ -2,28 +2,7 @@
 *
 * Bank 1
 *
-       aorg >6000,1
-
-***************************************************************
-*
-* Cartridge header
-*
-       byte >AA,1,1,0
-       data 0
-       data program_bank1
-       data 0,0
-program_bank1:
-       data 0
-       data main_bank_1
-       byte 15
-       text 'OBSTACLE COURSE'
-
-***************************************************************
-*
-* Stub for switching to bank 0
-*
-main_bank_1:
-       seto @bank_0
+       bank 1
 
 ***************************************************************
 *
@@ -48,22 +27,22 @@ copy_map_to_vdp:
        li   r0,>1000
        li   r1,vmap0
        li   r2,>400
-       li   r13,vdp_to_vdp_copy_fast_bank0
+       li   r13,vdp_to_vdp_copy_fast#
        bl   @bank_0_exec
        li   r0,>1400
        li   r1,vmap1
        li   r2,>400
-       li   r13,vdp_to_vdp_copy_fast_bank0
+       li   r13,vdp_to_vdp_copy_fast#
        bl   @bank_0_exec
        li   r0,>1800
        li   r1,vmap2
        li   r2,>400
-       li   r13,vdp_to_vdp_copy_fast_bank0
+       li   r13,vdp_to_vdp_copy_fast#
        bl   @bank_0_exec
        li   r0,>1c00
        li   r1,vmap3
        li   r2,>400
-       li   r13,vdp_to_vdp_copy_fast_bank0
+       li   r13,vdp_to_vdp_copy_fast#
        bl   @bank_0_exec
        .endproc
 *// copy_map_to_vdp

@@ -143,7 +143,7 @@ init_level:
        bl   @mute_sound
 *      Scratch pad variables
        li   r0,disp_score
-       li   r2,bank_0_exec-disp_score
+       li   r2,pad_max-disp_score
        bl   @clear
 *      Modified level
        mov  @level,r1
@@ -996,7 +996,7 @@ long_jump:
        clr  @ball_rebounce
        bl   @play_long_jump
        li   r0,long
-       bl   @speak
+;       bl   @speak
        .endproc
 *// long_jump
 

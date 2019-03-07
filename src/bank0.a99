@@ -60,18 +60,19 @@ intro:
        bl   @init_level
        .pop @level                     ; Restore level reached (for display)
        bl   @display_level
-       clr  @ball_x
+       li   r0,>0100
+       mov  r0,@ball_x
        li   r0,>0180
        mov  r0,@ball_vx
        li   r0,>1000
        mov  r0,@ball_y
 *      Scroll intro screen
-       li   r0,257
+       li   r0,256
        mov  r0,@frame
        seto @demo
        seto @status
        bl   @main_loop
-*      S'
+*      Display S'
        li   r0,ptrntb+95*8
        li   r1,char_s_apo
        li   r2,8
@@ -80,17 +81,10 @@ intro:
        li   r1,95*256
        bl   @vsbw
 *      Move ball on
-       li   r0,80
+       li   r0,85
        mov  r0,@frame
-       li   r0,>029a
-       mov  r0,@ball_vx
-intro_0:
-       bl   @vsync
-       bl   @upload_sprites
-       bl   @move_ball
-       bl   @module_player
-       dec  @frame
-       jne  intro_0
+       clr  @scroll_vx
+       bl   @main_loop
 *      Text
        li   r9,47
 intro_1:
@@ -221,7 +215,7 @@ main_loop_1:
        jmp  main_loop_1
 main_loop_2:
        dec  @frame
-       jne  main_loop_1
+       jgt  main_loop_1
 main_loop_3:
        .endproc
 *// main_loop
@@ -603,10 +597,18 @@ user_input_2:
 user_input_3:
        mov  r1,@ball_vx
        mov  r1,@ball_vx_last
-       jmp  user_input_5
+       jmp  user_input_6
 user_input_4:
        mov  @ball_vx_last,@ball_vx
+       jmp  user_input_6
 user_input_5:
+       mov  @demo,r0
+       jeq  user_input_6
+       li   r0,JOY_FI
+       bl   @check_key
+       jeq  user_input_6
+       clr  @frame
+user_input_6:
        .endproc
 *// user_input
 

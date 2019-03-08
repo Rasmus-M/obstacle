@@ -95,7 +95,7 @@ intro_1:
        li   r8,4
 intro_2:
        mov  r9,@frame
-       bl   @wait
+       bl   @wait_key
        mov  r0,r0
        jne  intro_3
        li   r0,21*32+6
@@ -121,45 +121,54 @@ intro_3:
 *
 * Modifies r0-r6
 *
-wait:
+wait_key:
        .proc
-wait_1:
+wait_key_1:
        bl   @vsync
        bl   @module_player
        bl   @check_quit
        li   r0,JOY_FI
        bl   @check_key
-       jne  wait_3
+       jne  wait_key_5
+       li   r0,KEY_SP
+       bl   @check_key
+       jne  wait_key_6
 *      Speech on/off
        li   r0,KEY_S
        bl   @check_key
-       jeq  wait_2
+       jeq  wait_key_4
        mov  @speech_on,r0
-       jne  wait_4
+       jne  wait_key_2
        seto @speech_on
        li   r7,txt_speech_on
-       jmp  wait_6
-wait_4:
+       jmp  wait_key_3
+wait_key_2:
        clr  @speech_on
        li   r7,txt_speech_off
-wait_6:
+wait_key_3:
        li   r0,KEY_S
        bl   @check_key
-       jne  wait_6
+       jne  wait_key_3
        seto r8                         ; Frames left
        clr  r0
-       jmp  wait_5
+       jmp  wait_key_8
 *      Loop
-wait_2:
+wait_key_4:
        dec  @frame
-       jne  wait_1
+       jne  wait_key_1
        clr  r0
-       jmp  wait_5
-wait_3:
+       jmp  wait_key_8
+wait_key_5:
+       li   r0,keys_joystick
+       jmp  wait_key_7
+wait_key_6:
+       li   r0,keys_keyboard
+wait_key_7:
+       mov  r0,@controls
        seto r0                         ; Done
-wait_5:
+wait_key_8:
        .endproc
-*// wait
+*// wait_key
 
 ***************************************************************
 *
@@ -636,36 +645,45 @@ user_input:
        jlt  user_input_5
        mov  @ball_vy,r0
        jne  user_input_4
-       li   r0,JOY_FI
-       bl   @check_key
+       mov  @controls,r6
+*      Joystick
+       mov  *r6+,r0
+       bl   @check_key                 ; Jump
        jeq  user_input_1
        bl   @jump
 user_input_1:
        mov  @scroll_vx,r1              ; Default speed
-       tb   1                          ; Left
+       mov  *r6+,r0
+       bl   @check_key                 ; Left
        jeq  user_input_2
        s    @scroll_vx,r1
        ai   r1,->0040
        jmp  user_input_3
 user_input_2:
-       tb   2                          ; Right
+       mov  *r6,r0
+       bl   @check_key                 ; Right
        jeq  user_input_3
        ai   r1,>0080
+*      Set velocity
 user_input_3:
        mov  r1,@ball_vx
        mov  r1,@ball_vx_last
-       jmp  user_input_6
+       jmp  user_input_7
 user_input_4:
        mov  @ball_vx_last,@ball_vx
-       jmp  user_input_6
+       jmp  user_input_7
 user_input_5:
        mov  @demo,r0
-       jeq  user_input_6
+       jeq  user_input_7
        li   r0,JOY_FI
        bl   @check_key
-       jeq  user_input_6
-       clr  @frame
+       jne  user_input_6
+       li   r0,KEY_SP
+       bl   @check_key
+       jeq  user_input_7
 user_input_6:
+       clr  @frame
+user_input_7:
        .endproc
 *// user_input
 
@@ -1935,6 +1953,10 @@ txt_speech_off:
        text "     SPEECH OFF    "
        byte 0
        even
+keys_keyboard:
+       data KEY_SP, KEY_S, KEY_D
+keys_joystick:
+       data JOY_FI, JOY_LT, JOY_RT
 
 *********************************************************************
 *

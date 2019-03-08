@@ -1,6 +1,6 @@
 ***************************************************************
 *
-* Bank 0
+* Cartridge bank 0
 *
        bank 0
 
@@ -17,13 +17,13 @@ new_game:
        bl   @intro
        bl   @init_game
 new_level:
-       li   r0,ready
+       li   r0,ready_to_start
        bl   @speak
        bl   @init_level
        bl   @main_loop
        mov  @status,r0
        jlt  lost_life
-       li   r0,finish
+       li   r0,good_work
        bl   @speak
        inc  @level
        jmp  new_level
@@ -34,6 +34,8 @@ lost_life:
        li   r0,21*32+6
        li   r1,txt_game_over
        bl   @display_text
+       li   r0,try_again
+       bl   @speak
        jmp  new_game
 
 *********************************************************************
@@ -182,6 +184,10 @@ init_level_1:
        li   r0,obstacles_module
        bl   @play_module
 *      Screen on
+       li   r0,nametb/>400+>0200
+       bl   @vwtr
+       li   r0,ptrntb/>800+>0400
+       bl   @vwtr
        li   r0,>01e2
        bl   @vwtr
        .endproc
@@ -499,6 +505,8 @@ move_other_sprites_4:
        mov  r1,@enemy_y
        li   r0,>fe80
        mov  r0,@enemy_vx
+       li   r0,uhoh
+       bl   @speak
 move_other_sprites_5:
        .endproc
 *// move_other_sprites
@@ -952,19 +960,26 @@ check_coinc_top_3:
 die:
        .proc
        mov  @status,r0
-       jlt  die_1
+       jlt  die_3
        seto @status
        li   r2,animation_die           ; Animate
        mov  r2,@ball_animation_ptr
-       li   r0,120
-       mov  r0,@frame
        clr  @scroll_vx
        clr  @ball_vx
        clr  @ball_vy
        bl   @play_die
+       mov  @frame,r0
+       andi r0,3
+       jeq  die_1
        li   r0,no
-       bl   @speak
+       jmp  die_2
 die_1:
+       li   r0,nice_try
+die_2:
+       bl   @speak
+       li   r0,120
+       mov  r0,@frame
+die_3:
        .endproc
 *// die
 
@@ -1030,8 +1045,6 @@ collect_star_2:
        mov  *r0,@points_sprite_pattern_color
        a    r1,@score
        bl   @play_star
-;       li   r0,yes
-;       bl   @speak
        .endproc
 *// collect_star
 
@@ -1047,7 +1060,7 @@ slow_speed:
        li   r0,scroll_speed_slow
        mov  r0,@scroll_vx
        bl   @play_slow
-       li   r0,uhoh
+       li   r0,hurry
        bl   @speak
 slow_speed_1:
        .endproc
@@ -1065,7 +1078,7 @@ normal_speed:
        li   r0,scroll_speed_normal
        mov  r0,@scroll_vx
        bl   @play_normal
-       li   r0,double
+       li   r0,what_was_that
        bl   @speak
 normal_speed_1:
        .endproc
@@ -1404,7 +1417,7 @@ d10:
 graphics_mode:
        .proc
        clr  r0
-       li   r1,vregs2
+       li   r1,vdp_registers
        li   r2,8
 graphics_mode_1:
        movb *r1+,@r0lb
@@ -1429,7 +1442,7 @@ graphics_mode_1:
 *      Return
        .endproc
 *      VDP registers
-vregs2:
+vdp_registers:
        byte >00                        ; Graphics I mode
        byte >e2                        ; 16K, display on, interrupt enabled
        byte nametb/>400                ; Name table
@@ -1624,48 +1637,6 @@ vsbw:
 
 *********************************************************************
 *
-* VDP multiple Byte Write
-*
-* R0: Write address in VDP RAM
-* R1: Starting read address in CPU RAM
-* R2: Number of bytes to send
-*
-* R0 is modified, but can be restored with: ANDI R0,>3FFF
-*
-vmbw:
-       movb  @r0lb,@vdpwa              ; Send low byte of VDP RAM write address
-       ori  r0,>4000                   ; Set read/write bits 14 and 15 to write (01)
-       movb r0,@vdpwa                  ; Send high byte of VDP RAM write address
-vmbw_1:
-       movb *r1+,*r15                  ; Write byte to VDP RAM
-       dec  r2
-       jne  vmbw_1
-       rt
-*// vmbw
-
-*********************************************************************
-*
-* VDP Single Byte Multiple Write
-*
-* R0: Write address in VDP RAM
-* R1: MSB of R1 sent to VDP RAM
-* R2: Number of bytes to write to VDP RAM
-*
-* R0 is modified, but can be restored with: ANDI R0,>3FFF
-*
-vsmw:
-       movb  @r0lb,@vdpwa              ; Send low byte of VDP RAM write address
-       ori  r0,>4000                   ; Set read/write bits 14 and 15 to write (01)
-       movb r0,@vdpwa                  ; Send high byte of VDP RAM write address
-vsmw_1:
-       movb r1,*r15                    ; Write byte to VDP RAM
-       dec  r2                         ; Byte counter
-       jne  vsmw_1
-       rt
-*// vsmw
-
-*********************************************************************
-*
 * VDP Multiple Byte Read
 *
 * R0: Starting read address in VDP RAM
@@ -1825,21 +1796,24 @@ clear:
 *
 * r0: points to the word to say.
 *
-long   equ  >40d3                      ; Long jump
-point  equ  >50ec                      ; Bonus points
-uhoh   equ  >71f4                      ; Confusion
-good   equ  >30d6                      ;
-finish equ  >2b94                      ; Level completed
-more   equ  >4642                      ; Extra life
-top    equ  >6f8d                      ; Energy
-yes    equ  >7d58                      ;
-no     equ  >3c4f                      ; Space
-connec equ  >208b                      ; Switch
-fine   equ  >2b1e                      ; Immunity
-double equ  >2599                      ; Speed
-ready  equ  >56b3
-ah     equ  >1700
-oh     equ  >4b7d
+ready_to_start:
+       equ  >56b3                      ; Before level
+long:
+       equ  >40d3                      ; Long jump
+hurry:
+       equ  >3757                      ; Slow
+what_was_that:
+       equ  >77e9                      ; Fast
+uhoh:
+       equ  >71f4                      ; Enemy appears
+nice_try:
+       equ  >49a5                      ; Die
+no:
+       equ  >3c4f                      ; Die
+good_work:
+       equ  >30fa                      ; Level completed
+try_again:
+       equ  >700f                      ; Game over
 *
 speak:
        li   r2,4

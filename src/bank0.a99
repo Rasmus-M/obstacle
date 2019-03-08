@@ -88,7 +88,7 @@ intro:
        clr  @scroll_vx
        bl   @main_loop
 *      Text
-       li   r9,47
+       li   r9,43                      ; First wait
 intro_1:
        li   r7,txt_title
        li   r8,4
@@ -101,7 +101,7 @@ intro_2:
        mov  r7,r1
        bl   @display_text
        ai   r7,20
-       li   r9,192
+       li   r9,192                     ; Subsequent waits
        dec  r8
        jne  intro_2
        jmp  intro_1

@@ -1,0 +1,69 @@
+*********************************************************************
+*
+* Trampoline code for executing bank 0 routine
+*
+* r13: address of bank 0 routine
+*
+bank_0_exec:
+       .proc
+       seto @bank_0
+       bl   *r13
+       seto @bank_1
+       .endproc
+*// bank_0_exec
+
+*********************************************************************
+*
+* Trampoline code for executing bank 1 routine
+*
+* r13: address of bank 1 routine
+*
+bank_1_exec:
+       .proc
+       seto @bank_1
+       bl   *r13
+       seto @bank_0
+       .endproc
+*// bank_1_exec
+
+*********************************************************************
+*
+* VDP multiple Byte Write
+*
+* R0: Write address in VDP RAM
+* R1: Starting read address in CPU RAM
+* R2: Number of bytes to send
+*
+* R0 is modified, but can be restored with: ANDI R0,>3FFF
+*
+vmbw:
+       movb  @r0lb,@vdpwa              ; Send low byte of VDP RAM write address
+       ori  r0,>4000                   ; Set read/write bits 14 and 15 to write (01)
+       movb r0,@vdpwa                  ; Send high byte of VDP RAM write address
+vmbw_1:
+       movb *r1+,*r15                  ; Write byte to VDP RAM
+       dec  r2
+       jne  vmbw_1
+       rt
+*// vmbw
+
+*********************************************************************
+*
+* VDP Single Byte Multiple Write
+*
+* R0: Write address in VDP RAM
+* R1: MSB of R1 sent to VDP RAM
+* R2: Number of bytes to write to VDP RAM
+*
+* R0 is modified, but can be restored with: ANDI R0,>3FFF
+*
+vsmw:
+       movb  @r0lb,@vdpwa              ; Send low byte of VDP RAM write address
+       ori  r0,>4000                   ; Set read/write bits 14 and 15 to write (01)
+       movb r0,@vdpwa                  ; Send high byte of VDP RAM write address
+vsmw_1:
+       movb r1,*r15                    ; Write byte to VDP RAM
+       dec  r2                         ; Byte counter
+       jne  vsmw_1
+       rt
+*// vsmw

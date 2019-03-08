@@ -131,8 +131,10 @@ padvar equ  stack+>18                  ; Start of pad variables
 **
 * PAD variables
 *
-level:
+speech_on:
        equ  padvar
+level:
+       equ  speech_on+2
 mod_level:
        equ  level+2
 lives:

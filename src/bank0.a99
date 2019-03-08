@@ -46,6 +46,7 @@ one_time_init:
        .proc
        li   r14,vdprd                  ; Do not change
        li   r15,vdpwd                  ; Do not change
+       seto @speech_on
 *      Graphics mode
        bl   @graphics_mode
        .endproc
@@ -95,7 +96,7 @@ intro_1:
 intro_2:
        mov  r9,@frame
        bl   @wait
-       tb   0
+       mov  r0,r0
        jne  intro_3
        li   r0,21*32+6
        mov  r7,r1
@@ -103,7 +104,7 @@ intro_2:
        ai   r7,20
        li   r9,192                     ; Subsequent waits
        dec  r8
-       jne  intro_2
+       jgt  intro_2
        jmp  intro_1
 intro_3:
        li   r0,21*32+6
@@ -111,6 +112,54 @@ intro_3:
        bl   @display_text
        .endproc
 *// intro
+
+*********************************************************************
+*
+* Wait until fire or timeout, also handles settings.
+*
+* @frame: Number of frames to wait
+*
+* Modifies r0-r6
+*
+wait:
+       .proc
+wait_1:
+       bl   @vsync
+       bl   @module_player
+       bl   @check_quit
+       li   r0,JOY_FI
+       bl   @check_key
+       jne  wait_3
+*      Speech on/off
+       li   r0,KEY_S
+       bl   @check_key
+       jeq  wait_2
+       mov  @speech_on,r0
+       jne  wait_4
+       seto @speech_on
+       li   r7,txt_speech_on
+       jmp  wait_6
+wait_4:
+       clr  @speech_on
+       li   r7,txt_speech_off
+wait_6:
+       li   r0,KEY_S
+       bl   @check_key
+       jne  wait_6
+       seto r8                         ; Frames left
+       clr  r0
+       jmp  wait_5
+*      Loop
+wait_2:
+       dec  @frame
+       jne  wait_1
+       clr  r0
+       jmp  wait_5
+wait_3:
+       seto r0                         ; Done
+wait_5:
+       .endproc
+*// wait
 
 ***************************************************************
 *
@@ -1658,29 +1707,6 @@ vmbr_1:
 
 *********************************************************************
 *
-* Wait until fire or timeout
-*
-* @frame: Number of frames to wait
-*
-* Modifies r0-r6
-*
-wait:
-       .proc
-wait_1:
-       bl   @vsync
-       bl   @module_player
-       bl   @check_quit
-       li   r0,JOY_FI
-       bl   @check_key
-       jne  wait_2
-       dec  @frame
-       jne  wait_1
-wait_2:
-       .endproc
-*// wait
-
-*********************************************************************
-*
 * Check key
 *
 * r0: Column in MSB: >0000 - >0700, Row in LSB: >0006 - >0014
@@ -1816,6 +1842,8 @@ try_again:
        equ  >700f                      ; Game over
 *
 speak:
+       abs  @speech_on
+       jeq  speak_2
        li   r2,4
 speak_1:
        src  r0,4
@@ -1830,6 +1858,7 @@ speak_1:
        movb r0,@spchwt
        li   r0,>5000
        movb r0,@spchwt
+speak_2:
        rt
 *// speak
 
@@ -1898,6 +1927,12 @@ txt_fire_to_begin:
        byte 0
 txt_game_over:
        text "     GAME OVER     "
+       byte 0
+txt_speech_on:
+       text "     SPEECH ON     "
+       byte 0
+txt_speech_off:
+       text "     SPEECH OFF    "
        byte 0
        even
 

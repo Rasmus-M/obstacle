@@ -377,12 +377,14 @@ move_ball:
 *      X
 *      Check x velocity
 move_ball_16:
+       mov  @ball_x,r1
        mov  @ball_vx,r0
+       s    @scroll_vx,r0
        jlt  move_ball_1
-       mov  @ball_x,r0
-       ci   r0,>e800
+       ci   r1,>e800
        jl   move_ball_0
-       mov  @scroll_vx,@ball_vx        ;  Stop if edge is reached
+move_ball_3:
+       mov  @scroll_vx,@ball_vx        ;  Stop if right edge is reached
 *      Check char to the right of ball
 move_ball_0:
        li   r0,>1000
@@ -393,6 +395,9 @@ move_ball_0:
        jmp  move_ball_2
 *      Check char to the left of ball
 move_ball_1:
+       a    r0,r1
+       ci   r1,>fc00                  ; Check if left edge is reached
+       jhe   move_ball_3
        li   r0,->0100
        li   r1,>0000
        bl   @get_map_char_ball
@@ -402,13 +407,7 @@ move_ball_1:
 move_ball_2:
        mov  @ball_vx,r0
        s    @scroll_vx,r0              ; Movement from scrolling
-       mov  @ball_x,r1
-       a    r0,r1
-       ci   r1,->0400                  ; Check for out of screen left
-       jl   move_ball_3
-       clr  r1
-move_ball_3:
-       mov  r1,@ball_x
+       a    r0,@ball_x
 *      Animate
        li   r1,>10f8                   ; Default pattern color offset
        mov  @ball_vx,r0
@@ -1166,14 +1165,14 @@ normal_speed_1:
 * r1 contains the properties of the character
 *
 get_map_char_ball:
-       a    @ball_y,r1                 ; Add y to offset
        a    @ball_x,r0                 ; Add x to offset
+       a    @ball_y,r1                 ; Add y to offset
 get_map_char:
        srl  r1,11                      ; To chars
        ci   r1,2                       ; Above map?
        jhe  get_map_char_1
        clr  r0                         ; No VDP address
-       clr  r1                         ; Space properites
+       clr  r1                         ; Space properties
        rt
 get_map_char_1:
        dect r1                         ; Adjust for ceiling

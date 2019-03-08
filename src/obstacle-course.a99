@@ -161,7 +161,7 @@ scroll_vx:                             ; FP 8.8
        equ  scroll_x_pixels+2
 ball_x:                                ; FP 8.8
        equ  scroll_vx+2
-ball_vx:                               ; FP 8.8
+ball_vx:                               ; FP 8.8 Velocity relative to track
        equ  ball_x+2
 ball_vx_last:                          ; FP 8.8
        equ  ball_vx+2

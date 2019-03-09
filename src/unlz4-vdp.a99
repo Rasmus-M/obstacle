@@ -30,8 +30,6 @@ vwrite  equ 15
 
 unpack_lz4_from_to_vdp:
        mov  r11,return                 ; remember return address
-;      li   vread,vdprd
-;      li   vwrite,vdpwd
 
 parse_token:
        bl   @set_src
@@ -43,6 +41,9 @@ parse_token:
 
        bl   @build_count               ; check for additional bytes of length
        bl   @do_copy                   ; we know the src, dest, and count, so do it
+
+       bl   @speak                     ; Speak when needed
+
        c    src,end                    ; see if we're done yet (only place src advances)
        jl   copy_matches               ; skip over if not done and work on the back reference
 

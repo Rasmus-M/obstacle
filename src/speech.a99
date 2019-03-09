@@ -1,0 +1,117 @@
+*********************************************************************
+*
+* Speak
+*
+speak:
+       .proc
+       abs  @speech_on
+       jeq  speak_4
+       .push r1
+       mov  @speech_ptr,r1
+       jeq  speak_3
+       .push r0
+       mov  *r1,r0
+       jeq  speak_1
+*      Check speech status
+       bl   @get_speech_status
+       movb @speech_status,r1
+       andi r1,>8000
+       jne  speak_2
+       bl   @say_word
+       inct @speech_ptr
+       jmp  speak_2
+speak_1:
+       clr  @speech_ptr
+speak_2:
+       .pop r0
+speak_3:
+       .pop r1
+speak_4:
+       .endproc
+*// speak
+
+*********************************************************************
+*
+* Speak a phrase consisting of multiple words
+*
+* r1: points to the phrase to say.
+*
+say_phrase:
+       .proc
+       mov  *r1+,r0
+       mov  r1,@speech_ptr
+       bl   @say_word
+       .endproc
+*// say_phrase
+
+*********************************************************************
+*
+* Speak a word from the resident vocabulary
+*
+* r0: points to the word to say.
+*
+say_word:
+       .push r2
+       abs  @speech_on
+       jeq  say_word_2
+       li   r2,4
+say_word_1:
+       src  r0,4
+       mov  r0,r1
+       src  r1,4
+       andi r1,>0f00
+       ori  r1,>4000
+       movb r1,@spchwt
+       dec  r2
+       jne  say_word_1
+       li   r0,>4000
+       movb r0,@spchwt
+       li   r0,>5000
+       movb r0,@spchwt
+say_word_2:
+       .pop r2
+       rt
+*// say_word
+
+*********************************************************************
+*
+* Speech data
+*
+ready_to_start:
+       equ  >56b3                      ; Before level
+long:
+       equ  >40d3                      ; Long jump
+hurry:
+       equ  >3757                      ; Slow
+what_was_that:
+       equ  >77e9                      ; Fast
+uhoh:
+       equ  >71f4                      ; Enemy appears
+nice_try:
+       equ  >49a5                      ; Die
+no:
+       equ  >3c4f                      ; Die
+good_work:
+       equ  >30fa                      ; Level completed
+try_again:
+       equ  >700f                      ; Game over
+on:
+       equ  >4c41
+up:
+       equ  >739f
+are:
+       equ  >556e
+you:
+       equ  >71be
+three:
+       equ  >149a
+two:
+       equ  >145c
+one:
+       equ  >1409
+go:
+       equ  >2ffc
+hurry_up:
+       data hurry,up,0
+three_two_one_go:
+       data three,two,one,go,0

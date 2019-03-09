@@ -16,15 +16,15 @@
 new_game:
        bl   @intro
        bl   @init_game
+       li   r1,three_two_one_go
+       bl   @say_phrase
 new_level:
-       li   r0,ready_to_start
-       bl   @speak
        bl   @init_level
        bl   @main_loop
        mov  @status,r0
        jlt  lost_life
        li   r0,good_work
-       bl   @speak
+       bl   @say_word
        inc  @level
        jmp  new_level
 lost_life:
@@ -35,7 +35,7 @@ lost_life:
        li   r1,txt_game_over
        bl   @display_text
        li   r0,try_again
-       bl   @speak
+       bl   @say_word
        jmp  new_game
 
 *********************************************************************
@@ -46,7 +46,13 @@ one_time_init:
        .proc
        li   r14,vdprd                  ; Do not change
        li   r15,vdpwd                  ; Do not change
+*      Init speech
+       li   r0,speech_status_code
+       li   r1,get_speech_status
+       li   r2,speech_status_code_end-speech_status_code
+       bl   @copy
        seto @speech_on
+       clr  @speech_ptr
 *      Graphics mode
        bl   @graphics_mode
        .endproc
@@ -141,7 +147,7 @@ wait_key_1:
        jne  wait_key_2
        seto @speech_on
        li   r0,on
-       bl   @speak
+       bl   @say_word
        li   r7,txt_speech_on
        jmp  wait_key_3
 wait_key_2:
@@ -198,8 +204,8 @@ init_level:
 *      Mute sound
        bl   @mute_sound
 *      Scratch pad variables
-       li   r0,disp_score
-       li   r2,pad_max-disp_score
+       li   r0,clear_start
+       li   r2,clear_end-clear_start
        bl   @clear
 *      Modified level
        mov  @level,r1
@@ -225,14 +231,19 @@ init_level_1:
 *      Setup display
        li   r13,copy_map_to_vdp#
        bl   @bank_1_exec
+       bl   @speak                     ; Speak if needed
        bl   @scroll_patterns
+       bl   @speak                     ; Speak if needed
        bl   @read_grom_chars
+       bl   @speak                     ; Speak if needed
        bl   @update_full_name_table
+       bl   @speak                     ; Speak if needed
        li   r0,23*32+1
        li   r1,txt_stats
        bl   @display_text
        bl   @display_level
        bl   @display_lives
+       bl   @speak                     ; Speak if needed
 *      Sprite patterns
        li   r13,upload_sprite_patterns#
        bl   @bank_1_exec
@@ -240,6 +251,7 @@ init_level_1:
        li   r0,spratb
        li   r1,>d000
        bl   @vsbw
+       bl   @speak                     ; Speak if needed
 *      Music
        li   r0,obstacles_module
        bl   @play_module
@@ -273,6 +285,8 @@ main_loop_1:
        bl   @display_score
        bl   @check_quit
        bl   @module_player
+       li   r13,speak#
+       bl   @bank_1_exec
        bl   @scroll
        mov  @status,r0
        jlt  main_loop_2
@@ -565,7 +579,7 @@ move_other_sprites_4:
        li   r0,>fe80
        mov  r0,@enemy_vx
        li   r0,uhoh
-       bl   @speak
+       bl   @say_word
 move_other_sprites_5:
        .endproc
 *// move_other_sprites
@@ -1044,7 +1058,7 @@ die:
 die_1:
        li   r0,nice_try
 die_2:
-       bl   @speak
+       bl   @say_word
        li   r0,120
        mov  r0,@frame
 die_3:
@@ -1081,7 +1095,7 @@ long_jump:
        clr  @ball_rebounce
        bl   @play_long_jump
        li   r0,long
-       bl   @speak
+       bl   @say_word
        .endproc
 *// long_jump
 
@@ -1128,8 +1142,8 @@ slow_speed:
        li   r0,scroll_speed_slow
        mov  r0,@scroll_vx
        bl   @play_slow
-       li   r0,hurry
-       bl   @speak
+       li   r1,hurry_up
+       bl   @say_phrase
 slow_speed_1:
        .endproc
 *// slow_speed
@@ -1147,7 +1161,7 @@ normal_speed:
        mov  r0,@scroll_vx
        bl   @play_normal
        li   r0,what_was_that
-       bl   @speak
+       bl   @say_word
 normal_speed_1:
        .endproc
 *// normal_speed
@@ -1835,53 +1849,18 @@ clear:
        rt
 *// clear
 
-*********************************************************************
+*********************************************************************************
 *
-* Speak a word from the resident vocabulary
+* Speech status read routine code, must be copied to scratchpad
 *
-* r0: points to the word to say.
-*
-ready_to_start:
-       equ  >56b3                      ; Before level
-long:
-       equ  >40d3                      ; Long jump
-hurry:
-       equ  >3757                      ; Slow
-what_was_that:
-       equ  >77e9                      ; Fast
-uhoh:
-       equ  >71f4                      ; Enemy appears
-nice_try:
-       equ  >49a5                      ; Die
-no:
-       equ  >3c4f                      ; Die
-good_work:
-       equ  >30fa                      ; Level completed
-try_again:
-       equ  >700f                      ; Game over
-on:
-       equ  >4c41
-*
-speak:
-       abs  @speech_on
-       jeq  speak_2
-       li   r2,4
-speak_1:
-       src  r0,4
-       mov  r0,r1
-       src  r1,4
-       andi r1,>0f00
-       ori  r1,>4000
-       movb r1,@spchwt
-       dec  r2
-       jne  speak_1
-       li   r0,>4000
-       movb r0,@spchwt
-       li   r0,>5000
-       movb r0,@spchwt
-speak_2:
+speech_status_code:
+       movb @spchrd,@speech_status
+       nop
+       nop
+       nop
        rt
-*// speak
+speech_status_code_end
+*// speech_status_code
 
 *********************************************************************
 *

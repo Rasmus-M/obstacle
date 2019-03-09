@@ -21,4 +21,8 @@ rem del obstacle-course_b1.bin
 copy /b obstacle-c.bin + obstacle-d.bin obstacle-9.bin
 copy /b obstacle-d.bin + obstacle-c.bin obstacle-8.bin
 
+WHERE jar
+@IF %ERRORLEVEL% NEQ 0 GOTO :end
+jar -cvf obstacle.rpk obstacle-8.bin layout.xml > make.log
+
 :end

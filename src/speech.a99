@@ -17,6 +17,7 @@ speak:
        movb @speech_status,r1
        andi r1,>8000
        jne  speak_2
+       mov  @-6(r10),r1
        bl   @say_word
        inct @speech_ptr
        jmp  speak_2

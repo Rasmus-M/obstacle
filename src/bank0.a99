@@ -140,6 +140,8 @@ wait_key_1:
        mov  @speech_on,r0
        jne  wait_key_2
        seto @speech_on
+       li   r0,on
+       bl   @speak
        li   r7,txt_speech_on
        jmp  wait_key_3
 wait_key_2:
@@ -1857,6 +1859,8 @@ good_work:
        equ  >30fa                      ; Level completed
 try_again:
        equ  >700f                      ; Game over
+on:
+       equ  >4c41
 *
 speak:
        abs  @speech_on

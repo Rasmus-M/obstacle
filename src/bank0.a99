@@ -34,8 +34,8 @@ lost_life:
        li   r0,21*32+6
        li   r1,txt_game_over
        bl   @display_text
-       li   r0,try_again
-       bl   @say_word
+       li   r1,please_try_again
+       bl   @say_phrase
        jmp  new_game
 
 *********************************************************************
@@ -1046,12 +1046,12 @@ die:
        mov  @frame,r0
        andi r0,3
        jeq  die_1
-       li   r0,no
+       li   r1,oh_no
        jmp  die_2
 die_1:
-       li   r0,nice_try
+       li   r1,nice_try_partner
 die_2:
-       bl   @say_word
+       bl   @say_phrase
        li   r0,120
        mov  r0,@frame
 die_3:
@@ -1087,8 +1087,8 @@ long_jump:
        mov  r0,@ball_pattern_color
        clr  @ball_rebounce
        bl   @play_long_jump
-       li   r0,long
-       bl   @say_word
+       li   r1,good_move
+       bl   @say_phrase
        .endproc
 *// long_jump
 
@@ -1153,8 +1153,8 @@ normal_speed:
        li   r0,scroll_speed_normal
        mov  r0,@scroll_vx
        bl   @play_normal
-       li   r0,what_was_that
-       bl   @say_word
+       li   r1,back_again
+       bl   @say_phrase
 normal_speed_1:
        .endproc
 *// normal_speed

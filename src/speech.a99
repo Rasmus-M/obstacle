@@ -78,32 +78,22 @@ say_word_2:
 *
 * Speech data
 *
-ready_to_start:
-       equ  >56b3                      ; Before level
-long:
-       equ  >40d3                      ; Long jump
-hurry:
-       equ  >3757                      ; Slow
-what_was_that:
-       equ  >77e9                      ; Fast
+on:
+       equ  >4c41                      ; Speech on
 uhoh:
        equ  >71f4                      ; Enemy appears
 nice_try:
        equ  >49a5                      ; Die
+partner:
+       equ  >4ee0
+oh:
+       equ  >4b7d                      ; Die
 no:
-       equ  >3c4f                      ; Die
+       equ  >3c4f
 good_work:
        equ  >30fa                      ; Level completed
 try_again:
        equ  >700f                      ; Game over
-on:
-       equ  >4c41
-up:
-       equ  >739f
-are:
-       equ  >556e
-you:
-       equ  >71be
 three:
        equ  >149a
 two:
@@ -112,7 +102,33 @@ one:
        equ  >1409
 go:
        equ  >2ffc
-hurry_up:
-       data hurry,up,0
+good:
+       equ  >30d6
+move:
+       equ  >46df
+please:
+       equ  >5093
+hurry:
+       equ  >3757                      ; Slow
+up:
+       equ  >739f
+back:
+       equ  >1a64
+again:
+       equ  >17a5
+
 three_two_one_go:
        data three,two,one,go,0
+good_move:
+       data good,move,0
+hurry_up:
+       data please,hurry,up,0
+back_again:
+       data back,again,0
+oh_no:
+       data oh,no,0
+nice_try_partner:
+       data nice_try,partner,0
+please_try_again:
+       data please,try_again,0
+

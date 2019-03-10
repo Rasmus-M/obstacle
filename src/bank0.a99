@@ -23,7 +23,7 @@ new_level:
        bl   @main_loop
        mov  @status,r0
        jlt  lost_life
-       li   r0,good_work
+       li   r0,sp_good_work
        bl   @say_word
        inc  @level
        jmp  new_level
@@ -146,7 +146,7 @@ wait_key_1:
        mov  @speech_on,r0
        jne  wait_key_2
        seto @speech_on
-       li   r0,on
+       li   r0,sp_on
        bl   @say_word
        li   r7,txt_speech_on
        jmp  wait_key_3
@@ -571,7 +571,7 @@ move_other_sprites_4:
        mov  r1,@enemy_y
        li   r0,>fe80
        mov  r0,@enemy_vx
-       li   r0,uhoh
+       li   r0,sp_uhoh
        bl   @say_word
 move_other_sprites_5:
        .endproc

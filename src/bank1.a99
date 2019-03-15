@@ -27,23 +27,19 @@ copy_map_to_vdp:
        li   r0,>1000
        li   r1,vmap0
        li   r2,>400
-       li   r13,vdp_to_vdp_copy_fast#
-       bl   @bank_0_exec
+       bl   @vdp_to_vdp_copy_fast
        li   r0,>1400
        li   r1,vmap1
        li   r2,>400
-       li   r13,vdp_to_vdp_copy_fast#
-       bl   @bank_0_exec
+       bl   @vdp_to_vdp_copy_fast
        li   r0,>1800
        li   r1,vmap2
        li   r2,>400
-       li   r13,vdp_to_vdp_copy_fast#
-       bl   @bank_0_exec
+       bl   @vdp_to_vdp_copy_fast
        li   r0,>1c00
        li   r1,vmap3
        li   r2,>400
-       li   r13,vdp_to_vdp_copy_fast#
-       bl   @bank_0_exec
+       bl   @vdp_to_vdp_copy_fast
        .endproc
 *// copy_map_to_vdp
 
@@ -64,6 +60,54 @@ upload_sprite_patterns:
        .endproc
 *// upload_sprite_patterns
 
+*********************************************************************
+*
+* VDP to VDP copy (fast)
+*
+* r0: Source address
+* r1: Destination address
+* r2: Number of bytes to copy (must be a multiple of buffer_size (32))
+*
+* Modifies r0-r4. On return r0 and r1 are incremented by r2 bytes.
+*
+vdp_to_vdp_copy_fast:
+       ori  r1,>4000                   ; Prepare write address
+       srl  r2,log_2_buffer_size
+vdp_to_vdp_copy_fast_1:
+*      Read block
+       swpb r0
+       movb r0,@vdpwa                  ; Send low byte of VDP RAM read address
+       swpb r0
+       movb r0,@vdpwa                  ; Send high byte of VDP RAM read address
+       li   r3,buffer_size/4
+       li   r4,buffer
+vdp_to_vdp_copy_fast_2:
+       movb *r14,*r4+
+       movb *r14,*r4+
+       movb *r14,*r4+
+       movb *r14,*r4+
+       dec  r3
+       jne  vdp_to_vdp_copy_fast_2
+*      Write block
+       swpb r1
+       movb r1,@vdpwa
+       swpb r1
+       movb r1,@vdpwa
+       li   r3,buffer_size/4
+       li   r4,buffer
+vdp_to_vdp_copy_fast_3:
+       movb *r4+,*r15
+       movb *r4+,*r15
+       movb *r4+,*r15
+       movb *r4+,*r15
+       dec  r3
+       jne  vdp_to_vdp_copy_fast_3
+       ai   r0,buffer_size
+       ai   r1,buffer_size
+       dec  r2
+       jne  vdp_to_vdp_copy_fast_1
+       rt
+*// vdp_to_vdp_copy_fast
 
 *********************************************************************
 *

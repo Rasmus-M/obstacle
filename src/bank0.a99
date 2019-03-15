@@ -232,6 +232,7 @@ init_level_1:
        li   r13,copy_map_to_vdp#
        bl   @bank_1_exec
        bl   @scroll_patterns
+       bl   @scroll_back_patterns
        bl   @read_grom_chars
        bl   @update_full_name_table
        li   r0,23*32+1
@@ -681,7 +682,7 @@ user_input_4:
        mov  @ball_vx_last,@ball_vx
        jmp  user_input_7
 user_input_5:
-       mov  @demo,r0
+       abs  @demo
        jeq  user_input_7
        li   r0,JOY_FI
        bl   @check_key
@@ -808,20 +809,35 @@ copy_map_rows_from_vdp_1:
        ci   r5,map_width-screen_width
        jh   copy_map_rows_from_vdp_2
 *      Fast, non-wrapping
-       li   r2,screen_width
-       bl   @vdp_to_vdp_copy_fast      ; Copy row
+       bl   @copy_row_to_buffer
        jmp  copy_map_rows_from_vdp_3
 *      Slow, wrapping
 copy_map_rows_from_vdp_2:
+       bl   @vrad
+       li   r4,buffer
        li   r2,map_width
        s    r5,r2
-       bl   @vdp_to_vdp_copy           ; Copy 1st part
+copy_map_rows_from_vdp_5:              ; Copy 1st part
+       movb *r14,*r4+
+       dec  r2
+       jne  copy_map_rows_from_vdp_5
        mov  r5,r2
        ai   r2,-(map_width-screen_width)
        dect r6
-       mov  *r6+,r0
-       bl   @vdp_to_vdp_copy           ; Copy 2nd part from beginning
+       mov  *r6+,r0                    ; From beginning
+       bl   @vrad
+copy_map_rows_from_vdp_6:              ; Copy 2nd part
+       movb *r14,*r4+
+       dec  r2
+       jne  copy_map_rows_from_vdp_6
 copy_map_rows_from_vdp_3:
+*      Draw stars
+       bl   @draw_stars
+*      Copy buffer back
+       mov  r1,r0
+       bl   @copy_row_to_vdp
+*      Next row
+       ai   r1,screen_width
        dec  r7
        jne  copy_map_rows_from_vdp_1
        .endproc
@@ -857,11 +873,15 @@ update_full_name_table_0:
 update_full_name_table_1:
        mov  *r6+,r0                    ; Row start
        a    r5,r0                      ; Add column offset
-       li   r2,screen_width
-       bl   @vdp_to_vdp_copy_fast      ; Copy row
+       bl   @copy_row_to_buffer
+;      TODO: if drawing stars offset by one character
+;      bl   @draw_stars
+       bl   @copy_row_to_vdp
+       ai   r1,screen_width
        dec  r7
        jne  update_full_name_table_1
        .endproc
+*      Copy a row of ceiling/floor
 update_full_name_table_2:
        li   r2,16
 update_full_name_table_3:
@@ -1257,6 +1277,35 @@ replace_meta_tile:
 
 ***************************************************************
 *
+* Draw stars into buffer
+*
+* r7: map_height-row
+*
+draw_stars:
+       abs  @demo
+       jne  draw_stars_3
+       mov  @scroll_x_pixels,r0
+       mov  r0,r2
+       srl  r2,4
+       andi r2,>001f
+       neg  r2
+       ai   r2,31
+       andi r0,8
+       jne  draw_stars_1
+       li   r0,chr_star_1*256
+       jmp  draw_stars_2
+draw_stars_1:
+       li   r0,chr_star_2*256
+draw_stars_2:
+       movb @buffer(r2),r3
+       jne  draw_stars_3
+       movb r0,@buffer(r2)
+draw_stars_3:
+       rt
+*// draw_stars
+
+***************************************************************
+*
 * Scroll patterns horizontally and upload to VDP
 *
 scroll_patterns:
@@ -1331,6 +1380,35 @@ scroll_patterns_5:
        jlt  scroll_patterns_1
        .endproc
 *// scroll_patterns
+
+***************************************************************
+*
+* Scroll background patterns and upload to VDP
+*
+scroll_back_patterns:
+       .proc
+       li   r1,>0100
+       li   r0,8*chr_star_1+ptrntb+4
+       bl   @scroll_back_pattern
+       li   r0,8*chr_star_2+ptrntb+4
+       bl   @scroll_back_pattern
+       .endproc
+scroll_back_pattern:
+       .proc
+       li   r2,4
+scroll_back_pattern_1:
+       li   r3,2
+scroll_back_pattern_2:
+       bl   @vwad
+       movb r1,*r15
+       ai   r0,>800
+       dec  r3
+       jne  scroll_back_pattern_2
+       sla  r1,1
+       dec  r2
+       jne  scroll_back_pattern_1
+       .endproc
+*// scroll_back_patterns
 
 *********************************************************************
 *
@@ -1529,104 +1607,50 @@ vdp_registers:
        byte >01                        ; Backdrop color
 *// graphics_mode
 
-*********************************************************************
+***************************************************************
 *
-* VDP to VDP copy (slower)
+* Copy row from VDP to buffer
+* r0: source
 *
-* r0: Source address
-* r1: Destination address
-* r2: Number of bytes to copy
-*
-* Modifies r0-r4. On return r0 and r1 are incremented by r2 bytes.
-*
-vdp_to_vdp_copy:
-       .push r5
-       ori  r1,>4000                   ; Prepare write address
-vdp_to_vdp_copy_1:
-       li   r5,buffer_size
-       c    r2,r5
-       jhe  vdp_to_vdp_copy_2
-       mov  r2,r5
-vdp_to_vdp_copy_2:
-*      Read block
+copy_row_to_buffer:
        swpb r0
-       movb r0,@vdpwa                  ; Send low byte of VDP RAM read address
+       movb r0,@vdpwa                  ; Send low byte of VDP RAM write address
        swpb r0
-       movb r0,@vdpwa                  ; Send high byte of VDP RAM read address
+       movb r0,@vdpwa                  ; Send high byte of VDP RAM write address
        li   r4,buffer
-       mov  r5,r3
-vdp_to_vdp_copy_3:
-       movb *r14,*r4+
-       dec  r3
-       jne  vdp_to_vdp_copy_3
-*      Write block
-       swpb r1
-       movb r1,@vdpwa
-       swpb r1
-       movb r1,@vdpwa
-       li   r4,buffer
-       mov  r5,r3
-vdp_to_vdp_copy_4:
-       movb  *r4+,*r15
-       dec  r3
-       jne  vdp_to_vdp_copy_4
-*      Next
-       a    r5,r0
-       a    r5,r1
-       s    r5,r2
-       jgt  vdp_to_vdp_copy_1
-       .pop r5
-       rt
-*// vdp_to_vdp_copy
-
-*********************************************************************
-*
-* VDP to VDP copy (fast)
-*
-* r0: Source address
-* r1: Destination address
-* r2: Number of bytes to copy (must be a multiple of buffer_size (32))
-*
-* Modifies r0-r4. On return r0 and r1 are incremented by r2 bytes.
-*
-vdp_to_vdp_copy_fast:
-       ori  r1,>4000                   ; Prepare write address
-       srl  r2,log_2_buffer_size
-vdp_to_vdp_copy_fast_1:
-*      Read block
-       swpb r0
-       movb r0,@vdpwa                  ; Send low byte of VDP RAM read address
-       swpb r0
-       movb r0,@vdpwa                  ; Send high byte of VDP RAM read address
-       li   r3,buffer_size/4
-       li   r4,buffer
-vdp_to_vdp_copy_fast_2:
+       li   r2,buffer_size/4
+copy_rows_to_buffer_1:
        movb *r14,*r4+
        movb *r14,*r4+
        movb *r14,*r4+
        movb *r14,*r4+
-       dec  r3
-       jne  vdp_to_vdp_copy_fast_2
-*      Write block
-       swpb r1
-       movb r1,@vdpwa
-       swpb r1
-       movb r1,@vdpwa
-       li   r3,buffer_size/4
-       li   r4,buffer
-vdp_to_vdp_copy_fast_3:
-       movb *r4+,*r15
-       movb *r4+,*r15
-       movb *r4+,*r15
-       movb *r4+,*r15
-       dec  r3
-       jne  vdp_to_vdp_copy_fast_3
-       ai   r0,buffer_size
-       ai   r1,buffer_size
        dec  r2
-       jne  vdp_to_vdp_copy_fast_1
+       jne  copy_rows_to_buffer_1
        rt
-*// vdp_to_vdp_copy_fast
+*// copy_row_to_buffer
+
+***************************************************************
+*
+* Copy row from buffer to VDP
+* r1: destination
+*
+copy_row_to_vdp:
+       swpb r1
+       movb r1,@vdpwa                  ; Send low byte of VDP RAM write address
+       swpb r1
+       ori  r1,>4000                   ; Set read/write bits 14 and 15 to write (01)
+       movb r1,@vdpwa                  ; Send high byte of VDP RAM write address
+       li   r4,buffer
+       li   r2,buffer_size/4
+copy_row_to_vdp_1:
+       movb *r4+,*r15
+       movb *r4+,*r15
+       movb *r4+,*r15
+       movb *r4+,*r15
+       dec  r2
+       jne  copy_row_to_vdp_1
+       rt
+*// copy_row_to_vdp
 
 *********************************************************************
 *

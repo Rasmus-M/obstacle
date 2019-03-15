@@ -74,6 +74,11 @@ chr_space:
        equ  96
 chr_zero:
        equ  97
+chr_star_1:
+       equ  >57
+chr_star_2:
+       equ  >5f
+
 chr_qst_mark:
        equ  chr_space
 n_lives:

@@ -64,7 +64,7 @@ CLRSET BYTE >21,>41,>51,>61            ;
 ****************************************
 * Transition Character Pairs (from, to)
 ****************************************
-TCHNUM DATA 95                         ;
+TCHNUM DATA 96                         ;
 TCHARS BYTE >00,>00                    ; #00 color 2/1
        BYTE >00,>03                    ; #01 color 2/1
        BYTE >03,>04                    ; #02 color 2/1
@@ -152,7 +152,7 @@ TCHARS BYTE >00,>00                    ; #00 color 2/1
        BYTE >00,>22                    ; #54 color E/1
        BYTE >22,>22                    ; #55 color E/1
        BYTE >22,>00                    ; #56 color E/1
-       BYTE >FF,>FF                    ; #57 unused
+       BYTE >00,>00                    ; #57 * Background
        BYTE >00,>1D                    ; #58 color F/1
        BYTE >1D,>1E                    ; #59 color F/1
        BYTE >1E,>1D                    ; #5A color F/1
@@ -160,7 +160,7 @@ TCHARS BYTE >00,>00                    ; #00 color 2/1
        BYTE >00,>1F                    ; #5C color F/1
        BYTE >1F,>1F                    ; #5D color F/1
        BYTE >1F,>00                    ; #5E color F/1
-
+       BYTE >00,>00                    ; #5F * Background
 **
 * These special indexes into the list above
 * must be updated if the list changes

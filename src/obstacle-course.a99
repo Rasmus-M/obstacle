@@ -140,8 +140,10 @@ speech_on:
        equ  padvar
 controls:
        equ  speech_on+2
-level:
+demo:
        equ  controls+2
+level:
+       equ  demo+2
 mod_level:
        equ  level+2
 lives:
@@ -154,10 +156,8 @@ disp_score:
        equ  score+2
 status:
        equ  disp_score+2
-demo:
-       equ  status+2
 frame:
-       equ  demo+2
+       equ  status+2
 vdp_status:
        equ  frame+2
 scroll_x:                              ; Scroll offset in FP 12.4

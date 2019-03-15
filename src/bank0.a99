@@ -64,6 +64,7 @@ one_time_init:
 *
 intro:
        .proc
+       seto @demo
        .push @level                    ; Save level reached
        clr  @level                     ; Intro is level 0
        bl   @init_level
@@ -78,7 +79,6 @@ intro:
 *      Scroll intro screen
        li   r0,256
        mov  r0,@frame
-       seto @demo
        seto @status
        bl   @main_loop
 *      Display S'
@@ -116,6 +116,7 @@ intro_3:
        li   r0,21*32+6
        li   r1,txt_title
        bl   @display_text
+       clr @demo
        .endproc
 *// intro
 
@@ -833,6 +834,7 @@ copy_map_rows_from_vdp_6:              ; Copy 2nd part
        jne  copy_map_rows_from_vdp_6
 copy_map_rows_from_vdp_3:
 *      Draw stars
+       clr  r9                         ; Offset
        bl   @draw_stars
 *      Copy buffer back
        mov  r1,r0
@@ -876,8 +878,8 @@ update_full_name_table_1:
        mov  *r6+,r0                    ; Row start
        a    r5,r0                      ; Add column offset
        bl   @copy_row_to_buffer
-;      TODO: if drawing stars offset by one character
-;      bl   @draw_stars
+       seto r9                         ; Offset
+       bl   @draw_stars
        bl   @copy_row_to_vdp
        ai   r1,screen_width
        inc  r8
@@ -1284,39 +1286,43 @@ replace_meta_tile:
 * Draw stars into buffer
 *
 * r8: row number
+* r9: full screen flag
 *
 draw_stars:
        abs  @demo
-       jne  draw_stars_4
+       jne  draw_stars_5               ; Skip for demo
        mov  @scroll_x_pixels,r0
        mov  r0,r2
-       srl  r2,4
+       srl  r2,4                       ; Scroll offset/half speed
        mov  r8,r3
        sla  r3,1
-       a    @star_x(r3),r2
+       a    @star_x(r3),r2             ; Add 'random' x position for row
+       a    r9,r2
        andi r2,31
        neg  r2
-       ai   r2,31
-       andi r0,8
+       ai   r2,31                      ; 31-x
+       xor  r9,r0
+       andi r0,8                       ; Test bit for determining character
        jne  draw_stars_1
        li   r0,chr_star_1*256
        jmp  draw_stars_2
 draw_stars_1:
        li   r0,chr_star_2*256
 draw_stars_2:
-       movb @buffer(r2),r3
-       jne  draw_stars_3
-       movb r0,@buffer(r2)
+       li   r4,3
 draw_stars_3:
-       ai   r2,16
-       andi r2,31
        movb @buffer(r2),r3
        jne  draw_stars_4
        movb r0,@buffer(r2)
 draw_stars_4:
+       ai   r2,11
+       andi r2,31
+       dec  r4
+       jne  draw_stars_3
+draw_stars_5:
        rt
 star_x:
-       data 25, 10, 6, 25, 15, 22, 3, 9, 14, 2, 29, 14, 11, 8, 31, 13
+       data 25, 10, 6, 23, 15, 22, 3, 9, 14, 2, 29, 7, 11, 8, 31, 13
 *// draw_stars
 
 ***************************************************************

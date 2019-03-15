@@ -786,6 +786,7 @@ scroll_1:
 *
 copy_map_rows_from_vdp:
        .proc
+       mov  r6,r8                      ; Save the start row
 *      Dest
        mov  @scroll_x_pixels,r1        ; Calculate current name table address
        inv  r1
@@ -838,6 +839,7 @@ copy_map_rows_from_vdp_3:
        bl   @copy_row_to_vdp
 *      Next row
        ai   r1,screen_width
+       inc  r8                         ; Row number
        dec  r7
        jne  copy_map_rows_from_vdp_1
        .endproc
@@ -869,7 +871,7 @@ update_full_name_table_0:
        srl  r5,3
        li   r6,map_row_table
 *      Copy
-       li   r7,map_height
+       clr  r8
 update_full_name_table_1:
        mov  *r6+,r0                    ; Row start
        a    r5,r0                      ; Add column offset
@@ -878,9 +880,11 @@ update_full_name_table_1:
 ;      bl   @draw_stars
        bl   @copy_row_to_vdp
        ai   r1,screen_width
-       dec  r7
-       jne  update_full_name_table_1
+       inc  r8
+       ci   r8,map_height
+       jlt  update_full_name_table_1
        .endproc
+**
 *      Copy a row of ceiling/floor
 update_full_name_table_2:
        li   r2,16
@@ -1279,15 +1283,18 @@ replace_meta_tile:
 *
 * Draw stars into buffer
 *
-* r7: map_height-row
+* r8: row number
 *
 draw_stars:
        abs  @demo
-       jne  draw_stars_3
+       jne  draw_stars_4
        mov  @scroll_x_pixels,r0
        mov  r0,r2
        srl  r2,4
-       andi r2,>001f
+       mov  r8,r3
+       sla  r3,1
+       a    @star_x(r3),r2
+       andi r2,31
        neg  r2
        ai   r2,31
        andi r0,8
@@ -1301,7 +1308,15 @@ draw_stars_2:
        jne  draw_stars_3
        movb r0,@buffer(r2)
 draw_stars_3:
+       ai   r2,16
+       andi r2,31
+       movb @buffer(r2),r3
+       jne  draw_stars_4
+       movb r0,@buffer(r2)
+draw_stars_4:
        rt
+star_x:
+       data 25, 10, 6, 25, 15, 22, 3, 9, 14, 2, 29, 14, 11, 8, 31, 13
 *// draw_stars
 
 ***************************************************************

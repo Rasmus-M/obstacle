@@ -190,6 +190,10 @@ char_slow_speed:
        data :0000100000000000          ; Slow scrolling speed
 char_normal_speed:
        data :0000010000000000          ; Normal scrolling speed
+char_extra_life:
+       data :0000001000000000          ; Extra life
+char_power_up:
+       data :0000000100000000          ; Power up pill
 char_block_top:
        data :0000000000001000          ; Block top
 char_block_bottom:
@@ -209,18 +213,18 @@ char_props_table:
        data :0000000000001111          ; #06 (0A) floor
        data :0000010000000000          ; #07 (0B) arrow
        data :0000010000000000          ; #08 (0C) arrow
-       data :0000000000000000          ; #09 (0D) 1up
-       data :0000000000000000          ; #0A (0E) 1up
+       data :0000001000000000          ; #09 (0D) 1up
+       data :0000001000000000          ; #0A (0E) 1up
        data :0000000000001010          ; #0B (10) box
        data :0000000000001001          ; #0C (11) box
        data :0000000000000000          ; #0D (12) ceiling
        data :0000000000000000          ; #0E (13) ceiling
-       data :0000000000000000          ; #0F (14) pill
+       data :0000000100000000          ; #0F (14) pill
        data :0000000000000110          ; #10 (18) box
        data :0000000000000101          ; #11 (19) box
        data :0000000000000000          ; #12 (1A) ceiling
        data :0000000000000000          ; #13 (1B) ceiling
-       data :0000000000000000          ; #14 (1C) pill
+       data :0000000100000000          ; #14 (1C) pill
        data :0000000000000001          ; #15 (20) triangle up
        data :1000000000000000          ; #16 (21) triangle up
        data :0000000000000001          ; #17 (22) triangle down

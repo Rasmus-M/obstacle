@@ -926,9 +926,9 @@ check_coinc_right:
 check_coinc_right_1:
        bl   @die
        jmp  check_coinc_right_3
-*      Collision with star
+*      Collision with collectable
 check_coinc_right_2:
-       bl   @collect_star
+       bl   @collect_item
        jmp  check_coinc_right_3
 *      Collision with slow
 check_coinc_right_4:
@@ -963,9 +963,9 @@ check_coinc_left:
 check_coinc_left_1:
        bl   @die
        jmp  check_coinc_left_3
-*      Collision with star
+*      Collision with collectable
 check_coinc_left_2:
-       bl   @collect_star
+       bl   @collect_item
 check_coinc_left_3:
        .endproc
 *// check_coinc_left
@@ -1014,9 +1014,9 @@ check_coinc_bottom_6:
 check_coinc_bottom_1:
        bl   @die
        jmp  check_coinc_left_3
-*      Collision with star
+*      Collision with collectable
 check_coinc_bottom_2:
-       bl   @collect_star
+       bl   @collect_item
        jmp  check_coinc_left_3
 *      Collision with spring
 check_coinc_bottom_7:
@@ -1047,9 +1047,9 @@ check_coinc_top:
 check_coinc_top_1:
        bl   @die
        jmp  check_coinc_left_3
-*      Collision with star
+*      Collision with collectable
 check_coinc_top_2:
-       bl   @collect_star
+       bl   @collect_item
 check_coinc_top_3:
        .endproc
 *// check_coinc_top
@@ -1120,13 +1120,20 @@ long_jump:
 
 ***************************************************************
 *
-* Collect a star
+* Collect an item
 *
-* r0: VDP address of a character in the star metatile
+* r0: VDP address of a character in the metatile
+* r1: Tile properties
 *
-collect_star:
+collect_item:
        .proc
        bl   @remove_meta_tile
+       coc  @char_extra_life,r1
+       jne  collect_item_3
+       inc  @lives
+       bl   @display_lives
+       jmp  collect_item_5
+collect_item_3:
        mov  @ball_y,r0
        ai   r0,->1000
        mov  r0,@points_sprite_y
@@ -1135,19 +1142,20 @@ collect_star:
        mov  r0,@points_sprite_x
        mov  @scroll_vx,r0
        ci   r0,scroll_speed_normal
-       jne  collect_star_1
+       jne  collect_item_1
        li   r0,sprite_100_pt
        li   r1,100
-       jmp  collect_star_2
-collect_star_1:
+       jmp  collect_item_2
+collect_item_1:
        li   r0,sprite_50_pt
        li   r1,50
-collect_star_2:
+collect_item_2:
        mov  *r0,@points_sprite_pattern_color
        a    r1,@score
+collect_item_5:
        bl   @play_star
        .endproc
-*// collect_star
+*// collect_item
 
 ***************************************************************
 *

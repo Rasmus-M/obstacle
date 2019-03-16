@@ -619,8 +619,7 @@ update_partial_name_table:
        bl   @vwad
        mov  r6,r1
        andi r1,>0006
-       ai   r1,ceiling
-       mov  *r1,r2
+       mov  @ceiling(r1),r2
        mov  r6,r1
        andi r1,>0008
        jne  update_partial_name_table_0

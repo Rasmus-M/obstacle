@@ -614,7 +614,7 @@ update_partial_name_table:
 *      Ceiling and floor
        mov  r6,r1
        andi r1,>000f
-       sla  r1,1
+       sla  r1,2
        mov  @floor_ceil_table(r1),r0
        bl   @vwad
        mov  r6,r1
@@ -637,9 +637,16 @@ update_partial_name_table_1:
        dec  r2
        jne  update_partial_name_table_1
 *      Middle rows
-       andi r6,>0007
-       sla  r6,1
-       li   r7,2
+       mov  @scroll_x,r6
+       srl  r6,3
+       andi r6,>000f
+       li   r7,1
+       mov  @scroll_vx,r0
+       swpb r0
+       andi r0,>0003
+       jeq  update_partial_name_table_2
+       sla  r7,0
+update_partial_name_table_2:
        bl   @copy_map_rows_from_vdp
        .endproc
 *// update_partial_name_table
@@ -794,8 +801,8 @@ copy_map_rows_from_vdp:
        sla  r1,8
        ai   r1,nametb
        mov  r6,r0                      ; Row offset
-       inct r0                         ; Two rows offset
-       sla  r0,5
+       inct r0                         ; Two rows offset for ceiling
+       sla  r0,5                       ; * 32
        a    r0,r1
 *      Source
        mov  @scroll_x_pixels,r5        ; Column offset
@@ -1915,10 +1922,14 @@ map_row_table:
        data vmap2,vmap2+>100,vmap2+>200,vmap2+>300
        data vmap3,vmap3+>100,vmap3+>200,vmap3+>300
 floor_ceil_table:
-       data namet2+>0000,namet2+>0010,namet2+>0020,namet2+>0030
-       data namet2+>0240,namet2+>0250,namet2+>0260,namet2+>0270
-       data nametb+>0000,nametb+>0010,nametb+>0020,nametb+>0030
-       data nametb+>0240,nametb+>0250,nametb+>0260,nametb+>0270
+       data namet2+>0000,namet2+>0008,namet2+>0010,namet2+>0018
+       data namet2+>0020,namet2+>0028,namet2+>0030,namet2+>0038
+       data namet2+>0240,namet2+>0248,namet2+>0250,namet2+>0258
+       data namet2+>0260,namet2+>0268,namet2+>0270,namet2+>0278
+       data nametb+>0000,nametb+>0008,nametb+>0010,nametb+>0018
+       data nametb+>0020,nametb+>0028,nametb+>0030,nametb+>0038
+       data nametb+>0240,nametb+>0248,nametb+>0250,nametb+>0258
+       data nametb+>0260,nametb+>0268,nametb+>0270,nametb+>0278
 animation_land:
        byte >88,6
        byte >84,6

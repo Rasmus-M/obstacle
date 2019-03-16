@@ -52,10 +52,12 @@ bank_0:
        equ  >6002
 bank_1:
        equ  >6000
-scroll_speed_normal:
-       equ  >0100
 scroll_speed_slow:
        equ  >0080
+scroll_speed_normal:
+       equ  >0100
+scroll_speed_fast:
+       equ  >0200
 map_width:
        equ  256
 map_height:

@@ -610,25 +610,34 @@ check_enemy_collision_1:
 *
 update_partial_name_table:
        .proc
-       mov  @scroll_x_pixels,r6
+       mov  @scroll_x,r6
+       srl  r6,3                       ; Number of half pixels scrolled
+       mov  @scroll_vx,r8              ; Scrolling speed
+       swpb r8
+       andi r8,>0003                   ; 0, 1 or 2
 *      Ceiling and floor
        mov  r6,r1
-       andi r1,>000f
-       sla  r1,2
-       mov  @floor_ceil_table(r1),r0
+       andi r1,>001f
+       sla  r1,1
+       mov  @floor_ceil_table(r1),r0   ; Get destination address
        bl   @vwad
        mov  r6,r1
-       andi r1,>0006
-       mov  @ceiling(r1),r2
+       andi r1,>000c                   ; Choose between celing,floor,top,bottom
+       srl  r1,1
+       mov  @ceiling(r1),r3            ; Get character pair
        mov  r6,r1
-       andi r1,>0008
+       andi r1,>0010
        jne  update_partial_name_table_0
-       swpb r2
+       swpb r3                         ; Swap characters if we start with an odd map row
 update_partial_name_table_0:
-       movb r2,r0
-       swpb r2
-       movb r2,r1
-       li   r2,4
+       li   r2,2
+       mov  r8,r0                      ; Speed
+       jeq  update_partial_name_table_3
+       sla  r2,0
+update_partial_name_table_3:
+       movb r3,r0
+       swpb r3
+       movb r3,r1
 update_partial_name_table_1:
        movb r0,*r15
        movb r1,*r15
@@ -637,13 +646,9 @@ update_partial_name_table_1:
        dec  r2
        jne  update_partial_name_table_1
 *      Middle rows
-       mov  @scroll_x,r6
-       srl  r6,3
        andi r6,>000f
        li   r7,1
-       mov  @scroll_vx,r0
-       swpb r0
-       andi r0,>0003
+       mov  r8,r0                      ; Speed
        jeq  update_partial_name_table_2
        sla  r7,0
 update_partial_name_table_2:
@@ -1140,6 +1145,11 @@ collect_item:
        bl   @display_lives
        jmp  collect_item_5
 collect_item_3:
+       coc  @char_power_up,r1
+       jne collect_item_4
+       bl   @fast_speed
+       jmp  collect_item_5
+collect_item_4:
        mov  @ball_y,r0
        ai   r0,->1000
        mov  r0,@points_sprite_y
@@ -1198,6 +1208,24 @@ normal_speed:
 normal_speed_1:
        .endproc
 *// normal_speed
+
+***************************************************************
+*
+* Set scrolling to fats
+*
+fast_speed:
+       .proc
+       mov  @scroll_vx,r0
+       ci   r0,scroll_speed_fast
+       jeq  fast_speed_1
+       li   r0,scroll_speed_fast
+       mov  r0,@scroll_vx
+       bl   @play_long_jump
+       li   r1,no_more_stop
+       bl   @say_phrase
+fast_speed_1:
+       .endproc
+*// fast_speed
 
 ***************************************************************
 *

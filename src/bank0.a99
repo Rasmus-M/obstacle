@@ -1901,10 +1901,7 @@ clear:
 * Speech status read routine code, must be copied to scratchpad
 *
 speech_status_code:
-       movb @spchrd,@speech_status
-       nop
-       nop
-       nop
+       movb @spchrd,r1
        rt
 speech_status_code_end
 *// speech_status_code

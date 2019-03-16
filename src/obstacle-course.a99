@@ -226,12 +226,10 @@ clear_end:                             ; Clearing ends here
        equ  buffer+buffer_size
 speech_ptr:
        equ  buffer+buffer_size
-speech_status:
-       equ  speech_ptr+2
 get_speech_status:
-       equ  speech_status+2
+       equ  speech_ptr+2
 pad_max:
-       equ  get_speech_status+14
+       equ  get_speech_status+6
 
 **
 * Macros

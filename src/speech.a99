@@ -759,7 +759,6 @@ speak:
        jeq  speak_1
 *      Check speech status
        bl   @get_speech_status
-       movb @speech_status,r1
        andi r1,>8000
        jne  speak_2
        mov  @-6(r10),r1
@@ -799,7 +798,8 @@ say_phrase:
 say_word:
        .push r2
        abs  @speech_on
-       jeq  say_word_2
+       jeq  say_word_3
+*      Load address
        li   r2,4
 say_word_1:
        src  r0,4
@@ -812,9 +812,10 @@ say_word_1:
        jne  say_word_1
        li   r0,>4000
        movb r0,@spchwt
+*      Speak
        li   r0,>5000
        movb r0,@spchwt
-say_word_2:
+say_word_3:
        .pop r2
        rt
 *// say_word

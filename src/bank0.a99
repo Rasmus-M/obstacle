@@ -225,7 +225,6 @@ init_level_1:
        mov  *r0+,@ball_y
        mov  *r0+,@ball_ay
        mov  *r0+,@ball_pattern_color
-       mov  *r0+,@ball_pattern_color_offset
 *      Scroll speed
        li   r0,scroll_speed_normal
        mov  r0,@scroll_vx
@@ -260,7 +259,7 @@ init_level_1:
        bl   @vwtr
        .endproc
 ball_init_data:
-       data >4000,>8000,>0018,>800f,>04f8
+       data >4000,>8000,>0018,>800f
 *// init_level
 
 *********************************************************************
@@ -343,7 +342,7 @@ upload_sprites:
        mov  @ball_x,r1
        mov  @ball_pattern_color,r2
        bl   @upload_sprite
-       a    @ball_pattern_color_offset,r2
+       ai   r2,>04f8
        bl   @upload_sprite
 *      Points
        mov  @points_sprite_y,r0
@@ -420,21 +419,15 @@ move_ball_2:
        s    @scroll_vx,r0              ; Movement from scrolling
        a    r0,@ball_x
 *      Animate
-       li   r1,>04f8                   ; Default pattern color offset
        mov  @ball_vx,r0
        jeq  move_ball_15               ; Only if moving x
        mov  @ball_vy,r0
        jne  move_ball_15               ; Not if moving y
        mov  @ball_animation_ptr,r0
-       jne  move_ball_15               ; Not if animated
-       mov  @ball_rebounce,r0
-       jne  move_ball_15               ; Not if rebouncing
-       mov  @scroll_x_pixels,r0
-       andi r0,4                       ; Alternate every 4th frame
-       jeq  move_ball_15
-       li   r1,>4cf8
-move_ball_15:
-       mov  r1,@ball_pattern_color_offset
+       jne  move_ball_15
+       li   r0,animation_roll
+       mov  r0,@ball_animation_ptr
+move_ball_15
 **
 *      Y
 *      Check for rebounce
@@ -1106,6 +1099,7 @@ jump:
        li   r0,>880f
        mov  r0,@ball_pattern_color
        clr  @ball_rebounce
+       clr  @ball_animation_ptr
        bl   @play_jump
        .endproc
 *// jump
@@ -1958,9 +1952,17 @@ floor_ceil_table:
        data nametb+>0020,nametb+>0028,nametb+>0030,nametb+>0038
        data nametb+>0240,nametb+>0248,nametb+>0250,nametb+>0258
        data nametb+>0260,nametb+>0268,nametb+>0270,nametb+>0278
+animation_roll:
+       byte >80,4
+       byte >88,4
+       byte >80,4
+       byte >90,4
+       byte >80,0
 animation_land:
        byte >90,2
        byte >98,2
+       byte >a0,2
+       byte >a8,2
        byte >a0,2
        byte >98,2
        byte >90,2
@@ -1975,8 +1977,7 @@ animation_die:
        byte >b8,6
        byte >c0,6
        byte >c4,6
-;       byte >c8,0
-       byte >d8,0
+       byte >c8,0
 sprite_100_pt:
        byte >d0,>0f
 sprite_50_pt:

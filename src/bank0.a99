@@ -768,6 +768,14 @@ quit   clr  @>83c4                     ; Reset user ISR address
 * Update scrolling variables
 *
 scroll:
+       mov  @scroll_vx_request,r1
+       jeq  scroll_1
+       mov  @scroll_x,r0
+       andi r0,>007f
+       jne  scroll_1
+       mov  r1,@scroll_vx
+       clr  @scroll_vx_request
+scroll_1:
        mov  @scroll_x,r0
        mov  @scroll_vx,r1
        sra  r1,4
@@ -776,9 +784,9 @@ scroll:
        srl  r0,4
        mov  r0,@scroll_x_pixels
        ci   r0,map_width*8
-       jlt  scroll_1
+       jlt  scroll_2
        inc  @status
-scroll_1:
+scroll_2:
        rt
 *// scroll
 
@@ -1176,8 +1184,10 @@ slow_speed:
        mov  @scroll_vx,r0
        ci   r0,scroll_speed_slow
        jeq  slow_speed_1
+       mov  @scroll_vx_request,r0
+       jne  slow_speed_1
        li   r0,scroll_speed_slow
-       mov  r0,@scroll_vx
+       mov  r0,@scroll_vx_request
        bl   @play_slow
        li   r1,hurry_up
        bl   @say_phrase
@@ -1194,8 +1204,10 @@ normal_speed:
        mov  @scroll_vx,r0
        ci   r0,scroll_speed_normal
        jeq  normal_speed_1
+       mov  @scroll_vx_request,r0
+       jne  normal_speed_1
        li   r0,scroll_speed_normal
-       mov  r0,@scroll_vx
+       mov  r0,@scroll_vx_request
        bl   @play_normal
        li   r1,back_again
        bl   @say_phrase
@@ -1205,15 +1217,17 @@ normal_speed_1:
 
 ***************************************************************
 *
-* Set scrolling to fats
+* Set scrolling to fast
 *
 fast_speed:
        .proc
        mov  @scroll_vx,r0
        ci   r0,scroll_speed_fast
        jeq  fast_speed_1
+       mov  @scroll_vx_request,r0
+       jne  fast_speed_1
        li   r0,scroll_speed_fast
-       mov  r0,@scroll_vx
+       mov  r0,@scroll_vx_request
        bl   @play_long_jump
        li   r1,no_more_stop
        bl   @say_phrase

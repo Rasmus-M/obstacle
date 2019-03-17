@@ -168,8 +168,10 @@ scroll_x_pixels:                       ; Scroll offset in pixels
        equ  scroll_x+2
 scroll_vx:                             ; FP 8.8
        equ  scroll_x_pixels+2
-ball_x:                                ; FP 8.8
+scroll_vx_request:
        equ  scroll_vx+2
+ball_x:                                ; FP 8.8
+       equ  scroll_vx_request+2
 ball_vx:                               ; FP 8.8 Velocity relative to track
        equ  ball_x+2
 ball_vx_last:                          ; FP 8.8

@@ -260,7 +260,7 @@ init_level_1:
        bl   @vwtr
        .endproc
 ball_init_data:
-       data >4000,>8000,>0018,>800f,>10f8
+       data >4000,>8000,>0018,>800f,>04f8
 *// init_level
 
 *********************************************************************
@@ -360,7 +360,7 @@ upload_sprites_1:
        mov  @enemy_x,r1
        li   r2,>800f
        bl   @upload_sprite
-       ai   r2,>10fe
+       ai   r2,>04fe
        bl   @upload_sprite
 *      End marker
 upload_sprites_2:
@@ -420,7 +420,7 @@ move_ball_2:
        s    @scroll_vx,r0              ; Movement from scrolling
        a    r0,@ball_x
 *      Animate
-       li   r1,>10f8                   ; Default pattern color offset
+       li   r1,>04f8                   ; Default pattern color offset
        mov  @ball_vx,r0
        jeq  move_ball_15               ; Only if moving x
        mov  @ball_vy,r0
@@ -432,7 +432,7 @@ move_ball_2:
        mov  @scroll_x_pixels,r0
        andi r0,4                       ; Alternate every 4th frame
        jeq  move_ball_15
-       li   r1,>48f8
+       li   r1,>4cf8
 move_ball_15:
        mov  r1,@ball_pattern_color_offset
 **
@@ -1103,7 +1103,7 @@ jump:
        .proc
        li   r0,->02c0
        mov  r0,@ball_vy
-       li   r0,>8c0f
+       li   r0,>880f
        mov  r0,@ball_pattern_color
        clr  @ball_rebounce
        bl   @play_jump
@@ -1120,7 +1120,7 @@ long_jump:
        bl   @replace_meta_tile
        li   r0,->0400
        mov  r0,@ball_vy
-       li   r0,>8c0e
+       li   r0,>880e
        mov  r0,@ball_pattern_color
        clr  @ball_rebounce
        bl   @play_long_jump
@@ -1959,23 +1959,28 @@ floor_ceil_table:
        data nametb+>0240,nametb+>0248,nametb+>0250,nametb+>0258
        data nametb+>0260,nametb+>0268,nametb+>0270,nametb+>0278
 animation_land:
-       byte >88,6
-       byte >84,6
+       byte >90,2
+       byte >98,2
+       byte >a0,2
+       byte >98,2
+       byte >90,2
        byte >80,0
 animation_die:
        byte >80,6
-       byte >84,6
-       byte >88,6
+       byte >90,6
+       byte >98,6
        byte >a0,6
-       byte >a4,6
        byte >a8,6
-       byte >ac,6
-       byte >bc,6
-       byte >d0,0
+       byte >b0,6
+       byte >b8,6
+       byte >c0,6
+       byte >c4,6
+;       byte >c8,0
+       byte >d8,0
 sprite_100_pt:
-       byte >c0,>0f
+       byte >d0,>0f
 sprite_50_pt:
-       byte >c4,>0e
+       byte >d4,>0e
 enemy_lists:
        data enemy_list_0
        data enemy_list_1

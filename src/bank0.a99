@@ -23,10 +23,16 @@ new_level:
        bl   @main_loop
        mov  @status,r0
        jlt  lost_life
+*      Level completed
        li   r0,sp_good_work
        bl   @say_word
        inc  @level
+       li   r0,map_width*8+250
+       s    @frame,r0
+       jlt  new_level
+       a    r0,@score
        jmp  new_level
+*      Loft life
 lost_life:
        dec  @lives
        jne  new_level

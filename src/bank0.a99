@@ -2004,6 +2004,10 @@ sprite_50_pt:
        byte >d4,>0e
 enemy_lists:
        data enemy_list_0
+       data enemy_list_0
+       data enemy_list_0
+       data enemy_list_0
+       data enemy_list_0
        data enemy_list_1
        data enemy_list_2
        data enemy_list_3

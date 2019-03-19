@@ -80,13 +80,12 @@ chr_star_1:
        equ  >57
 chr_star_2:
        equ  >5f
-
 chr_qst_mark:
        equ  chr_space
 n_lives:
        equ  3
 n_levels:
-       equ  4
+       equ  8
 start_level:
        equ  1
 

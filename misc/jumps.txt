@@ -1,0 +1,22 @@
+Slow speed:
+
+Max gap between boxes: 1 normal jump, 3 running jump
+
+Max triangles: 1 normal jump, 2 running jump
+
+Normal speed:
+
+Max gap between boxes: 3 normal jump, 5 running jump
+
+Max triangles: 2 normal jump, 4 running jump
+
+(3,1) (2,2) normal
+
+(5,1) (4,2) running
+
+Fast speed:
+
+Max gap between boxes: 7 normal jump, 9 running jump
+
+Max triangles: 5 normal jump, 7 running jump
+

@@ -938,7 +938,7 @@ check_coinc_right:
 *      Collision with blocker
        clr  @ball_vx
        mov  @ball_x,r0
-       andi r0,>ff00
+       andi r0,>fe00                   ; Die at x=0 or x=1
        jne  check_coinc_right_3
 *      Collision with deadly
 check_coinc_right_1:

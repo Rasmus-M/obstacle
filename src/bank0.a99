@@ -26,6 +26,11 @@ new_level:
 *      Level completed
        li   r0,sp_good_work
        bl   @say_word
+       li   r0,21*32+6
+       li   r1,txt_level_completed
+       bl   @display_text
+       li   r2,120
+       bl   @wait
        inc  @level
        li   r0,map_width*8+250
        s    @frame,r0
@@ -119,9 +124,6 @@ intro_2:
        jgt  intro_2
        jmp  intro_1
 intro_3:
-       li   r0,21*32+6
-       li   r1,txt_title
-       bl   @display_text
        clr @demo
        .endproc
 *// intro
@@ -185,6 +187,24 @@ wait_key_8:
        .endproc
 *// wait_key
 
+*********************************************************************
+*
+* Wait for a number of frames
+*
+* r2: number of frames to wait
+*
+wait:
+       .proc
+       mov  r2,@frame
+wait_1:
+       bl   @vsync
+       bl   @module_player
+       bl   @check_quit
+       dec  @frame
+       jne  wait_1
+       .endproc
+*// wait
+
 ***************************************************************
 *
 * Initialize game
@@ -241,6 +261,9 @@ init_level_1:
        bl   @scroll_back_patterns
        bl   @read_grom_chars
        bl   @update_full_name_table
+       li   r0,21*32+6
+       li   r1,txt_title
+       bl   @display_text
        li   r0,23*32+1
        li   r1,txt_stats
        bl   @display_text
@@ -576,7 +599,7 @@ move_other_sprites_4:
        bl   @say_word
 move_other_sprites_5:
        .endproc
-*// move_other_sprites
+*// move_other_sprites<
 
 ***************************************************************
 *
@@ -2036,6 +2059,9 @@ txt_credits:
        byte 0
 txt_fire_to_begin:
        text "PRESS FIRE TO BEGIN"
+       byte 0
+txt_level_completed:
+       text "  LEVEL COMPLETED  "
        byte 0
 txt_game_over:
        text "     GAME OVER     "

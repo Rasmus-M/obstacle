@@ -126,39 +126,39 @@ maps:
        data map7,map7_end-map7
        data map8,map8_end-map8
 map0:
-       bcopy "map0trim.lz4"
+       bcopy "maps/map0trim.lz4"
 map0_end
        even
 map1:
-       bcopy "map1trim.lz4"
+       bcopy "maps/map1trim.lz4"
 map1_end
        even
 map2:
-       bcopy "map2trim.lz4"
+       bcopy "maps/map2trim.lz4"
 map2_end
        even
 map3:
-       bcopy "map3trim.lz4"
+       bcopy "maps/map3trim.lz4"
 map3_end
        even
 map4:
-       bcopy "map4trim.lz4"
+       bcopy "maps/map4trim.lz4"
 map4_end
        even
 map5:
-       bcopy "map5trim.lz4"
+       bcopy "maps/map5trim.lz4"
 map5_end
        even
 map6:
-       bcopy "map6trim.lz4"
+       bcopy "maps/map6trim.lz4"
 map6_end
        even
 map7:
-       bcopy "map7trim.lz4"
+       bcopy "maps/map7trim.lz4"
 map7_end
        even
 map8:
-       bcopy "map8trim.lz4"
+       bcopy "maps/map8trim.lz4"
 map8_end
 
 

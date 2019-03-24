@@ -410,8 +410,7 @@ upload_sprite:
 move_ball:
        .proc
        abs  @demo
-       jeq  move_ball_16
-       b    @move_ball_14
+       jne  move_ball_14
 **
 *      X
 *      Check x velocity
@@ -2087,6 +2086,8 @@ keys_joystick:
        copy "music-player.a99"
        copy "sound-fx.a99"
        copy "obstacles-music.a99"
+;      copy "bipbop-music.a99"
+
        copy "charset.a99"
 map_chars:
        copy "map-chars.a99"

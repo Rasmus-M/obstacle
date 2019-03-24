@@ -1193,10 +1193,12 @@ collect_item_3:
 collect_item_4:
        mov  @ball_y,r0
        ai   r0,->1000
+       jlt  collect_item_6
        mov  r0,@points_sprite_y
        mov  @ball_x,r0
        ai   r0,>1000
        mov  r0,@points_sprite_x
+collect_item_6:
        mov  @scroll_vx,r0
        ci   r0,scroll_speed_normal
        jne  collect_item_1

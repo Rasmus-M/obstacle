@@ -43,23 +43,6 @@ copy_map_to_vdp:
        .endproc
 *// copy_map_to_vdp
 
-***************************************************************
-*
-* Copy sprite patterns to VDP RAM
-*
-upload_sprite_patterns:
-       .proc
-       li   r0,sprptb+>400
-       li   r1,SPR0
-       li   r2,n_sprite_patterns*32
-       bl   @vmbw
-       li   r0,sprptb+>400+(n_sprite_patterns*32)
-       clr  r1
-       li   r2,(32-n_sprite_patterns)*32
-       bl   @vsmw
-       .endproc
-*// upload_sprite_patterns
-
 *********************************************************************
 *
 * VDP to VDP copy (fast)
@@ -114,7 +97,11 @@ vdp_to_vdp_copy_fast_3:
 * Includes
 *
        copy "unlz4-vdp.a99"
-       copy "sprite-patterns.a99"
+       copy "sound-player.a99"
+       copy "sound-fx.a99"
+       copy "music-player.a99"
+       copy "obstacles-music.a99"
+       copy "bipbop-music.a99"
 maps:
        data map0,map0_end-map0
        data map1,map1_end-map1
@@ -160,5 +147,7 @@ map7_end
 map8:
        bcopy "maps/map8trim.lz4"
 map8_end
+
+
 
 

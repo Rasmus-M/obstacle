@@ -6,6 +6,7 @@
 *
 bank_0_exec:
        .proc
+bank_0_branch:
        seto @bank_0
        bl   *r13
        seto @bank_1
@@ -20,6 +21,7 @@ bank_0_exec:
 *
 bank_1_exec:
        .proc
+bank_1_branch:
        seto @bank_1
        bl   *r13
        seto @bank_0
@@ -70,6 +72,16 @@ vsmw_1:
 
 *********************************************************************
 *
+* Data
+*
+byte_00:
+       byte >00
+byte_01:
+       byte >01
+
+*********************************************************************
+*
 * Includes
 *
+       copy "sound-defs.a99"
        copy "speech.a99"

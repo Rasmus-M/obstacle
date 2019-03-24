@@ -1,5 +1,5 @@
 bipbop_module:
-       data >0006
+       data >0005
        data bipbop_track_01
        data bipbop_track_02
        data bipbop_track_03
@@ -455,7 +455,7 @@ bipbop_note_01E2:
 bipbop_instr_00:
        byte T3
        byte 8
-       byte 0
+       byte 255
        byte 0
        data >0000
 bipbop_instr_01:

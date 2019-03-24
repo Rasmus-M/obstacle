@@ -1200,8 +1200,8 @@ collect_item_4:
        mov  r0,@points_sprite_x
 collect_item_6:
        mov  @scroll_vx,r0
-       ci   r0,scroll_speed_normal
-       jne  collect_item_1
+       ci   r0,scroll_speed_slow
+       jeq  collect_item_1
        li   r0,sprite_100_pt
        li   r1,100
        jmp  collect_item_2

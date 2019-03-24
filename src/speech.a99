@@ -831,7 +831,7 @@ good_move:
 hurry_up:
        data sp_please,sp_hurry,sp_up,0
 no_more_stop:
-       data sp_no,sp_more,sp_stop
+       data sp_no,sp_more,sp_stop,0
 back_again:
        data sp_back,sp_again,0
 oh_no:

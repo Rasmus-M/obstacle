@@ -2067,7 +2067,7 @@ enemy_lists:
 enemy_list_0:
        data -1
 enemy_list_1:
-       data >600,-1
+       data >500,>600,-1
 enemy_list_2:
        data >300,-1
 enemy_list_3:

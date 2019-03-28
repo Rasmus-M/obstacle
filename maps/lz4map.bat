@@ -42,3 +42,8 @@ java -jar ..\tools\asm2bin.jar maps.a99 map8.bin MD9
 ..\tools\lz4.exe -9 -f map8.bin map8.lz4
 ..\tools\sfk.exe partcopy map8.lz4 -fromto 11 -8 map8trim.lz4 -yes
 copy /Y map8trim.lz4 ..\src\maps\
+
+java -jar ..\tools\asm2bin.jar maps-vert.a99 map9.bin MD1
+..\tools\lz4.exe -9 -f map9.bin map9.lz4
+..\tools\sfk.exe partcopy map9.lz4 -fromto 11 -8 map9trim.lz4 -yes
+copy /Y map9trim.lz4 ..\src\maps\

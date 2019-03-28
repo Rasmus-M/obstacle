@@ -1,0 +1,85 @@
+***************************************************************
+*
+* Scroll patterns vertically and upload to VDP
+*
+scroll_patterns_vert:
+       .proc
+       li   r4,TCHARS_V                ; Pointer to from/to pattern numbers
+*      Pattern loop
+       clr  r5                         ; Pattern counter
+scroll_patterns_vert_1:
+       mov  *r4+,r0                    ; Get from and to pattern numbers
+       jlt  scroll_patterns_vert_3     ; >ff = unused
+       li   r1,buffer
+       mov  r0,r3                      ; Copy
+       andi r0,>00ff                   ; Isolate to byte
+       sla  r0,3                       ; Multiply by 8
+       ai   r0,vpat0                   ; Address of to pattern
+       li   r2,8                       ; 8 bytes
+       bl   @copy                      ; Copy to buffer
+       mov  r3,r0
+       andi r0,>ff00                   ; Isolate from byte
+       swpb r0                         ; To LSB
+       sla  r0,3                       ; Multiply by 8
+       ai   r0,vpat0                   ; Address of from pattern
+       li   r2,8                       ; 8 bytes
+       bl   @copy                      ; Copy to buffer
+*      Scroll offset loop
+       clr  r3                         ; Vertical scroll offset (0-7)
+scroll_patterns_vert_2:
+*      Write address
+       mov  r5,r0                      ; Pattern number
+       sla  r0,3                       ; Multiply by 8
+       mov  r3,r1                      ; Scroll offset
+       sla  r1,11                      ; Multiply by >800
+       a    r1,r0                      ; Add to pattern offset
+*      Write pattern
+       li   r1,buffer+8
+       s    r3,r1
+       li   r2,8
+       bl   @vmbw
+*      Next scroll offset
+       inc  r3
+       ci   r3,8
+       jlt  scroll_patterns_vert_2
+*      Next pattern
+scroll_patterns_vert_3:
+       bl   @speak                     ; Speak if needed
+       inc  r5
+       c    r5,@TCHNUM_V
+       jlt  scroll_patterns_vert_1
+       .endproc
+*// scroll_patterns_vert
+
+***************************************************************
+*
+* Update full name table_vert
+*
+update_full_name_table_vert:
+       .proc
+       mov  @scroll_offset_pixels,r5
+       srl  r5,3                       ; Row offset from bottom
+       neg  r5
+       ai   r5,map_height_h-screen_height    ; Row number
+       sla  r5,5                       ; Char offset
+       li   r1,nametb
+       li   r3,20                      ; Row counter
+update_full_name_table_vert_1:
+       mov  r5,r0
+       andi r0,>03e0
+       mov  r5,r2
+       sla  r2,1
+       andi r2,>0800
+       ai   r2,vmap0
+       a    r2,r0
+       bl   @copy_row_to_buffer
+;       bl   @draw_stars
+       bl   @copy_row_to_vdp
+       ai   r5,32
+       ai   r1,32
+       dec  r3
+       jne  update_full_name_table_vert_1
+       .endproc
+*// update_full_name_table_vert
+
+       copy "map-chars-vert.a99"

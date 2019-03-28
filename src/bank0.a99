@@ -103,7 +103,7 @@ intro:
 *      Move ball on
        li   r0,85
        mov  r0,@frame
-       clr  @scroll_vx
+       clr  @scroll_speed
        bl   @main_loop
 *      Text
        li   r9,43                      ; First wait
@@ -244,6 +244,13 @@ init_level:
        inc  r1
 init_level_1:
        mov  r1,@mod_level
+*      Level orientation
+       clr  @vertical
+       mov  @level,r1
+       ci   r1,8
+       jne  init_level_4
+       seto @vertical                  ; TODO
+init_level_4:
 *      Enemy list pointer
        sla  r1,1
        mov  @enemy_lists(r1),@enemy_list_ptr
@@ -255,14 +262,27 @@ init_level_1:
        mov  *r0+,@ball_pattern_color
 *      Scroll speed
        li   r0,scroll_speed_normal
-       mov  r0,@scroll_vx
+       abs  @vertical
+       jeq  init_level_7
+       clr  r0
+init_level_7:                          ; TODO
+       mov  r0,@scroll_speed
 *      Setup display
        li   r13,copy_map_to_vdp#
        bl   @bank_1_exec
+       bl   @read_grom_chars
+       abs  @vertical
+       jne  init_level_5
+*      Horizontal
        bl   @scroll_patterns
        bl   @scroll_back_patterns
-       bl   @read_grom_chars
        bl   @update_full_name_table
+       jmp  init_level_6
+init_level_5:
+*      Vertical
+       bl   @scroll_patterns_vert
+       bl   @update_full_name_table_vert
+init_level_6:
        li   r0,21*32+6
        li   r1,txt_title
        bl   @display_text
@@ -353,12 +373,12 @@ vsync_1:
 update_vdp_regs:
        .proc
 *      Set pattern table
-       mov  @scroll_x_pixels,r0
+       mov  @scroll_offset_pixels,r0
        andi r0,>0007
        ori  r0,>0400
        bl   @vwtr
 *      Set name table
-       mov  @scroll_x_pixels,r0
+       mov  @scroll_offset_pixels,r0
        andi r0,>0008
        srl  r0,2
        inc  r0
@@ -428,12 +448,12 @@ move_ball:
 move_ball_16:
        mov  @ball_x,r1
        mov  @ball_vx,r0
-       s    @scroll_vx,r0
+       s    @scroll_speed,r0
        jlt  move_ball_1
        ci   r1,>e800
        jl   move_ball_0
 move_ball_3:
-       mov  @scroll_vx,@ball_vx        ;  Stop if right edge is reached
+       mov  @scroll_speed,@ball_vx     ;  Stop if right edge is reached
 *      Check char to the right of ball
 move_ball_0:
        li   r0,>1000
@@ -445,7 +465,7 @@ move_ball_0:
 *      Check char to the left of ball
 move_ball_1:
        a    r0,r1
-       ci   r1,>fc00                  ; Check if left edge is reached
+       ci   r1,>fc00                   ; Check if left edge is reached
        jhe   move_ball_3
        li   r0,->0100
        li   r1,>0000
@@ -455,7 +475,7 @@ move_ball_1:
 *      Move x
 move_ball_2:
        mov  @ball_vx,r0
-       s    @scroll_vx,r0              ; Movement from scrolling
+       s    @scroll_speed,r0           ; Movement from scrolling
        a    r0,@ball_x
 *      Animate
        mov  @ball_vx,r0
@@ -529,7 +549,7 @@ move_ball_11:
 *      Demo
 move_ball_14:
        a    @ball_vx,@ball_x
-       s    @scroll_vx,@ball_x
+       s    @scroll_speed,@ball_x
        a    @ball_ay,@ball_vy
        a    @ball_vy,@ball_y
        mov  @ball_y,r0
@@ -561,7 +581,7 @@ move_other_sprites:
        mov  @points_sprite_x,r0
        ci   r0,>0200
        jl   move_other_sprites_1
-       s    @scroll_vx,r0
+       s    @scroll_speed,r0
        mov  r0,@points_sprite_x
        jmp  move_other_sprites_2
 move_other_sprites_1:
@@ -596,7 +616,7 @@ move_other_sprites_3:
        jmp  move_other_sprites_5
 move_other_sprites_4:
        mov  @enemy_list_ptr,r0
-       c    @scroll_x_pixels,*r0+
+       c    @scroll_offset_pixels,*r0+
        jne  move_other_sprites_5
        mov  r0,@enemy_list_ptr
        li   r0,>ff00
@@ -642,9 +662,9 @@ check_enemy_collision_1:
 *
 update_partial_name_table:
        .proc
-       mov  @scroll_x,r6
+       mov  @scroll_offset,r6
        srl  r6,3                       ; Number of half pixels scrolled
-       mov  @scroll_vx,r8              ; Scrolling speed
+       mov  @scroll_speed,r8           ; Scrolling speed
        swpb r8
        andi r8,>0003                   ; 0, 1 or 2
 *      Ceiling and floor
@@ -705,11 +725,11 @@ user_input:
        jeq  user_input_1
        bl   @jump
 user_input_1:
-       mov  @scroll_vx,r1              ; Default speed
+       mov  @scroll_speed,r1           ; Default speed
        mov  *r6+,r0
        bl   @check_key                 ; Left
        jeq  user_input_2
-       s    @scroll_vx,r1
+       s    @scroll_speed,r1
        ai   r1,->0040
        jmp  user_input_3
 user_input_2:
@@ -807,21 +827,21 @@ quit   clr  @>83c4                     ; Reset user ISR address
 * Update scrolling variables
 *
 scroll:
-       mov  @scroll_vx_request,r1
+       mov  @scroll_speed_request,r1
        jeq  scroll_1
-       mov  @scroll_x,r0
+       mov  @scroll_offset,r0
        andi r0,>007f
        jne  scroll_1
-       mov  r1,@scroll_vx
-       clr  @scroll_vx_request
+       mov  r1,@scroll_speed
+       clr  @scroll_speed_request
 scroll_1:
-       mov  @scroll_x,r0
-       mov  @scroll_vx,r1
+       mov  @scroll_offset,r0
+       mov  @scroll_speed,r1
        sra  r1,4
        a    r1,r0
-       mov  r0,@scroll_x
+       mov  r0,@scroll_offset
        srl  r0,4
-       mov  r0,@scroll_x_pixels
+       mov  r0,@scroll_offset_pixels
        ci   r0,map_width*8
        jlt  scroll_2
        inc  @status
@@ -840,7 +860,7 @@ copy_map_rows_from_vdp:
        .proc
        mov  r6,r8                      ; Save the start row
 *      Dest
-       mov  @scroll_x_pixels,r1        ; Calculate current name table address
+       mov  @scroll_offset_pixels,r1   ; Calculate current name table address
        inv  r1
        andi r1,>0008
        sla  r1,8
@@ -850,7 +870,7 @@ copy_map_rows_from_vdp:
        sla  r0,5                       ; * 32
        a    r0,r1
 *      Source
-       mov  @scroll_x_pixels,r5        ; Column offset
+       mov  @scroll_offset_pixels,r5   ; Column offset
        srl  r5,3
        inc  r5                         ; Plus one
        andi r5,map_width-1             ; Wrap at 256 columns
@@ -920,8 +940,8 @@ update_full_name_table_0:
 *      Dest
        li   r1,nametb+>40
 *      Source
-       mov  @scroll_x_pixels,r5        ; Column offset
-       srl  r5,3
+       mov  @scroll_offset_pixels,r5
+       srl  r5,3                       ; Column offset
        li   r6,map_row_table
 *      Copy
        clr  r8
@@ -1116,7 +1136,7 @@ die:
        seto @status
        li   r2,animation_die           ; Animate
        mov  r2,@ball_animation_ptr
-       clr  @scroll_vx
+       clr  @scroll_speed
        clr  @ball_vx
        clr  @ball_vy
        bl   @play_die
@@ -1199,7 +1219,7 @@ collect_item_4:
        ai   r0,>1000
        mov  r0,@points_sprite_x
 collect_item_6:
-       mov  @scroll_vx,r0
+       mov  @scroll_speed,r0
        ci   r0,scroll_speed_slow
        jeq  collect_item_1
        li   r0,sprite_100_pt
@@ -1222,13 +1242,13 @@ collect_item_5:
 *
 slow_speed:
        .proc
-       mov  @scroll_vx,r0
+       mov  @scroll_speed,r0
        ci   r0,scroll_speed_slow
        jeq  slow_speed_1
-       mov  @scroll_vx_request,r0
+       mov  @scroll_speed_request,r0
        jne  slow_speed_1
        li   r0,scroll_speed_slow
-       mov  r0,@scroll_vx_request
+       mov  r0,@scroll_speed_request
        bl   @play_slow
        li   r1,hurry_up
        bl   @say_phrase
@@ -1242,13 +1262,13 @@ slow_speed_1:
 *
 normal_speed:
        .proc
-       mov  @scroll_vx,r0
+       mov  @scroll_speed,r0
        ci   r0,scroll_speed_normal
        jeq  normal_speed_1
-       mov  @scroll_vx_request,r0
+       mov  @scroll_speed_request,r0
        jne  normal_speed_1
        li   r0,scroll_speed_normal
-       mov  r0,@scroll_vx_request
+       mov  r0,@scroll_speed_request
        bl   @play_normal
        li   r1,back_again
        bl   @say_phrase
@@ -1262,13 +1282,13 @@ normal_speed_1:
 *
 fast_speed:
        .proc
-       mov  @scroll_vx,r0
+       mov  @scroll_speed,r0
        ci   r0,scroll_speed_fast
        jeq  fast_speed_1
-       mov  @scroll_vx_request,r0
+       mov  @scroll_speed_request,r0
        jne  fast_speed_1
        li   r0,scroll_speed_fast
-       mov  r0,@scroll_vx_request
+       mov  r0,@scroll_speed_request
        bl   @play_long_jump
        li   r1,no_more_stop
        bl   @say_phrase
@@ -1294,7 +1314,9 @@ get_map_char_ball:
        a    @ball_x,r0                 ; Add x to offset
        a    @ball_y,r1                 ; Add y to offset
 get_map_char:
-       srl  r1,11                      ; To chars
+       abs  @vertical
+*       jne  get_map_char_vert
+       srl  r1,11                      ; Y to chars
        ci   r1,2                       ; Above map?
        jhe  get_map_char_1
        clr  r0                         ; No VDP address
@@ -1309,11 +1331,17 @@ get_map_char_1:
        rt
 get_map_char_2:
        srl  r0,8                       ; To pixels
-       a    @scroll_x_pixels,r0        ; Add scroll offset
+       a    @scroll_offset_pixels,r0   ; Add scroll offset
        srl  r0,3                       ; To chars
        andi r0,>00ff                   ; Wrap around
        sla  r1,1                       ; To word
        a    @map_row_table(r1),r0      ; Add row offset
+       jmp get_map_char_3
+get_map_char_vert:
+       nop
+
+
+get_map_char_3:
        movb @r0lb,@vdpwa               ; Send low byte of VDP RAM read address
        movb r0,@vdpwa                  ; Send high byte of VDP RAM read address
        nop
@@ -1382,7 +1410,7 @@ replace_meta_tile:
 draw_stars:
        abs  @demo
        jne  draw_stars_5               ; Skip for demo
-       mov  @scroll_x_pixels,r0
+       mov  @scroll_offset_pixels,r0
        mov  r0,r2
        srl  r2,4                       ; Scroll offset/half speed
        mov  r8,r3
@@ -2116,3 +2144,6 @@ keys_joystick:
 map_chars:
        copy "map-chars.a99"
        copy "sprite-patterns.a99"
+
+       copy "vertical.a99"
+

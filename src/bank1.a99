@@ -145,8 +145,9 @@ map7:
 map7_end
        even
 map8:
-       bcopy "maps/map8trim.lz4"
+       bcopy "maps/map9trim.lz4"
 map8_end
+       even
 
 
 

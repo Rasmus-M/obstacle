@@ -37,9 +37,9 @@ sprptb equ  >1000                      ; Sprite pattern table base (only from >1
 ptrnt4 equ  >1800                      ; Patterns
 freev1 equ  >1c00                      ; 1k free
 ptrnt5 equ  >2000                      ; Patterns
-vmap0  equ  >2400                      ; Map
+vmap0  equ  >2400                      ; Map 0010010000000000
 ptrnt6 equ  >2800                      ; Patterns
-vmap1  equ  >2c00                      ; Map
+vmap1  equ  >2c00                      ; Map 0010110000000000 100000
 ptrnt7 equ  >3000                      ; Patterns
 vmap2  equ  >3400                      ; Map
 ptrnt8 equ  >3800                      ; Patterns
@@ -64,8 +64,16 @@ map_height:
        equ  16
 map_size:
        equ  map_width*map_height
+map_width_h:
+       equ  32
+map_height_h:
+       equ  64
+map_size_h:
+       equ  map_width_h*map_height_h
 screen_width:
        equ  32
+screen_height:
+       equ  20
 buffer_size:
        equ  32
 log_2_buffer_size:
@@ -87,7 +95,7 @@ n_lives:
 n_levels:
        equ  8
 start_level:
-       equ  5
+       equ  8
 
 * Sound channel structure
 snd_channel_addr:
@@ -147,8 +155,10 @@ level:
        equ  demo+2
 mod_level:
        equ  level+2
-lives:
+vertical:
        equ  mod_level+2
+lives:
+       equ  vertical+2
 score:
        equ  lives+2
 clear_start:                           ; Clearing starts here
@@ -161,16 +171,16 @@ frame:
        equ  status+2
 vdp_status:
        equ  frame+2
-scroll_x:                              ; Scroll offset in FP 12.4
+scroll_offset:                         ; Scroll offset in FP 12.4
        equ  vdp_status+2
-scroll_x_pixels:                       ; Scroll offset in pixels
-       equ  scroll_x+2
-scroll_vx:                             ; FP 8.8
-       equ  scroll_x_pixels+2
-scroll_vx_request:
-       equ  scroll_vx+2
+scroll_offset_pixels:                  ; Scroll offset in pixels
+       equ  scroll_offset+2
+scroll_speed:                          ; FP 8.8
+       equ  scroll_offset_pixels+2
+scroll_speed_request:
+       equ  scroll_speed+2
 ball_x:                                ; FP 8.8
-       equ  scroll_vx_request+2
+       equ  scroll_speed_request+2
 ball_vx:                               ; FP 8.8 Velocity relative to track
        equ  ball_x+2
 ball_vx_last:                          ; FP 8.8

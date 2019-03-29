@@ -14,14 +14,14 @@ scroll_patterns_vert_1:
        mov  r0,r3                      ; Copy
        andi r0,>00ff                   ; Isolate to byte
        sla  r0,3                       ; Multiply by 8
-       ai   r0,vpat0                   ; Address of to pattern
+       ai   r0,pat0                    ; Address of to pattern
        li   r2,8                       ; 8 bytes
        bl   @copy                      ; Copy to buffer
        mov  r3,r0
        andi r0,>ff00                   ; Isolate from byte
        swpb r0                         ; To LSB
        sla  r0,3                       ; Multiply by 8
-       ai   r0,vpat0                   ; Address of from pattern
+       ai   r0,pat0                    ; Address of from pattern
        li   r2,8                       ; 8 bytes
        bl   @copy                      ; Copy to buffer
 *      Scroll offset loop

@@ -37,7 +37,7 @@ new_level:
        jlt  new_level
        a    r0,@score
        jmp  new_level
-*      Loft life
+*      Lost life
 lost_life:
        dec  @lives
        jne  new_level
@@ -283,6 +283,8 @@ init_level_5:
        bl   @scroll_patterns_vert
        bl   @update_full_name_table_vert
 init_level_6:
+       bl   @set_colors
+*      Text
        li   r0,21*32+6
        li   r1,txt_title
        bl   @display_text
@@ -317,7 +319,7 @@ init_level_3:
        bl   @vwtr
        .endproc
 ball_init_data:
-       data >3000,>8000,>0018,>800f
+       data >3000,>7800,>0018,>800f
 *// init_level
 
 *********************************************************************
@@ -1315,7 +1317,7 @@ get_map_char_ball:
        a    @ball_y,r1                 ; Add y to offset
 get_map_char:
        abs  @vertical
-*       jne  get_map_char_vert
+       jne  get_map_char_vert
        srl  r1,11                      ; Y to chars
        ci   r1,2                       ; Above map?
        jhe  get_map_char_1
@@ -1338,9 +1340,18 @@ get_map_char_2:
        a    @map_row_table(r1),r0      ; Add row offset
        jmp get_map_char_3
 get_map_char_vert:
-       nop
-
-
+       srl  r1,8                       ; Y to pixels
+       s    @scroll_offset_pixels,r1
+       ai   r1,(map_height_h-screen_height)*8
+       sla  r1,2                       ; Char offset
+       mov  r1,r2
+       andi r1,>03e0
+       sla  r2,1
+       andi r2,>0800
+       ai   r2,vmap0
+       a    r2,r1
+       srl  r0,11                      ; X
+       a    r1,r0
 get_map_char_3:
        movb @r0lb,@vdpwa               ; Send low byte of VDP RAM read address
        movb r0,@vdpwa                  ; Send high byte of VDP RAM read address
@@ -1742,14 +1753,8 @@ graphics_mode_1:
        li   r2,>4000
        bl   @vsmw
 *      Colors
-       li   r0,colrtb
-       li   r1,>f100
-       li   r2,32
-       bl   @vsmw
-       li   r0,colrtb
-       li   r1,CLRSET
-       mov  @CLRNUM,r2
-       bl   @vmbw
+       clr  @vertical
+       bl   @set_colors
 *      Return
        .endproc
 *      VDP registers
@@ -1763,6 +1768,30 @@ vdp_registers:
        byte sprptb/>800                ; Sprite pattern table
        byte >01                        ; Backdrop color
 *// graphics_mode
+
+***************************************************************
+*
+* Copy row from VDP to buffer
+* r0: source
+*
+set_colors:
+       .proc
+       li   r0,colrtb
+       li   r1,>f100
+       li   r2,32
+       bl   @vsmw
+       li   r0,colrtb
+       abs  @vertical
+       jne  set_colors_1
+       li   r1,CLRSET
+       mov  @CLRNUM,r2
+       jmp  set_colors_2
+set_colors_1:
+       li   r1,CLRSET_V
+       mov  @CLRNUM_V,r2
+set_colors_2:
+       bl   @vmbw
+       .endprc
 
 ***************************************************************
 *

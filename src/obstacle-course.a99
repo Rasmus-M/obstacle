@@ -175,10 +175,12 @@ scroll_offset:                         ; Scroll offset in FP 12.4
        equ  vdp_status+2
 scroll_offset_pixels:                  ; Scroll offset in pixels
        equ  scroll_offset+2
-scroll_speed:                          ; FP 8.8
+scroll_speed_x:                        ; FP 8.8
        equ  scroll_offset_pixels+2
+scroll_speed_y:                        ; FP 8.8
+       equ  scroll_speed_x+2
 scroll_speed_request:
-       equ  scroll_speed+2
+       equ  scroll_speed_y+2
 ball_x:                                ; FP 8.8
        equ  scroll_speed_request+2
 ball_vx:                               ; FP 8.8 Velocity relative to track

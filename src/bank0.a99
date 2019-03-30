@@ -103,7 +103,7 @@ intro:
 *      Move ball on
        li   r0,85
        mov  r0,@frame
-       clr  @scroll_speed
+       clr  @scroll_speed_x
        bl   @main_loop
 *      Text
        li   r9,43                      ; First wait
@@ -261,12 +261,17 @@ init_level_4:
        mov  *r0+,@ball_ay
        mov  *r0+,@ball_pattern_color
 *      Scroll speed
-       li   r0,scroll_speed_normal
        abs  @vertical
-       jeq  init_level_7
+       jne  init_level_7
+       li   r0,scroll_speed_normal
+       clr  r1
+       jmp  init_level_8
+init_level_7:
        clr  r0
-init_level_7:                          ; TODO
-       mov  r0,@scroll_speed
+       li   r1,scroll_speed_slow
+init_level_8:
+       mov  r0,@scroll_speed_x
+       mov  r1,@scroll_speed_y
 *      Setup display
        li   r13,copy_map_to_vdp#
        bl   @bank_1_exec
@@ -319,7 +324,7 @@ init_level_3:
        bl   @vwtr
        .endproc
 ball_init_data:
-       data >3000,>7800,>0018,>800f
+       data >3000,>8000,>0018,>800f
 *// init_level
 
 *********************************************************************
@@ -450,12 +455,12 @@ move_ball:
 move_ball_16:
        mov  @ball_x,r1
        mov  @ball_vx,r0
-       s    @scroll_speed,r0
+       s    @scroll_speed_x,r0
        jlt  move_ball_1
        ci   r1,>e800
        jl   move_ball_0
 move_ball_3:
-       mov  @scroll_speed,@ball_vx     ;  Stop if right edge is reached
+       mov  @scroll_speed_x,@ball_vx     ;  Stop if right edge is reached
 *      Check char to the right of ball
 move_ball_0:
        li   r0,>1000
@@ -477,7 +482,7 @@ move_ball_1:
 *      Move x
 move_ball_2:
        mov  @ball_vx,r0
-       s    @scroll_speed,r0           ; Movement from scrolling
+       s    @scroll_speed_x,r0           ; Movement from scrolling
        a    r0,@ball_x
 *      Animate
        mov  @ball_vx,r0
@@ -551,7 +556,7 @@ move_ball_11:
 *      Demo
 move_ball_14:
        a    @ball_vx,@ball_x
-       s    @scroll_speed,@ball_x
+       s    @scroll_speed_x,@ball_x
        a    @ball_ay,@ball_vy
        a    @ball_vy,@ball_y
        mov  @ball_y,r0
@@ -583,7 +588,7 @@ move_other_sprites:
        mov  @points_sprite_x,r0
        ci   r0,>0200
        jl   move_other_sprites_1
-       s    @scroll_speed,r0
+       s    @scroll_speed_x,r0
        mov  r0,@points_sprite_x
        jmp  move_other_sprites_2
 move_other_sprites_1:
@@ -666,7 +671,7 @@ update_partial_name_table:
        .proc
        mov  @scroll_offset,r6
        srl  r6,3                       ; Number of half pixels scrolled
-       mov  @scroll_speed,r8           ; Scrolling speed
+       mov  @scroll_speed_x,r8           ; Scrolling speed
        swpb r8
        andi r8,>0003                   ; 0, 1 or 2
 *      Ceiling and floor
@@ -727,18 +732,34 @@ user_input:
        jeq  user_input_1
        bl   @jump
 user_input_1:
-       mov  @scroll_speed,r1           ; Default speed
+       abs  @vertical
+       jne  user_input_8
+*      Horizontal
+       mov  @scroll_speed_x,r1           ; Default speed
        mov  *r6+,r0
        bl   @check_key                 ; Left
        jeq  user_input_2
-       s    @scroll_speed,r1
-       ai   r1,->0040
+       li   r1,->0040
        jmp  user_input_3
 user_input_2:
        mov  *r6,r0
        bl   @check_key                 ; Right
        jeq  user_input_3
        ai   r1,>0080
+       jmp  user_input_3
+*      Vertical
+user_input_8
+       clr  r1
+       mov  *r6+,r0
+       bl   @check_key                 ; Left
+       jeq  user_input_9
+       li   r1,->0100
+       jmp  user_input_3
+user_input_9:
+       mov  *r6,r0
+       bl   @check_key                 ; Right
+       jeq  user_input_3
+       li   r1,>0100
 *      Set velocity
 user_input_3:
        mov  r1,@ball_vx
@@ -834,11 +855,11 @@ scroll:
        mov  @scroll_offset,r0
        andi r0,>007f
        jne  scroll_1
-       mov  r1,@scroll_speed
+       mov  r1,@scroll_speed_x
        clr  @scroll_speed_request
 scroll_1:
        mov  @scroll_offset,r0
-       mov  @scroll_speed,r1
+       mov  @scroll_speed_x,r1
        sra  r1,4
        a    r1,r0
        mov  r0,@scroll_offset
@@ -1138,7 +1159,7 @@ die:
        seto @status
        li   r2,animation_die           ; Animate
        mov  r2,@ball_animation_ptr
-       clr  @scroll_speed
+       clr  @scroll_speed_x
        clr  @ball_vx
        clr  @ball_vy
        bl   @play_die
@@ -1221,7 +1242,7 @@ collect_item_4:
        ai   r0,>1000
        mov  r0,@points_sprite_x
 collect_item_6:
-       mov  @scroll_speed,r0
+       mov  @scroll_speed_x,r0
        ci   r0,scroll_speed_slow
        jeq  collect_item_1
        li   r0,sprite_100_pt
@@ -1244,7 +1265,7 @@ collect_item_5:
 *
 slow_speed:
        .proc
-       mov  @scroll_speed,r0
+       mov  @scroll_speed_x,r0
        ci   r0,scroll_speed_slow
        jeq  slow_speed_1
        mov  @scroll_speed_request,r0
@@ -1264,7 +1285,7 @@ slow_speed_1:
 *
 normal_speed:
        .proc
-       mov  @scroll_speed,r0
+       mov  @scroll_speed_x,r0
        ci   r0,scroll_speed_normal
        jeq  normal_speed_1
        mov  @scroll_speed_request,r0
@@ -1284,7 +1305,7 @@ normal_speed_1:
 *
 fast_speed:
        .proc
-       mov  @scroll_speed,r0
+       mov  @scroll_speed_x,r0
        ci   r0,scroll_speed_fast
        jeq  fast_speed_1
        mov  @scroll_speed_request,r0
@@ -1338,6 +1359,7 @@ get_map_char_2:
        andi r0,>00ff                   ; Wrap around
        sla  r1,1                       ; To word
        a    @map_row_table(r1),r0      ; Add row offset
+       li   r2,TCHARS
        jmp get_map_char_3
 get_map_char_vert:
        srl  r1,8                       ; Y to pixels
@@ -1352,6 +1374,7 @@ get_map_char_vert:
        a    r2,r1
        srl  r0,11                      ; X
        a    r1,r0
+       li   r2,TCHARS_V
 get_map_char_3:
        movb @r0lb,@vdpwa               ; Send low byte of VDP RAM read address
        movb r0,@vdpwa                  ; Send high byte of VDP RAM read address
@@ -1359,7 +1382,8 @@ get_map_char_3:
        movb *r14,r1                    ; Read byte from VDP RAM
        srl  r1,8                       ; To LSB
        sla  r1,1                       ; To word
-       mov  @TCHARS(r1),r1             ; Get from/to chars
+       a    r2,r1                      ; Add transition chars table address
+       mov  *r1,r1                     ; Get from/to chars
        srl  r1,8                       ; To LSB
        sla  r1,1                       ; To word
        mov  @char_props_table(r1),r1   ; Get properties
@@ -1791,7 +1815,7 @@ set_colors_1:
        mov  @CLRNUM_V,r2
 set_colors_2:
        bl   @vmbw
-       .endprc
+       .endproc
 
 ***************************************************************
 *

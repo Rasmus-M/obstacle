@@ -212,13 +212,17 @@ wait_1:
 * Initialize game
 *
 init_game:
+       .proc
        li   r0,start_level
        mov  r0,@level
        clr  @score
        seto @disp_score
        li   r0,n_lives
        mov  r0,@lives
-       rt
+       li   r0,21*32+6
+       li   r1,txt_title
+       bl   @display_text
+       .endproc
 *// init_game
 
 ***************************************************************
@@ -290,9 +294,6 @@ init_level_5:
 init_level_6:
        bl   @set_colors
 *      Text
-       li   r0,21*32+6
-       li   r1,txt_title
-       bl   @display_text
        li   r0,23*32+1
        li   r1,txt_stats
        bl   @display_text
@@ -671,7 +672,9 @@ update_partial_name_table:
        .proc
        mov  @scroll_offset,r6
        srl  r6,3                       ; Number of half pixels scrolled
-       mov  @scroll_speed_x,r8           ; Scrolling speed
+       abs  @vertical
+       jne  update_partial_name_table_4
+       mov  @scroll_speed_x,r8         ; Scrolling speed
        swpb r8
        andi r8,>0003                   ; 0, 1 or 2
 *      Ceiling and floor
@@ -706,12 +709,22 @@ update_partial_name_table_1:
        jne  update_partial_name_table_1
 *      Middle rows
        andi r6,>000f
+       inct r6                         ; Adjust for ceiling
        li   r7,1
        mov  r8,r0                      ; Speed
-       jeq  update_partial_name_table_2
+       jeq  update_partial_name_table_5
        sla  r7,0
-update_partial_name_table_2:
+       jmp  update_partial_name_table_5
+*      Vertical
+update_partial_name_table_4
+       andi r6,>000f
+       ci   r6,screen_height/2
+       jhe  update_partial_name_table_6
+       sla  r6,1
+       li   r7,2
+update_partial_name_table_5
        bl   @copy_map_rows_from_vdp
+update_partial_name_table_6
        .endproc
 *// update_partial_name_table
 
@@ -859,7 +872,13 @@ scroll:
        clr  @scroll_speed_request
 scroll_1:
        mov  @scroll_offset,r0
+       abs  @vertical
+       jne  scroll_3
        mov  @scroll_speed_x,r1
+       jmp  scroll_4
+scroll_3:
+       mov  @scroll_speed_y,r1
+scroll_4:
        sra  r1,4
        a    r1,r0
        mov  r0,@scroll_offset
@@ -876,7 +895,7 @@ scroll_2:
 *
 * Copy map rows from VDP RAM
 *
-* r6: Start row number to copy
+* r6: Start screen row number to copy
 * r7: Number of rows to copy
 *
 copy_map_rows_from_vdp:
@@ -889,14 +908,17 @@ copy_map_rows_from_vdp:
        sla  r1,8
        ai   r1,nametb
        mov  r6,r0                      ; Row offset
-       inct r0                         ; Two rows offset for ceiling
        sla  r0,5                       ; * 32
        a    r0,r1
+*      Check if vertical
+       abs  @vertical
+       jne  copy_map_rows_from_vdp_4
 *      Source
        mov  @scroll_offset_pixels,r5   ; Column offset
        srl  r5,3
        inc  r5                         ; Plus one
        andi r5,map_width-1             ; Wrap at 256 columns
+       dect r6                         ; Compensate for ceiling
        sla  r6,1                       ; Lookup table address
        ai   r6,map_row_table
 copy_map_rows_from_vdp_1:
@@ -926,12 +948,18 @@ copy_map_rows_from_vdp_6:              ; Copy 2nd part
        movb *r14,*r4+
        dec  r2
        jne  copy_map_rows_from_vdp_6
-copy_map_rows_from_vdp_3:
 *      Draw stars
+copy_map_rows_from_vdp_3:
        clr  r9                         ; Offset
        bl   @draw_stars
+       jmp  copy_map_rows_from_vdp_7
+*      Vertical
+copy_map_rows_from_vdp_4:
+       nop
+
+
+copy_map_rows_from_vdp_7:
 *      Copy buffer back
-       mov  r1,r0
        bl   @copy_row_to_vdp
 *      Next row
        ai   r1,screen_width
@@ -967,7 +995,7 @@ update_full_name_table_0:
        srl  r5,3                       ; Column offset
        li   r6,map_row_table
 *      Copy
-       clr  r8
+       li   r8,2
 update_full_name_table_1:
        mov  *r6+,r0                    ; Row start
        a    r5,r0                      ; Add column offset
@@ -977,7 +1005,7 @@ update_full_name_table_1:
        bl   @copy_row_to_vdp
        ai   r1,screen_width
        inc  r8
-       ci   r8,map_height
+       ci   r8,screen_height-2
        jlt  update_full_name_table_1
        .endproc
 **
@@ -1439,7 +1467,7 @@ replace_meta_tile:
 *
 * Draw stars into buffer
 *
-* r8: row number
+* r8: row number on screen
 * r9: full screen flag
 *
 draw_stars:
@@ -1449,6 +1477,7 @@ draw_stars:
        mov  r0,r2
        srl  r2,4                       ; Scroll offset/half speed
        mov  r8,r3
+       dect r3                         ; Adjust for ceiling
        sla  r3,1
        a    @star_x(r3),r2             ; Add 'random' x position for row
        a    r9,r2

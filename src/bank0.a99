@@ -717,7 +717,7 @@ update_partial_name_table_1:
        jmp  update_partial_name_table_5
 *      Vertical
 update_partial_name_table_4
-       andi r6,>000f
+       andi r6,>000f                   // Display 2 rows for the first 10 frames
        ci   r6,screen_height/2
        jhe  update_partial_name_table_6
        sla  r6,1
@@ -914,14 +914,16 @@ copy_map_rows_from_vdp:
        abs  @vertical
        jne  copy_map_rows_from_vdp_4
 *      Source
-       mov  @scroll_offset_pixels,r5   ; Column offset
-       srl  r5,3
+       mov  @scroll_offset_pixels,r5
+       srl  r5,3                       ; Column offset
        inc  r5                         ; Plus one
        andi r5,map_width-1             ; Wrap at 256 columns
        dect r6                         ; Compensate for ceiling
        sla  r6,1                       ; Lookup table address
        ai   r6,map_row_table
 copy_map_rows_from_vdp_1:
+       abs  @vertical
+       jne  copy_map_rows_from_vdp_4
        mov  *r6+,r0                    ; Row start
        a    r5,r0                      ; Add column offset
        ci   r5,map_width-screen_width
@@ -955,11 +957,22 @@ copy_map_rows_from_vdp_3:
        jmp  copy_map_rows_from_vdp_7
 *      Vertical
 copy_map_rows_from_vdp_4:
-       nop
-
-
-copy_map_rows_from_vdp_7:
+       mov  @scroll_offset_pixels,r5
+       srl  r5,3                       ; Row offset
+       neg  r5
+       ai   r5,map_height_h-screen_height    ; Row number
+       dec  r5                         ; Minus one
+       a    r8,r5                      ; Add row number
+       sla  r5,5                       ; Char offset
+       mov  r5,r0
+       andi r0,>03e0
+       sla  r5,1
+       andi r5,>0800
+       ai   r5,vmap0
+       a    r5,r0
+       bl   @copy_row_to_buffer
 *      Copy buffer back
+copy_map_rows_from_vdp_7:
        bl   @copy_row_to_vdp
 *      Next row
        ai   r1,screen_width
@@ -2173,7 +2186,7 @@ enemy_lists:
        data enemy_list_1
        data enemy_list_2
        data enemy_list_3
-       data enemy_list_4
+       data enemy_list_0
 enemy_list_0:
        data -1
 enemy_list_1:

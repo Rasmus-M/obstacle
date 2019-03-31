@@ -265,15 +265,12 @@ init_level_4:
        mov  *r0+,@ball_ay
        mov  *r0+,@ball_pattern_color
 *      Scroll speed
+       clr  r0
+       clr  r1
        abs  @vertical
        jne  init_level_7
        li   r0,scroll_speed_normal
-       clr  r1
-       jmp  init_level_8
 init_level_7:
-       clr  r0
-       li   r1,scroll_speed_slow
-init_level_8:
        mov  r0,@scroll_speed_x
        mov  r1,@scroll_speed_y
 *      Setup display
@@ -497,6 +494,7 @@ move_ball_2:
 move_ball_15
 **
 *      Y
+       a    @scroll_speed_y,@ball_y
 *      Check for rebounce
        mov  @ball_rebounce,r0
        jne  move_ball_12
@@ -671,9 +669,9 @@ check_enemy_collision_1:
 update_partial_name_table:
        .proc
        mov  @scroll_offset,r6
-       srl  r6,3                       ; Number of half pixels scrolled
        abs  @vertical
        jne  update_partial_name_table_4
+       srl  r6,3                       ; Number of half pixels scrolled
        mov  @scroll_speed_x,r8         ; Scrolling speed
        swpb r8
        andi r8,>0003                   ; 0, 1 or 2
@@ -717,11 +715,11 @@ update_partial_name_table_1:
        jmp  update_partial_name_table_5
 *      Vertical
 update_partial_name_table_4
-       andi r6,>000f                   // Display 2 rows for the first 10 frames
-       ci   r6,screen_height/2
+       srl  r6,2                       ; Number of quarter pixels scrolled
+       andi r6,>001f                   ; Display 2 rows for the first 10 frames
+       ci   r6,screen_height
        jhe  update_partial_name_table_6
-       sla  r6,1
-       li   r7,2
+       li   r7,1
 update_partial_name_table_5
        bl   @copy_map_rows_from_vdp
 update_partial_name_table_6
@@ -877,6 +875,14 @@ scroll_1:
        mov  @scroll_speed_x,r1
        jmp  scroll_4
 scroll_3:
+       clr  r1
+       mov  @frame,r2
+       ci   r2,120
+       jne  scroll_5
+       li   r1,scroll_speed_slower
+       mov  r1,@scroll_speed_y
+       jmp  scroll_4
+scroll_5:
        mov  @scroll_speed_y,r1
 scroll_4:
        sra  r1,4
@@ -922,8 +928,8 @@ copy_map_rows_from_vdp:
        sla  r6,1                       ; Lookup table address
        ai   r6,map_row_table
 copy_map_rows_from_vdp_1:
-       abs  @vertical
-       jne  copy_map_rows_from_vdp_4
+;       abs  @vertical                 ; Only needed if more than one row when vertical
+;       jne  copy_map_rows_from_vdp_4
        mov  *r6+,r0                    ; Row start
        a    r5,r0                      ; Add column offset
        ci   r5,map_width-screen_width

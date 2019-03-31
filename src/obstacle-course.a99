@@ -52,6 +52,8 @@ bank_0:
        equ  >6002
 bank_1:
        equ  >6000
+scroll_speed_slower:
+       equ  >0040
 scroll_speed_slow:
        equ  >0080
 scroll_speed_normal:

@@ -491,11 +491,18 @@ move_ball_2:
        jne  move_ball_15
        li   r0,animation_roll
        mov  r0,@ball_animation_ptr
-move_ball_15
+move_ball_15:
 **
 *      Y
+       mov  @ball_y,r0
+       ci   r0,(screen_height-2)*8*256
+       jhe  move_ball_17
        a    @scroll_speed_y,@ball_y
+       jmp  move_ball_18
+move_ball_17:
+       bl   @die
 *      Check for rebounce
+move_ball_18:
        mov  @ball_rebounce,r0
        jne  move_ball_12
 *      Accelerate
@@ -1294,7 +1301,15 @@ collect_item_4:
        jlt  collect_item_6
        mov  r0,@points_sprite_y
        mov  @ball_x,r0
-       ai   r0,>1000
+       mov  @ball_vx,r1
+       jeq  collect_item_7
+       jlt  collect_item_8
+       li   r1,>1000
+       jmp  collect_item_7
+collect_item_8:
+       li   r1,->1000
+collect_item_7:
+       a    r1,r0
        mov  r0,@points_sprite_x
 collect_item_6:
        mov  @scroll_speed_x,r0
@@ -1418,6 +1433,11 @@ get_map_char_2:
        jmp get_map_char_3
 get_map_char_vert:
        srl  r1,8                       ; Y to pixels
+       ci   r1,screen_height*8
+       jl   get_map_char_vert_1
+       li   r1,:0000000000001111
+       rt
+get_map_char_vert_1:
        s    @scroll_offset_pixels,r1
        ai   r1,(map_height_h-screen_height)*8
        sla  r1,2                       ; Char offset
@@ -1469,7 +1489,6 @@ remove_meta_tile:
        jmp  remove_meta_tile_2
 remove_meta_tile_1:
        andi r0,>2fde                   ; Adjust to metatile
-;      dec  r0
        bl   @vwad
        clr  *r15
        clr  *r15

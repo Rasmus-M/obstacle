@@ -890,7 +890,12 @@ scroll_4:
        mov  r0,@scroll_offset
        srl  r0,4
        mov  r0,@scroll_offset_pixels
+       abs  @vertical
+       jne  scroll_6
        ci   r0,map_width*8
+       jlt  scroll_2
+scroll_6:
+       ci   r0,(map_height_h-screen_height)*8
        jlt  scroll_2
        inc  @status
 scroll_2:
@@ -1139,9 +1144,12 @@ check_coinc_bottom_4:
        ci   r0,>0020
        jlt  check_coinc_bottom_6
 check_coinc_bottom_5:
+       abs  @vertical
+       jne  check_coinc_bottom_8
        mov  @ball_y,r0                 ; Align to meta tile
        andi r0,>f000
        mov  r0,@ball_y
+check_coinc_bottom_8:
        li   r0,>800f
        mov  r0,@ball_pattern_color
        mov  @ball_animation_ptr,r0
@@ -1445,17 +1453,35 @@ get_map_char_3:
 *
 remove_meta_tile:
        .proc
+       abs  @vertical
+       jne  remove_meta_tile_1
        andi r0,>3efe                   ; Adjust to metatile
        dec  r0
        bl   @vwad
        clr  *r15
        clr  *r15
        clr  *r15
-       ai   r0,>100
+       ai   r0,map_width
        bl   @vwad
        clr  *r15
        clr  *r15
        clr  *r15
+       jmp  remove_meta_tile_2
+remove_meta_tile_1:
+       andi r0,>2fde                   ; Adjust to metatile
+;      dec  r0
+       bl   @vwad
+       clr  *r15
+       clr  *r15
+       ai   r0,map_width_h
+       bl   @vwad
+       clr  *r15
+       clr  *r15
+       ai   r0,map_width_h
+       bl   @vwad
+       clr  *r15
+       clr  *r15
+remove_meta_tile_2:
        .endproc
 *// remove_meta_tile
 

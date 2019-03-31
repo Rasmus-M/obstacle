@@ -1197,7 +1197,7 @@ check_coinc_top:
        coc  @char_block_bottom,r1
        jne  check_coinc_top_3
 *      Collision with blocker
-       clr  @ball_vy
+       seto  @ball_vy
        jmp  check_coinc_left_3
 *      Collision with deadly
 check_coinc_top_1:

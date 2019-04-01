@@ -12,14 +12,9 @@
        lwpi wrksp                      ; Setup workspace
        li   r10,stack                  ; Setup stack pointer
        bl   @one_time_init
-       bl   @init_game
 new_game:
        bl   @intro
        bl   @init_game
-       li   r1,txt_title
-       bl   @display_message
-       li   r1,three_two_one_go
-       bl   @say_phrase
 new_level:
        bl   @init_level
        bl   @main_loop
@@ -43,6 +38,7 @@ lost_life:
        dec  @lives
        jne  new_level
 *      Game over
+       bl   @display_lives
        li   r1,txt_game_over
        bl   @display_message
        li   r1,please_try_again
@@ -76,11 +72,11 @@ one_time_init:
 intro:
        .proc
        seto @demo
-       .push @level                    ; Save level reached
+;       .push @level                    ; Save level reached
        clr  @level                     ; Intro is level 0
        bl   @init_level
-       .pop @level                     ; Restore level reached (for display)
-       bl   @display_level
+;       .pop @level                     ; Restore level reached (for display)
+;       bl   @display_level
        li   r0,>0100
        mov  r0,@ball_x
        li   r0,>0180
@@ -218,6 +214,10 @@ init_game:
        seto @disp_score
        li   r0,n_lives
        mov  r0,@lives
+       li   r1,txt_title
+       bl   @display_message
+       li   r1,three_two_one_go
+       bl   @say_phrase
        .endproc
 *// init_game
 
@@ -287,11 +287,14 @@ init_level_5:
 init_level_6:
        bl   @set_colors
 *      Text
+       mov  @level,r0
+       jeq  init_level_8
        li   r0,23*32+1
        li   r1,txt_stats
        bl   @display_text
        bl   @display_level
        bl   @display_lives
+init_level_8:
 *      Sprite patterns
        bl   @upload_sprite_patterns
 *      Sprite attributes

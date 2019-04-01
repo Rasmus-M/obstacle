@@ -72,11 +72,8 @@ one_time_init:
 intro:
        .proc
        seto @demo
-;       .push @level                    ; Save level reached
        clr  @level                     ; Intro is level 0
        bl   @init_level
-;       .pop @level                     ; Restore level reached (for display)
-;       bl   @display_level
        li   r0,>0100
        mov  r0,@ball_x
        li   r0,>0180
@@ -214,8 +211,6 @@ init_game:
        seto @disp_score
        li   r0,n_lives
        mov  r0,@lives
-       li   r1,txt_title
-       bl   @display_message
        li   r1,three_two_one_go
        bl   @say_phrase
        .endproc
@@ -294,6 +289,8 @@ init_level_6:
        bl   @display_text
        bl   @display_level
        bl   @display_lives
+       li   r1,txt_title
+       bl   @display_message
 init_level_8:
 *      Sprite patterns
        bl   @upload_sprite_patterns

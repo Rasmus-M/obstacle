@@ -16,11 +16,8 @@
 new_game:
        bl   @intro
        bl   @init_game
-
-       li   r0,21*32+6
        li   r1,txt_title
-       bl   @display_text
-
+       bl   @display_message
        li   r1,three_two_one_go
        bl   @say_phrase
 new_level:
@@ -31,9 +28,8 @@ new_level:
 *      Level completed
        li   r0,sp_good_work
        bl   @say_word
-       li   r0,21*32+6
        li   r1,txt_level_completed
-       bl   @display_text
+       bl   @display_message
        li   r2,120
        bl   @wait
        inc  @level
@@ -47,9 +43,8 @@ lost_life:
        dec  @lives
        jne  new_level
 *      Game over
-       li   r0,21*32+6
        li   r1,txt_game_over
-       bl   @display_text
+       bl   @display_message
        li   r1,please_try_again
        bl   @say_phrase
        jmp  new_game
@@ -120,9 +115,8 @@ intro_2:
        bl   @wait_key
        mov  r0,r0
        jne  intro_3
-       li   r0,21*32+6
        mov  r7,r1
-       bl   @display_text
+       bl   @display_message
        ai   r7,20
        li   r9,192                     ; Subsequent waits
        dec  r8
@@ -1749,10 +1743,12 @@ read_grom_chars_4:
 * Display text to both name table buffers (slow)
 *
 * r0: Screen offset
-* r1: Points to zero terminated ascii text
+* r1: Pointer to zero terminated ascii text
 *
 * Modifies r0-r6
 *
+display_message:
+       li   r0,21*32+6
 display_text:
        .proc
        ai   r0,nametb

@@ -4,8 +4,8 @@
 CLRNUM_V:
        DATA 6                          ;
 CLRSET_V:
-       BYTE >21,>41,>41,>61            ;
-       BYTE >A1,>A1                    ;
+       BYTE >21,>61,>71,>71            ;
+       BYTE >F1,>F1                    ;
 ****************************************
 * Transition Character Pairs (from, to) 
 ****************************************
@@ -13,49 +13,49 @@ TCHNUM_V:
        DATA 47                         ;
 TCHARS_V:
        BYTE >00,>00                    ; #00 color 2/1
-       BYTE >01,>00                    ; #01 color 2/1
-       BYTE >02,>00                    ; #02 color 2/1
-       BYTE >05,>01                    ; #03 color 2/1
-       BYTE >06,>02                    ; #04 color 2/1
-       BYTE >FF,>FF                    ; #05 unused
-       BYTE >FF,>FF                    ; #06 unused
+       BYTE >0A,>00                    ; #01 color 2/1
+       BYTE >00,>0A                    ; #02 color 2/1
+       BYTE >01,>00                    ; #03 color 2/1
+       BYTE >02,>00                    ; #04 color 2/1
+       BYTE >05,>01                    ; #05 color 2/1
+       BYTE >06,>02                    ; #06 color 2/1
        BYTE >FF,>FF                    ; #07 unused
-       BYTE >0D,>00                    ; #08 color 4/1
-       BYTE >0E,>00                    ; #09 color 4/1
-       BYTE >12,>0D                    ; #0A color 4/1
-       BYTE >13,>0E                    ; #0B color 4/1
-       BYTE >00,>12                    ; #0C color 4/1
-       BYTE >00,>13                    ; #0D color 4/1
-       BYTE >0A,>00                    ; #0E color 4/1
-       BYTE >00,>0A                    ; #0F color 4/1
-       BYTE >0B,>00                    ; #10 color 4/1
-       BYTE >0C,>00                    ; #11 color 4/1
-       BYTE >10,>0B                    ; #12 color 4/1
-       BYTE >11,>0C                    ; #13 color 4/1
-       BYTE >0B,>10                    ; #14 color 4/1
-       BYTE >0C,>11                    ; #15 color 4/1
-       BYTE >00,>10                    ; #16 color 4/1
-       BYTE >00,>11                    ; #17 color 4/1
-       BYTE >15,>00                    ; #18 color 6/1
-       BYTE >16,>00                    ; #19 color 6/1
-       BYTE >19,>15                    ; #1A color 6/1
-       BYTE >1A,>16                    ; #1B color 6/1
-       BYTE >00,>19                    ; #1C color 6/1
-       BYTE >00,>1A                    ; #1D color 6/1
-       BYTE >09,>00                    ; #1E color 6/1
-       BYTE >00,>09                    ; #1F color 6/1
-       BYTE >23,>00                    ; #20 color A/1
-       BYTE >24,>00                    ; #21 color A/1
-       BYTE >25,>00                    ; #22 color A/1
-       BYTE >2A,>23                    ; #23 color A/1
-       BYTE >2B,>24                    ; #24 color A/1
-       BYTE >2C,>25                    ; #25 color A/1
-       BYTE >00,>2A                    ; #26 color A/1
-       BYTE >00,>2B                    ; #27 color A/1
-       BYTE >00,>2C                    ; #28 color A/1
-       BYTE >26,>00                    ; #29 color A/1
-       BYTE >27,>00                    ; #2A color A/1
-       BYTE >2D,>26                    ; #2B color A/1
-       BYTE >2E,>27                    ; #2C color A/1
-       BYTE >00,>2D                    ; #2D color A/1
-       BYTE >00,>2E                    ; #2E color A/1
+       BYTE >15,>00                    ; #08 color 6/1
+       BYTE >16,>00                    ; #09 color 6/1
+       BYTE >19,>15                    ; #0A color 6/1
+       BYTE >1A,>16                    ; #0B color 6/1
+       BYTE >00,>19                    ; #0C color 6/1
+       BYTE >00,>1A                    ; #0D color 6/1
+       BYTE >09,>00                    ; #0E color 6/1
+       BYTE >00,>09                    ; #0F color 6/1
+       BYTE >0D,>00                    ; #10 color 7/1
+       BYTE >0E,>00                    ; #11 color 7/1
+       BYTE >12,>0D                    ; #12 color 7/1
+       BYTE >13,>0E                    ; #13 color 7/1
+       BYTE >00,>12                    ; #14 color 7/1
+       BYTE >00,>13                    ; #15 color 7/1
+       BYTE >0B,>00                    ; #16 color 7/1
+       BYTE >0C,>00                    ; #17 color 7/1
+       BYTE >10,>0B                    ; #18 color 7/1
+       BYTE >11,>0C                    ; #19 color 7/1
+       BYTE >0B,>10                    ; #1A color 7/1
+       BYTE >0C,>11                    ; #1B color 7/1
+       BYTE >00,>10                    ; #1C color 7/1
+       BYTE >00,>11                    ; #1D color 7/1
+       BYTE >FF,>FF                    ; #1E unused
+       BYTE >FF,>FF                    ; #1F unused
+       BYTE >23,>00                    ; #20 color F/1
+       BYTE >24,>00                    ; #21 color F/1
+       BYTE >25,>00                    ; #22 color F/1
+       BYTE >2A,>23                    ; #23 color F/1
+       BYTE >2B,>24                    ; #24 color F/1
+       BYTE >2C,>25                    ; #25 color F/1
+       BYTE >00,>2A                    ; #26 color F/1
+       BYTE >00,>2B                    ; #27 color F/1
+       BYTE >00,>2C                    ; #28 color F/1
+       BYTE >26,>00                    ; #29 color F/1
+       BYTE >27,>00                    ; #2A color F/1
+       BYTE >2D,>26                    ; #2B color F/1
+       BYTE >2E,>27                    ; #2C color F/1
+       BYTE >00,>2D                    ; #2D color F/1
+       BYTE >00,>2E                    ; #2E color F/1

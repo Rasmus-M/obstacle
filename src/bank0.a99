@@ -16,6 +16,11 @@
 new_game:
        bl   @intro
        bl   @init_game
+
+       li   r0,21*32+6
+       li   r1,txt_title
+       bl   @display_text
+
        li   r1,three_two_one_go
        bl   @say_phrase
 new_level:
@@ -219,9 +224,6 @@ init_game:
        seto @disp_score
        li   r0,n_lives
        mov  r0,@lives
-       li   r0,21*32+6
-       li   r1,txt_title
-       bl   @display_text
        .endproc
 *// init_game
 
@@ -899,11 +901,15 @@ scroll_4:
        mov  r0,@scroll_offset_pixels
        abs  @vertical
        jne  scroll_6
+*      H
        ci   r0,map_width*8
-       jlt  scroll_2
+       jhe  scroll_7
+       jmp  scroll_2
 scroll_6:
+*      V
        ci   r0,(map_height_h-screen_height)*8
-       jlt  scroll_2
+       jl   scroll_2
+scroll_7:
        inc  @status
 scroll_2:
        rt

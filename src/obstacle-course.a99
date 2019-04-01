@@ -87,9 +87,11 @@ chr_space:
 chr_zero:
        equ  97
 chr_star_1:
-       equ  >57
+       equ  87
 chr_star_2:
-       equ  >5f
+       equ  95
+chr_star_s_apo:
+       equ  87
 chr_qst_mark:
        equ  chr_space
 n_lives:
@@ -97,7 +99,7 @@ n_lives:
 n_levels:
        equ  8
 start_level:
-       equ  1
+       equ  8
 
 * Sound channel structure
 snd_channel_addr:

@@ -86,12 +86,12 @@ intro:
        seto @status
        bl   @main_loop
 *      Display S'
-       li   r0,ptrntb+95*8
+       li   r0,ptrntb+chr_star_s_apo*8
        li   r1,char_s_apo
        li   r2,8
        bl   @vmbw
        li   r0,3*32+31+nametb
-       li   r1,95*256
+       li   r1,chr_star_s_apo*256
        bl   @vsbw
 *      Move ball on
        li   r0,85
@@ -1536,7 +1536,7 @@ replace_meta_tile:
 *
 draw_stars:
        abs  @demo
-       jne  draw_stars_5               ; Skip for demo
+;       jne  draw_stars_5               ; Skip for demo
        mov  @scroll_offset_pixels,r0
        mov  r0,r2
        srl  r2,4                       ; Scroll offset/half speed

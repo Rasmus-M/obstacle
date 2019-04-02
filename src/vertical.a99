@@ -63,7 +63,8 @@ update_full_name_table_vert:
        ai   r5,map_height_h-screen_height    ; Row number
        sla  r5,5                       ; Char offset
        li   r1,nametb
-       li   r3,20                      ; Row counter
+       li   r7,20                      ; Row counter
+       li   r8,0
 update_full_name_table_vert_1:
        mov  r5,r0
        andi r0,>03e0
@@ -73,11 +74,13 @@ update_full_name_table_vert_1:
        ai   r2,vmap0
        a    r2,r0
        bl   @copy_row_to_buffer
-;       bl   @draw_stars
+       seto r9                         ; Offset
+       bl   @draw_stars
        bl   @copy_row_to_vdp
        ai   r5,32
        ai   r1,32
-       dec  r3
+       inc  r8
+       dec  r7
        jne  update_full_name_table_vert_1
        .endproc
 *// update_full_name_table_vert

@@ -272,7 +272,6 @@ init_level_7:
        jne  init_level_5
 *      Horizontal
        bl   @scroll_patterns
-       bl   @scroll_back_patterns
        bl   @update_full_name_table
        jmp  init_level_6
 init_level_5:
@@ -280,6 +279,7 @@ init_level_5:
        bl   @scroll_patterns_vert
        bl   @update_full_name_table_vert
 init_level_6:
+       bl   @scroll_star_patterns
        bl   @set_colors
 *      Text
        mov  @level,r0
@@ -989,6 +989,8 @@ copy_map_rows_from_vdp_4:
        ai   r5,vmap0
        a    r5,r0
        bl   @copy_row_to_buffer
+       clr  r9                         ; Offset
+       bl   @draw_stars
 *      Copy buffer back
 copy_map_rows_from_vdp_7:
        bl   @copy_row_to_vdp
@@ -1535,8 +1537,6 @@ replace_meta_tile:
 * r9: full screen flag
 *
 draw_stars:
-       abs  @demo
-;       jne  draw_stars_5               ; Skip for demo
        mov  @scroll_offset_pixels,r0
        mov  r0,r2
        srl  r2,4                       ; Scroll offset/half speed
@@ -1569,7 +1569,7 @@ draw_stars_4:
 draw_stars_5:
        rt
 star_x:
-       data 25, 10, 6, 23, 15, 22, 3, 9, 14, 2, 29, 7, 11, 8, 31, 13
+       data 25, 10, 6, 23, 15, 22, 3, 9, 14, 2, 29, 7, 11, 8, 31, 13, 1, 27
 *// draw_stars
 
 ***************************************************************
@@ -1651,32 +1651,39 @@ scroll_patterns_5:
 
 ***************************************************************
 *
-* Scroll background patterns and upload to VDP
+* Scroll star patterns and upload to VDP
 *
-scroll_back_patterns:
+scroll_star_patterns:
        .proc
        li   r1,>0100
-       li   r0,8*chr_star_1+ptrntb+4
-       bl   @scroll_back_pattern
-       li   r0,8*chr_star_2+ptrntb+4
-       bl   @scroll_back_pattern
+       li   r0,8*chr_star_1+ptrntb
+       bl   @scroll_star_pattern
+       li   r0,8*chr_star_2+ptrntb
+       bl   @scroll_star_pattern
        .endproc
-scroll_back_pattern:
+scroll_star_pattern:
        .proc
        li   r2,4
-scroll_back_pattern_1:
+scroll_star_pattern_1:
        li   r3,2
-scroll_back_pattern_2:
+scroll_star_pattern_2:
        bl   @vwad
+       clr  *r15
+       clr  *r15
+       clr  *r15
+       clr  *r15
        movb r1,*r15
+       clr  *r15
+       clr  *r15
+       clr  *r15
        ai   r0,>800
        dec  r3
-       jne  scroll_back_pattern_2
+       jne  scroll_star_pattern_2
        sla  r1,1
        dec  r2
-       jne  scroll_back_pattern_1
+       jne  scroll_star_pattern_1
        .endproc
-*// scroll_back_patterns
+*// scroll_star_patterns
 
 *********************************************************************
 *

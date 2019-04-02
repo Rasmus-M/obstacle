@@ -75,7 +75,7 @@ update_full_name_table_vert_1:
        a    r2,r0
        bl   @copy_row_to_buffer
        seto r9                         ; Offset
-       bl   @draw_stars
+       bl   @draw_stars_vert
        bl   @copy_row_to_vdp
        ai   r5,32
        ai   r1,32
@@ -84,5 +84,33 @@ update_full_name_table_vert_1:
        jne  update_full_name_table_vert_1
        .endproc
 *// update_full_name_table_vert
+
+***************************************************************
+*
+* Draw stars into buffer
+*
+* r8: row number on screen
+* r9: full screen flag
+*
+draw_stars_vert:
+       mov  @scroll_offset_pixels,r0
+       mov  r0,r3
+       srl  r3,4                       ; Scroll offset/half speed
+       neg  r3
+       a    r8,r3
+       s    r9,r3
+       andi r3,15
+       sla  r3,1
+       a    @star_x(r3),r2             ; Add 'random' x position for row
+       xor  r9,r0
+       andi r0,8                       ; Test bit for determining character
+       jne  draw_stars_vert_1
+       li   r0,chr_star_2*256
+       jmp  draw_stars_vert_2
+draw_stars_vert_1:
+       li   r0,chr_star_1*256
+draw_stars_vert_2:
+       b    @draw_stars_2
+*// draw_stars
 
        copy "map-chars-vert.a99"

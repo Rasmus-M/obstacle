@@ -99,7 +99,7 @@ n_lives:
 n_levels:
        equ  8
 start_level:
-       equ  8
+       equ  1
 
 * Sound channel structure
 snd_channel_addr:

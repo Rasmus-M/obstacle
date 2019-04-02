@@ -903,6 +903,10 @@ scroll_6:
 *      V
        ci   r0,(map_height_h-screen_height)*8
        jl   scroll_2
+       clr  @scroll_speed_y
+       mov  @ball_y,r0
+       ci   r0,>3000
+       jh   scroll_2
 scroll_7:
        inc  @status
 scroll_2:
@@ -990,7 +994,7 @@ copy_map_rows_from_vdp_4:
        a    r5,r0
        bl   @copy_row_to_buffer
        clr  r9                         ; Offset
-       bl   @draw_stars
+       bl   @draw_stars_vert
 *      Copy buffer back
 copy_map_rows_from_vdp_7:
        bl   @copy_row_to_vdp
@@ -1569,7 +1573,7 @@ draw_stars_4:
 draw_stars_5:
        rt
 star_x:
-       data 25, 10, 6, 23, 15, 22, 3, 9, 14, 2, 29, 7, 11, 8, 31, 13, 1, 27
+       data 25, 10, 6, 23, 15, 22, 3, 9, 14, 2, 29, 7, 11, 8, 31, 13    ; 1, 27, 4, 12
 *// draw_stars
 
 ***************************************************************
@@ -1656,6 +1660,7 @@ scroll_patterns_5:
 scroll_star_patterns:
        .proc
        li   r1,>0100
+       li   r5,4
        li   r0,8*chr_star_1+ptrntb
        bl   @scroll_star_pattern
        li   r0,8*chr_star_2+ptrntb
@@ -1668,18 +1673,33 @@ scroll_star_pattern_1:
        li   r3,2
 scroll_star_pattern_2:
        bl   @vwad
+       mov  r5,r4
+       jeq  scroll_star_pattern_4
+scroll_star_pattern_3:
        clr  *r15
-       clr  *r15
-       clr  *r15
-       clr  *r15
+       dec  r4
+       jne  scroll_star_pattern_3
+scroll_star_pattern_4:
        movb r1,*r15
+       li   r4,7
+       s    r5,r7
+       jeq  scroll_star_pattern_6
+scroll_star_pattern_5:
        clr  *r15
-       clr  *r15
-       clr  *r15
+       dec  r4
+       jne  scroll_star_pattern_5
+scroll_star_pattern_6:
        ai   r0,>800
        dec  r3
        jne  scroll_star_pattern_2
+       abs  @vertical
+       jne  scroll_star_pattern_7
        sla  r1,1
+       jmp  scroll_star_pattern_8
+scroll_star_pattern_7:
+       inc  r5
+       andi r5,7
+scroll_star_pattern_8:
        dec  r2
        jne  scroll_star_pattern_1
        .endproc

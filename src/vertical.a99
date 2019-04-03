@@ -111,6 +111,6 @@ draw_stars_vert_1:
        li   r0,chr_star_1*256
 draw_stars_vert_2:
        b    @draw_stars_2
-*// draw_stars
+*// draw_stars_vert
 
        copy "map-chars-vert.a99"

@@ -81,7 +81,7 @@ buffer_size:
 log_2_buffer_size:
        equ  5
 n_sprite_patterns:
-       equ  22
+       equ  23
 chr_space:
        equ  96
 chr_zero:
@@ -173,8 +173,10 @@ status:
        equ  disp_score+2
 frame:
        equ  status+2
-vdp_status:
+count:
        equ  frame+2
+vdp_status:
+       equ  count+2
 scroll_offset:                         ; Scroll offset in FP 12.4
        equ  vdp_status+2
 scroll_offset_pixels:                  ; Scroll offset in pixels

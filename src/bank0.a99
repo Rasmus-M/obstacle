@@ -98,6 +98,10 @@ intro:
        mov  r0,@frame
        clr  @scroll_speed_x
        bl   @main_loop
+*      Sprite size 1
+       li   r0,>01e0
+       bl   @vwtr
+       clr  @count
 *      Text
        li   r9,43                      ; First wait
 intro_1:
@@ -116,6 +120,10 @@ intro_2:
        jgt  intro_2
        jmp  intro_1
 intro_3:
+*      Sprite size 2
+       li   r0,>01e2
+       bl   @vwtr
+*      End demo
        clr @demo
        .endproc
 *// intro
@@ -162,8 +170,9 @@ wait_key_3:
        seto r8                         ; Frames left
        clr  r0
        jmp  wait_key_8
-*      Loop
 wait_key_4:
+       bl   @sparkles
+*      Loop
        dec  @frame
        jne  wait_key_1
        clr  r0
@@ -179,6 +188,73 @@ wait_key_7:
 wait_key_8:
        .endproc
 *// wait_key
+
+*********************************************************************
+*
+* Display sparkles
+*
+sparkles:
+       .proc
+       li   r0,spratb
+       bl   @vwad
+       mov  @enemy_y,r4
+       mov  @enemy_x,r5
+sparkles_0:
+       clr  r2
+sparkles_1:
+*      Rnd 1
+       mov  r4,r0
+       ai   r0,56241
+       li   r1,39723
+       mpy  r1,r0
+       mov  r1,r4
+*      Rnd 2
+       mov  r5,r0
+       ai   r0,13957
+       li   r1,28577
+       mpy  r1,r0
+       mov  r1,r5
+*      Save seeds
+       mov  r2,r2
+       jne  sparkles_2
+       mov  @count,r0
+       andi r0,>03
+       jne  sparkles_2
+       mov  r4,@enemy_y
+       mov  r5,@enemy_x
+*      Y and X
+sparkles_2:
+       mov  r4,r0
+       andi r0,>7f
+       ai   r0,>08
+       swpb r0
+       mov  r5,r1
+       andi r1,>ff
+       soc  r1,r0
+*      Pattern and color
+       mov  @count,r1
+       a    r2,r1
+       andi r1,>001c
+       srl  r1,2
+       andi r1,7
+       movb @sparkle_patterns(r1),r1
+       ori  r1,>0f
+*      Write attributes
+       movb r0,*r15
+       movb @r0lb,*r15
+       movb r1,*r15
+       movb @r1lb,*r15
+*      Loop
+       inc  r2
+       ci   r2,12
+       jne  sparkles_1
+       li   r1,>d000
+       movb r1,*r15
+       inc  @count
+       .endproc
+sparkle_patterns:
+       byte >db,>d9,>da,>d8,>d8,>da,>d9,>db
+*// Sparkles
 
 *********************************************************************
 *
@@ -1682,7 +1758,7 @@ scroll_star_pattern_3:
 scroll_star_pattern_4:
        movb r1,*r15
        li   r4,7
-       s    r5,r7
+       s    r5,r4
        jeq  scroll_star_pattern_6
 scroll_star_pattern_5:
        clr  *r15

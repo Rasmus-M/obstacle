@@ -363,7 +363,9 @@ init_level_6:
        bl   @display_text
        bl   @display_level
        bl   @display_lives
-       li   r1,txt_title
+       mov  @mod_level,r1
+       sla  r1,1
+       mov  @level_names(r1),r1
        bl   @display_message
 init_level_8:
 *      Sprite patterns
@@ -2351,6 +2353,16 @@ enemy_list_3:
        data >200,>400,>600,-1
 level_vertical:
        byte 0,0,0,0,0,0,1,0,0
+level_names:
+       data txt_title
+       data txt_level_1
+       data txt_level_2
+       data txt_level_3
+       data txt_level_4
+       data txt_level_5
+       data txt_level_6
+       data txt_level_7
+       data txt_level_8
 txt_stats:
        text "SCORE:000000 LEVEL:00 LIVES:00"
        byte 0
@@ -2379,6 +2391,30 @@ txt_speech_off:
        text "     SPEECH OFF    "
        byte 0
        even
+txt_level_1:
+       text "      LEVEL 1      "
+       byte 0
+txt_level_2:
+       text "      LEVEL 2      "
+       byte 0
+txt_level_3:
+       text "      LEVEL 3      "
+       byte 0
+txt_level_4:
+       text "      LEVEL 4      "
+       byte 0
+txt_level_5:
+       text "      LEVEL 5      "
+       byte 0
+txt_level_6:
+       text "      LEVEL 6      "
+       byte 0
+txt_level_7:
+       text "      LEVEL 7      "
+       byte 0
+txt_level_8:
+       text "      LEVEL 8      "
+       byte 0
 keys_keyboard:
        data KEY_SP, KEY_S, KEY_D
 keys_joystick:

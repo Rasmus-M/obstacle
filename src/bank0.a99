@@ -2392,22 +2392,22 @@ txt_speech_off:
        byte 0
        even
 txt_level_1:
-       text "      LEVEL 1      "
+       text "  ONE SMALL LEAP   "
        byte 0
 txt_level_2:
-       text "      LEVEL 2      "
+       text "  TRAMPOLINE FUN   "
        byte 0
 txt_level_3:
-       text "      LEVEL 3      "
+       text "   LONG BOUNCES    "
        byte 0
 txt_level_4:
-       text "      LEVEL 4      "
+       text "     SPEED RUN     "
        byte 0
 txt_level_5:
-       text "      LEVEL 5      "
+       text "    THE BRIDGE     "
        byte 0
 txt_level_6:
-       text "      LEVEL 6      "
+       text "   THE MOUNTAIN    "
        byte 0
 txt_level_7:
        text "      LEVEL 7      "

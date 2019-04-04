@@ -237,7 +237,8 @@ sparkles_2:
        andi r1,>001c
        srl  r1,2
        andi r1,7
-       movb @sparkle_patterns(r1),r1
+       ai   r1,>d8
+       swpb r1
        ori  r1,>0f
 *      Write attributes
        movb r0,*r15
@@ -252,8 +253,6 @@ sparkles_2:
        movb r1,*r15
        inc  @count
        .endproc
-sparkle_patterns:
-       byte >db,>d9,>da,>d8,>d8,>da,>d9,>db
 *// Sparkles
 
 *********************************************************************

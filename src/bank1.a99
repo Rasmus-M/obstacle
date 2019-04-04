@@ -137,18 +137,14 @@ map5:
 map5_end
        even
 map6:
-       bcopy "maps/map6trim.lz4"
+       bcopy "maps/map9trim.lz4"
 map6_end
        even
 map7:
-       bcopy "maps/map7trim.lz4"
+       bcopy "maps/map6trim.lz4"
 map7_end
        even
 map8:
-       bcopy "maps/map9trim.lz4"
+       bcopy "maps/map7trim.lz4"
 map8_end
        even
-
-
-
-

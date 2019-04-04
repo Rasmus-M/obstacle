@@ -316,10 +316,9 @@ init_level_1:
        mov  r1,@mod_level
 *      Level orientation
        clr  @vertical
-       mov  @level,r1
-       ci   r1,8
-       jne  init_level_4
-       seto @vertical                  ; TODO
+       movb @level_vertical(r1),r0
+       jeq  init_level_4
+       seto @vertical
 init_level_4:
 *      Enemy list pointer
        sla  r1,1
@@ -2333,25 +2332,25 @@ sprite_100_pt:
 sprite_50_pt:
        byte >d4,>0e
 enemy_lists:
-       data enemy_list_0
-       data enemy_list_0
-       data enemy_list_0
-       data enemy_list_0
-       data enemy_list_0
-       data enemy_list_1
-       data enemy_list_2
-       data enemy_list_3
-       data enemy_list_0
+       data enemy_list_0               ; 0
+       data enemy_list_0               ; 1
+       data enemy_list_0               ; 2
+       data enemy_list_0               ; 3
+       data enemy_list_0               ; 4
+       data enemy_list_0               ; 5
+       data enemy_list_1               ; 6 vertical
+       data enemy_list_2               ; 7
+       data enemy_list_3               ; 8
 enemy_list_0:
        data -1
 enemy_list_1:
-       data >500,>600,-1
-enemy_list_2:
        data >300,-1
-enemy_list_3:
+enemy_list_2:
        data >300,>600,-1
-enemy_list_4:
+enemy_list_3:
        data >200,>400,>600,-1
+level_vertical:
+       byte 0,0,0,0,0,0,1,0,0
 txt_stats:
        text "SCORE:000000 LEVEL:00 LIVES:00"
        byte 0

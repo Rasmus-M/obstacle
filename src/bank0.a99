@@ -215,10 +215,10 @@ sparkles_1:
        mpy  r1,r0
        mov  r1,r5
 *      Save seeds
-       mov  r2,r2
+       ci   r2,3
        jne  sparkles_2
        mov  @count,r0
-       andi r0,>03
+       andi r0,>001f
        jne  sparkles_2
        mov  r4,@enemy_y
        mov  r5,@enemy_x
@@ -246,7 +246,7 @@ sparkles_2:
        movb @r1lb,*r15
 *      Loop
        inc  r2
-       ci   r2,12
+       ci   r2,8
        jne  sparkles_1
        li   r1,>d000
        movb r1,*r15

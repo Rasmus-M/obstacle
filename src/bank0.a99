@@ -2348,9 +2348,9 @@ enemy_list_0:
 enemy_list_1:
        data >500,>600,-1
 enemy_list_2:
-       data >300,>600,-1
+       data >500,>580,>600,>700,>800,-1
 enemy_list_3:
-       data >200,>400,>600,-1
+       data >200,>300,>400,>600,>700,>800,-1
 level_vertical:
        byte 0,0,0,0,0,0,1,0,0
 level_names:
@@ -2410,10 +2410,10 @@ txt_level_6:
        text "   MOUNTAIN TOP    "
        byte 0
 txt_level_7:
-       text "      LEVEL 7      "
+       text "    OH NO STOP     "
        byte 0
 txt_level_8:
-       text "      LEVEL 8      "
+       text "     THE FINAL     "
        byte 0
 keys_keyboard:
        data KEY_SP, KEY_S, KEY_D

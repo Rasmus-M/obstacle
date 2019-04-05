@@ -2334,19 +2334,19 @@ sprite_100_pt:
 sprite_50_pt:
        byte >d4,>0e
 enemy_lists:
-       data enemy_list_0               ; 0
-       data enemy_list_0               ; 1
-       data enemy_list_0               ; 2
-       data enemy_list_0               ; 3
-       data enemy_list_0               ; 4
-       data enemy_list_0               ; 5
-       data enemy_list_1               ; 6 vertical
+       data enemy_list_0               ; 0 Title
+       data enemy_list_0               ; 1 One small leap
+       data enemy_list_0               ; 2 Trampoline fun
+       data enemy_list_0               ; 3 Long bounces
+       data enemy_list_0               ; 4 Speed run
+       data enemy_list_1               ; 5 The bridge
+       data enemy_list_0               ; 6 Mountain top
        data enemy_list_2               ; 7
        data enemy_list_3               ; 8
 enemy_list_0:
        data -1
 enemy_list_1:
-       data >300,-1
+       data >500,>600,-1
 enemy_list_2:
        data >300,>600,-1
 enemy_list_3:
@@ -2407,7 +2407,7 @@ txt_level_5:
        text "    THE BRIDGE     "
        byte 0
 txt_level_6:
-       text "   THE MOUNTAIN    "
+       text "   MOUNTAIN TOP    "
        byte 0
 txt_level_7:
        text "      LEVEL 7      "

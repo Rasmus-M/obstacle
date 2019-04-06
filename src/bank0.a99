@@ -1227,6 +1227,8 @@ check_coinc_bottom:
        ci   r0,>0300
        jlt  check_coinc_bottom_4
        li   r0,->0100
+       mov  @status,r0
+       jlt  check_coinc_bottom_4
        mov  r0,@ball_rebounce          ; Rebounce
        jmp  check_coinc_bottom_5
 check_coinc_bottom_4:

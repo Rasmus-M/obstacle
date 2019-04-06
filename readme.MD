@@ -16,7 +16,7 @@ On Windows, run make.bat to build the game.
 There are 2 options for running the game:
 
 * With 16K cartridge, FinalGROM99, or emulators: Burn and run obstacle-8.bin (non-inverted) or obstacle-9.bin (inverted).
-* With 32K expansion and disk system: Run E/A#5 DSK1.OBSTACLES1. TODO
+* TODO: With 32K expansion and disk system: Run E/A#5 DSK1.OBSTACLES1.
 
 ## License
 
@@ -28,6 +28,7 @@ Thanks to:
 
 * Ralph for his xdt99 tools.
   https://github.com/endlos99/xdt99
+* Tursi for his lz4 decompression code
 
 ## Contact
 

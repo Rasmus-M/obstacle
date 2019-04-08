@@ -95,11 +95,11 @@ chr_star_s_apo:
 chr_qst_mark:
        equ  chr_space
 n_lives:
-       equ  25
+       equ  3
 n_levels:
        equ  8
 start_level:
-       equ  8
+       equ  1
 
 * Sound channel structure
 snd_channel_addr:

@@ -497,8 +497,23 @@ upload_sprites_1:
        bl   @upload_sprite
        ai   r2,>04fe
        bl   @upload_sprite
-*      End marker
+*      Goal line
 upload_sprites_2:
+       li   r1,(map_width-32)*8
+       s    @scroll_offset_pixels,r1
+       jgt  upload_sprites_4
+       ai   r1,>00ff
+       swpb r1
+       li   r0,>0f00
+       li   r2,>cc0f
+       li   r3,8
+upload_sprites_3:
+       bl   @upload_sprite
+       ai   r0,>1000
+       dec  r3
+       jne  upload_sprites_3
+*      End marker
+upload_sprites_4:
        li   r1,>d000
        movb r1,*r15
        .endproc
@@ -1041,11 +1056,13 @@ copy_map_rows_from_vdp_5:              ; Copy 1st part
        jne  copy_map_rows_from_vdp_5
        mov  r5,r2
        ai   r2,-(map_width-screen_width)
-       dect r6
-       mov  *r6+,r0                    ; From beginning
-       bl   @vrad
+;       dect r6
+;       mov  *r6+,r0                    ; From beginning
+;       bl   @vrad
+       clr  r0
 copy_map_rows_from_vdp_6:              ; Copy 2nd part
-       movb *r14,*r4+
+;       movb *r14,*r4+
+       movb r0,*r4+
        dec  r2
        jne  copy_map_rows_from_vdp_6
 *      Draw stars
@@ -2330,7 +2347,7 @@ animation_die:
        byte >b8,6
        byte >c0,6
        byte >c4,6
-       byte >c8,0
+       byte >e0,0
 sprite_100_pt:
        byte >d0,>0f
 sprite_50_pt:
@@ -2343,16 +2360,16 @@ enemy_lists:
        data enemy_list_0               ; 4 Speed run
        data enemy_list_1               ; 5 The bridge
        data enemy_list_0               ; 6 Mountain top
-       data enemy_list_2               ; 7
+       data enemy_list_2               ; 7 Oh no stop
        data enemy_list_3               ; 8
 enemy_list_0:
        data -1
 enemy_list_1:
-       data >500,>600,-1
+       data >540,>640,-1
 enemy_list_2:
        data >500,>580,>600,>700,>800,-1
 enemy_list_3:
-       data >200,>300,>400,>600,>700,>800,-1
+       data >100,>200,>300,>400,>600,>700,>800,-1
 level_vertical:
        byte 0,0,0,0,0,0,1,0,0
 level_names:

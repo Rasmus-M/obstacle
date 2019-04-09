@@ -101,7 +101,7 @@ intro:
 *      Sprite size 1
        li   r0,>01e0
        bl   @vwtr
-       clr  @count
+       clr  @sparkle_count
 *      Text
        li   r9,43                      ; First wait
 intro_1:
@@ -217,7 +217,7 @@ sparkles_1:
 *      Save seeds
        ci   r2,3
        jne  sparkles_2
-       mov  @count,r0
+       mov  @sparkle_count,r0
        andi r0,>001f
        jne  sparkles_2
        mov  r4,@enemy_y
@@ -232,7 +232,7 @@ sparkles_2:
        andi r1,>ff
        soc  r1,r0
 *      Pattern and color
-       mov  @count,r1
+       mov  @sparkle_count,r1
        a    r2,r1
        andi r1,>001c
        srl  r1,2
@@ -251,7 +251,7 @@ sparkles_2:
        jne  sparkles_1
        li   r1,>d000
        movb r1,*r15
-       inc  @count
+       inc  @sparkle_count
        .endproc
 *// Sparkles
 
@@ -315,11 +315,15 @@ init_level:
 init_level_1:
        mov  r1,@mod_level
 *      Level orientation
-       clr  @vertical
        movb @level_vertical(r1),r0
        jeq  init_level_4
        seto @vertical
 init_level_4:
+*      Double run
+       ci   r1,4
+       jne  init_level_9
+       seto @double_run
+init_level_9:
 *      Enemy list pointer
        sla  r1,1
        mov  @enemy_lists(r1),@enemy_list_ptr
@@ -502,6 +506,8 @@ upload_sprites_2:
        li   r1,(map_width-32)*8
        s    @scroll_offset_pixels,r1
        jgt  upload_sprites_4
+       abs  @double_run
+       jne  upload_sprites_4
        ai   r1,>00ff
        swpb r1
        li   r0,>0f00
@@ -988,7 +994,13 @@ scroll_4:
        jne  scroll_6
 *      H
        ci   r0,map_width*8
-       jhe  scroll_7
+       jl   scroll_2
+       abs  @double_run
+       jeq  scroll_7
+*      Double run
+       clr  @double_run
+       clr  @scroll_offset
+       clr  @scroll_offset_pixels
        jmp  scroll_2
 scroll_6:
 *      V
@@ -1035,8 +1047,6 @@ copy_map_rows_from_vdp:
        sla  r6,1                       ; Lookup table address
        ai   r6,map_row_table
 copy_map_rows_from_vdp_1:
-;       abs  @vertical                 ; Only needed if more than one row when vertical
-;       jne  copy_map_rows_from_vdp_4
        mov  *r6+,r0                    ; Row start
        a    r5,r0                      ; Add column offset
        ci   r5,map_width-screen_width
@@ -1056,15 +1066,25 @@ copy_map_rows_from_vdp_5:              ; Copy 1st part
        jne  copy_map_rows_from_vdp_5
        mov  r5,r2
        ai   r2,-(map_width-screen_width)
-;       dect r6
-;       mov  *r6+,r0                    ; From beginning
-;       bl   @vrad
+*      Second part
+       abs  @double_run
+       jne  copy_map_rows_from_vdp_9
+*      Second part clear
        clr  r0
-copy_map_rows_from_vdp_6:              ; Copy 2nd part
-;       movb *r14,*r4+
+copy_map_rows_from_vdp_6:
        movb r0,*r4+
        dec  r2
        jne  copy_map_rows_from_vdp_6
+       jmp  copy_map_rows_from_vdp_3
+*      Second part copy
+copy_map_rows_from_vdp_9:
+       dect r6
+       mov  *r6+,r0                    ; From beginning
+       bl   @vrad
+copy_map_rows_from_vdp_8:              ; Copy 2nd part
+       movb *r14,*r4+
+       dec  r2
+       jne  copy_map_rows_from_vdp_8
 *      Draw stars
 copy_map_rows_from_vdp_3:
        clr  r9                         ; Offset
@@ -2409,7 +2429,6 @@ txt_speech_on:
 txt_speech_off:
        text "     SPEECH OFF    "
        byte 0
-       even
 txt_level_1:
        text "  ONE SMALL LEAP   "
        byte 0

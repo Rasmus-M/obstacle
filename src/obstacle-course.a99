@@ -99,7 +99,7 @@ n_lives:
 n_levels:
        equ  8
 start_level:
-       equ  1
+       equ  4
 
 * Sound channel structure
 snd_channel_addr:
@@ -159,10 +159,8 @@ level:
        equ  demo+2
 mod_level:
        equ  level+2
-vertical:
-       equ  mod_level+2
 lives:
-       equ  vertical+2
+       equ  mod_level+2
 score:
        equ  lives+2
 clear_start:                           ; Clearing starts here
@@ -173,10 +171,14 @@ status:
        equ  disp_score+2
 frame:
        equ  status+2
-count:
+sparkle_count:
        equ  frame+2
+vertical:
+       equ  sparkle_count+2
+double_run:
+       equ  vertical+2
 vdp_status:
-       equ  count+2
+       equ  double_run+2
 scroll_offset:                         ; Scroll offset in FP 12.4
        equ  vdp_status+2
 scroll_offset_pixels:                  ; Scroll offset in pixels

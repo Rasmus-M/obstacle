@@ -21,29 +21,16 @@ new_level:
        mov  @status,r0
        jlt  lost_life
 *      Level completed
-       li   r0,sp_good_work
-       bl   @say_word
-       li   r1,txt_level_completed
-       bl   @display_message
-       li   r2,120
-       bl   @wait
-       inc  @level
-       li   r0,map_width*8+250
-       s    @frame,r0
-       jlt  new_level
-       a    r0,@score
+       bl   @level_completed
        jmp  new_level
 *      Lost life
 lost_life:
        dec  @lives
        jne  new_level
 *      Game over
-       bl   @display_lives
-       li   r1,txt_game_over
-       bl   @display_message
-       li   r1,please_try_again
-       bl   @say_phrase
+       bl   @game_over
        jmp  new_game
+*// main
 
 *********************************************************************
 *
@@ -127,152 +114,6 @@ intro_3:
        clr @demo
        .endproc
 *// intro
-
-*********************************************************************
-*
-* Wait until fire or timeout, also handles settings.
-*
-* @frame: Number of frames to wait
-*
-* Modifies r0-r6
-*
-wait_key:
-       .proc
-wait_key_1:
-       bl   @vsync
-       li   r13,module_player#
-       bl   @bank_1_exec
-       bl   @check_quit
-       li   r0,JOY_FI
-       bl   @check_key
-       jne  wait_key_5
-       li   r0,KEY_SP
-       bl   @check_key
-       jne  wait_key_6
-*      Speech on/off
-       li   r0,KEY_S
-       bl   @check_key
-       jeq  wait_key_4
-       mov  @speech_on,r0
-       jne  wait_key_2
-       seto @speech_on
-       li   r0,sp_on
-       bl   @say_word
-       li   r7,txt_speech_on
-       jmp  wait_key_3
-wait_key_2:
-       clr  @speech_on
-       li   r7,txt_speech_off
-wait_key_3:
-       li   r0,KEY_S
-       bl   @check_key
-       jne  wait_key_3
-       seto r8                         ; Frames left
-       clr  r0
-       jmp  wait_key_8
-wait_key_4:
-       bl   @sparkles
-*      Loop
-       dec  @frame
-       jne  wait_key_1
-       clr  r0
-       jmp  wait_key_8
-wait_key_5:
-       li   r0,keys_joystick
-       jmp  wait_key_7
-wait_key_6:
-       li   r0,keys_keyboard
-wait_key_7:
-       mov  r0,@controls
-       seto r0                         ; Done
-wait_key_8:
-       .endproc
-*// wait_key
-
-*********************************************************************
-*
-* Display sparkles
-*
-sparkles:
-       .proc
-       li   r0,spratb
-       bl   @vwad
-       mov  @enemy_y,r4
-       mov  @enemy_x,r5
-sparkles_0:
-       clr  r2
-sparkles_1:
-*      Rnd 1
-       mov  r4,r0
-       ai   r0,56241
-       li   r1,39723
-       mpy  r1,r0
-       mov  r1,r4
-*      Rnd 2
-       mov  r5,r0
-       ai   r0,13957
-       li   r1,28577
-       mpy  r1,r0
-       mov  r1,r5
-*      Save seeds
-       ci   r2,3
-       jne  sparkles_2
-       mov  @sparkle_count,r0
-       andi r0,>001f
-       jne  sparkles_2
-       mov  r4,@enemy_y
-       mov  r5,@enemy_x
-*      Y and X
-sparkles_2:
-       mov  r4,r0
-       andi r0,>7f
-       ai   r0,>08
-       swpb r0
-       mov  r5,r1
-       andi r1,>ff
-       soc  r1,r0
-*      Pattern and color
-       mov  @sparkle_count,r1
-       a    r2,r1
-       andi r1,>001c
-       srl  r1,2
-       andi r1,7
-       ai   r1,>d8
-       swpb r1
-       ori  r1,>0f
-*      Write attributes
-       movb r0,*r15
-       movb @r0lb,*r15
-       movb r1,*r15
-       movb @r1lb,*r15
-*      Loop
-       inc  r2
-       ci   r2,8
-       jne  sparkles_1
-       li   r1,>d000
-       movb r1,*r15
-       inc  @sparkle_count
-       .endproc
-*// Sparkles
-
-*********************************************************************
-*
-* Wait for a number of frames
-*
-* r2: number of frames to wait
-*
-wait:
-       .proc
-       mov  r2,@frame
-wait_1:
-       bl   @vsync
-       li   r13,module_player#
-       bl   @bank_1_exec
-       bl   @check_quit
-       dec  @frame
-       jne  wait_1
-       .endproc
-*// wait
 
 ***************************************************************
 *
@@ -400,6 +241,58 @@ init_level_3:
 ball_init_data:
        data >3000,>8000,>0018,>800f
 *// init_level
+
+*********************************************************************
+*
+* Level completed
+*
+level_completed:
+       .proc
+       li   r0,sp_good_work
+       bl   @say_word
+       li   r1,txt_level_completed
+       bl   @display_message
+       li   r2,120
+       bl   @wait
+       li   r0,map_width*8+250
+       s    @frame,r0
+       jlt  level_completed_1
+       a    r0,@score
+level_completed_1:
+       mov  @level,r0
+       ci   r0,n_levels
+       jne  level_completed_2
+       bl   @game_won
+level_completed_2:
+       inc  @level
+       .endproc
+*// level_completed
+
+*********************************************************************
+*
+* Game won
+*
+game_won:
+       .proc
+       li   r0,240
+       mov  r0,@frame
+       bl   @wait_key
+       .endproc
+*// game_won
+
+*********************************************************************
+*
+* Game over
+*
+game_over:
+       .proc
+       bl   @display_lives
+       li   r1,txt_game_over
+       bl   @display_message
+       li   r1,please_try_again
+       bl   @say_phrase
+       .endproc
+*// game_over
 
 *********************************************************************
 *
@@ -1330,6 +1223,152 @@ check_coinc_top_2:
 check_coinc_top_3:
        .endproc
 *// check_coinc_top
+
+*********************************************************************
+*
+* Wait for a number of frames
+*
+* r2: number of frames to wait
+*
+wait:
+       .proc
+       mov  r2,@frame
+wait_1:
+       bl   @vsync
+       li   r13,module_player#
+       bl   @bank_1_exec
+       bl   @check_quit
+       dec  @frame
+       jne  wait_1
+       .endproc
+*// wait
+
+*********************************************************************
+*
+* Wait until fire or timeout, also handles settings.
+*
+* @frame: Number of frames to wait
+*
+* Modifies r0-r6
+*
+wait_key:
+       .proc
+wait_key_1:
+       bl   @vsync
+       li   r13,module_player#
+       bl   @bank_1_exec
+       bl   @check_quit
+       li   r0,JOY_FI
+       bl   @check_key
+       jne  wait_key_5
+       li   r0,KEY_SP
+       bl   @check_key
+       jne  wait_key_6
+*      Speech on/off
+       li   r0,KEY_S
+       bl   @check_key
+       jeq  wait_key_4
+       mov  @speech_on,r0
+       jne  wait_key_2
+       seto @speech_on
+       li   r0,sp_on
+       bl   @say_word
+       li   r7,txt_speech_on
+       jmp  wait_key_3
+wait_key_2:
+       clr  @speech_on
+       li   r7,txt_speech_off
+wait_key_3:
+       li   r0,KEY_S
+       bl   @check_key
+       jne  wait_key_3
+       seto r8                         ; Frames left
+       clr  r0
+       jmp  wait_key_8
+wait_key_4:
+       bl   @sparkles
+*      Loop
+       dec  @frame
+       jne  wait_key_1
+       clr  r0
+       jmp  wait_key_8
+wait_key_5:
+       li   r0,keys_joystick
+       jmp  wait_key_7
+wait_key_6:
+       li   r0,keys_keyboard
+wait_key_7:
+       mov  r0,@controls
+       seto r0                         ; Done
+wait_key_8:
+       .endproc
+*// wait_key
+
+*********************************************************************
+*
+* Display sparkles
+*
+sparkles:
+       .proc
+       li   r0,spratb
+       bl   @vwad
+       mov  @enemy_y,r4
+       mov  @enemy_x,r5
+sparkles_0:
+       clr  r2
+sparkles_1:
+*      Rnd 1
+       mov  r4,r0
+       ai   r0,56241
+       li   r1,39723
+       mpy  r1,r0
+       mov  r1,r4
+*      Rnd 2
+       mov  r5,r0
+       ai   r0,13957
+       li   r1,28577
+       mpy  r1,r0
+       mov  r1,r5
+*      Save seeds
+       ci   r2,3
+       jne  sparkles_2
+       mov  @sparkle_count,r0
+       andi r0,>001f
+       jne  sparkles_2
+       mov  r4,@enemy_y
+       mov  r5,@enemy_x
+*      Y and X
+sparkles_2:
+       mov  r4,r0
+       andi r0,>7f
+       ai   r0,>08
+       swpb r0
+       mov  r5,r1
+       andi r1,>ff
+       soc  r1,r0
+*      Pattern and color
+       mov  @sparkle_count,r1
+       a    r2,r1
+       andi r1,>001c
+       srl  r1,2
+       andi r1,7
+       ai   r1,>d8
+       swpb r1
+       ori  r1,>0f
+*      Write attributes
+       movb r0,*r15
+       movb @r0lb,*r15
+       movb r1,*r15
+       movb @r1lb,*r15
+*      Loop
+       inc  r2
+       ci   r2,8
+       jne  sparkles_1
+       li   r1,>d000
+       movb r1,*r15
+       inc  @sparkle_count
+       .endproc
+*// Sparkles
 
 ***************************************************************
 *

@@ -99,7 +99,7 @@ n_lives:
 n_levels:
        equ  8
 start_level:
-       equ  8
+       equ  1
 
 * Sound channel structure
 snd_channel_addr:
@@ -173,8 +173,10 @@ frame:
        equ  status+2
 sparkle_count:
        equ  frame+2
-vertical:
+n_sparkles:
        equ  sparkle_count+2
+vertical:
+       equ  n_sparkles+2
 double_run:
        equ  vertical+2
 vdp_status:

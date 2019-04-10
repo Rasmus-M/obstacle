@@ -89,6 +89,8 @@ intro:
        li   r0,>01e0
        bl   @vwtr
        clr  @sparkle_count
+       li   r0,8
+       mov  r0,@n_sparkles
 *      Text
        li   r9,43                      ; First wait
 intro_1:
@@ -274,9 +276,35 @@ level_completed_2:
 *
 game_won:
        .proc
+       li   r0,nametb
+       clr  r1
+       li   r2,screen_width*screen_height
+       bl   @vsmw
+       li   r0,namet2
+       clr  r1
+       li   r2,screen_width*screen_height
+       bl   @vsmw
+       li   r0,7*32+8
+       li   r1,txt_won_1
+       bl   @display_text
+       li   r0,9*32+2
+       li   r1,txt_won_2
+       bl   @display_text
+       li   r0,11*32+4
+       li   r1,txt_won_3
+       bl   @display_text
+       li   r0,>01e0
+       bl   @vwtr
+       li   r0,24
+       mov  r0,@n_sparkles
        li   r0,240
        mov  r0,@frame
        bl   @wait_key
+       li   r0,>01e2
+       bl   @vwtr
+       li   r0,spratb
+       li   r1,>d000
+       bl   @vsbw
        .endproc
 *// game_won
 
@@ -1362,7 +1390,7 @@ sparkles_2:
        movb @r1lb,*r15
 *      Loop
        inc  r2
-       ci   r2,8
+       c    r2,@n_sparkles
        jne  sparkles_1
        li   r1,>d000
        movb r1,*r15
@@ -2491,6 +2519,15 @@ txt_level_7:
        byte 0
 txt_level_8:
        text "     THE FINAL     "
+       byte 0
+txt_won_1:
+       text "CONGRATULATIONS"
+       byte 0
+txt_won_2:
+       text "BOUNCY COMPLETED THE COURSE"
+       byte 0
+txt_won_3:
+       text "BUT THE GAME IS NOT OVER"
        byte 0
 keys_keyboard:
        data KEY_SP, KEY_S, KEY_D

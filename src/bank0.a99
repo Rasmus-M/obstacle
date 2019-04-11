@@ -476,7 +476,7 @@ move_ball_16:
        mov  @ball_vx,r0
        s    @scroll_speed_x,r0
        jlt  move_ball_1
-       ci   r1,>e800
+       ci   r1,>ec00
        jl   move_ball_0
 move_ball_3:
        mov  @scroll_speed_x,@ball_vx     ;  Stop if right edge is reached
@@ -2455,7 +2455,9 @@ enemy_lists:
        data enemy_list_1               ; 5 The bridge
        data enemy_list_0               ; 6 Mountain top
        data enemy_list_2               ; 7 Oh no stop
-       data enemy_list_3               ; 8 The final
+       data enemy_list_3               ; 8 Mobs galore
+       data enemy_list_5               ; 9 Up again
+       data enemy_list_0               ; 10 The final
        data enemy_list_1               ; 1 One small leap
        data enemy_list_4               ; 2 Trampoline fun
        data enemy_list_2               ; 3 Long bounces
@@ -2463,7 +2465,9 @@ enemy_lists:
        data enemy_list_4               ; 5 The bridge
        data enemy_list_0               ; 6 Mountain top
        data enemy_list_2               ; 7 Oh no stop
-       data enemy_list_3               ; 8 The final
+       data enemy_list_3               ; 8 Mobs galore
+       data enemy_list_0               ; 9 Up again
+       data enemy_list_0               ; 10 The final
 enemy_list_0:
        data -1
 enemy_list_1:
@@ -2474,8 +2478,10 @@ enemy_list_3:
        data >100,>200,>300,>400,>500,>600,>700,-1
 enemy_list_4:
        data >200,>400,>600,-1
+enemy_list_5:
+       data >40,>b0,>120,-1
 level_vertical:
-       byte 0,0,0,0,0,0,1,0,0
+       byte 0,0,0,0,0,0,1,0,0,1,0
 level_names:
        data txt_title
        data txt_level_1
@@ -2486,6 +2492,8 @@ level_names:
        data txt_level_6
        data txt_level_7
        data txt_level_8
+       data txt_level_9
+       data txt_level_10
 txt_stats:
        text "SCORE:000000 LEVEL:00 LIVES:00"
        byte 0
@@ -2517,7 +2525,7 @@ txt_level_1:
        text "  ONE SMALL LEAP   "
        byte 0
 txt_level_2:
-       text "  TRAMPOLINE FUN   "
+       text "  TRAMPOLINE TRIAL "
        byte 0
 txt_level_3:
        text "   LONG BOUNCES    "
@@ -2535,6 +2543,12 @@ txt_level_7:
        text "    OH NO STOP     "
        byte 0
 txt_level_8:
+       text "    MOBS GALORE    "
+       byte 0
+txt_level_9:
+       text "     UP AGAIN      "
+       byte 0
+txt_level_10:
        text "     THE FINAL     "
        byte 0
 txt_won_1:

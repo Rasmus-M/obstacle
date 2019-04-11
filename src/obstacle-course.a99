@@ -97,9 +97,9 @@ chr_qst_mark:
 n_lives:
        equ  3
 n_levels:
-       equ  8
+       equ  10
 start_level:
-       equ  1
+       equ  9
 
 * Sound channel structure
 snd_channel_addr:

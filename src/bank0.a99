@@ -153,7 +153,9 @@ init_level:
        mov  @level,r1
        jeq  init_level_1
        dec  r1
-       andi r1,n_levels-1
+       clr  r0
+       li   r2,n_levels
+       div  r2,r0
        inc  r1
 init_level_1:
        mov  r1,@mod_level

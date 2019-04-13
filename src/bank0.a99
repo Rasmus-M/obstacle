@@ -297,14 +297,14 @@ game_won:
        li   r0,9*32+2
        li   r1,txt_won_2
        bl   @display_text
-       li   r0,11*32+4
+       li   r0,11*32+2
        li   r1,txt_won_3
        bl   @display_text
        li   r0,>01e0
        bl   @vwtr
        li   r0,24
        mov  r0,@n_sparkles
-       li   r0,240
+       li   r0,480
        mov  r0,@frame
        bl   @wait_key
        li   r0,>01e2
@@ -516,14 +516,17 @@ move_ball_15:
 **
 *      Y
        mov  @ball_y,r0
+       abs  @vertical
+       jeq  move_ball_18
        ci   r0,(screen_height-2)*8*256
        jhe  move_ball_17
+move_ball_18:
        a    @scroll_speed_y,@ball_y
-       jmp  move_ball_18
+       jmp  move_ball_19
 move_ball_17:
        bl   @die
 *      Check for rebounce
-move_ball_18:
+move_ball_19:
        mov  @ball_rebounce,r0
        jne  move_ball_12
 *      Accelerate
@@ -889,58 +892,60 @@ quit   clr  @>83c4                     ; Reset user ISR address
 * Update scrolling variables
 *
 scroll:
-       mov  @scroll_speed_request,r1
-       jeq  scroll_1
-       mov  @scroll_offset,r0
-       andi r0,>007f
-       jne  scroll_1
-       mov  r1,@scroll_speed_x
-       clr  @scroll_speed_request
-scroll_1:
        mov  @scroll_offset,r0
        abs  @vertical
-       jne  scroll_3
+       jne  scroll_1
        mov  @scroll_speed_x,r1
-       jmp  scroll_4
-scroll_3:
+       jmp  scroll_3
+scroll_1:
+*      Vertical delayed scroll start
        clr  r1
        mov  @frame,r2
        ci   r2,120
-       jne  scroll_5
+       jne  scroll_2
        li   r1,scroll_speed_slower
        mov  r1,@scroll_speed_y
-       jmp  scroll_4
-scroll_5:
+       jmp  scroll_3
+scroll_2:
        mov  @scroll_speed_y,r1
-scroll_4:
+scroll_3:
+*      Both v and h
        sra  r1,4
        a    r1,r0
        mov  r0,@scroll_offset
        srl  r0,4
        mov  r0,@scroll_offset_pixels
        abs  @vertical
-       jne  scroll_6
+       jne  scroll_4
 *      H
        ci   r0,map_width*8
-       jl   scroll_2
+       jl   scroll_6
        abs  @double_run
-       jeq  scroll_7
+       jeq  scroll_5
 *      Double run
        clr  @double_run
        clr  @scroll_offset
        clr  @scroll_offset_pixels
-       jmp  scroll_2
-scroll_6:
+       jmp  scroll_6
+scroll_4:
 *      V
        ci   r0,(map_height_h-screen_height)*8
-       jl   scroll_2
+       jl   scroll_6
        clr  @scroll_speed_y
        mov  @ball_y,r0
        ci   r0,>3000
-       jh   scroll_2
-scroll_7:
+       jh   scroll_6
+scroll_5:
        inc  @status
-scroll_2:
+scroll_6:
+       mov  @scroll_speed_request,r1
+       jeq  scroll_7
+       mov  @scroll_offset,r0
+       andi r0,>007f
+       jne  scroll_7
+       mov  r1,@scroll_speed_x
+       clr  @scroll_speed_request
+scroll_7:
        rt
 *// scroll
 
@@ -1493,7 +1498,8 @@ collect_item_3:
 collect_item_4:
        mov  @ball_y,r0
        ai   r0,->1000
-       jlt  collect_item_6
+       ci   r0,>1800
+       jl   collect_item_6
        mov  r0,@points_sprite_y
        mov  @ball_x,r0
        mov  @ball_vx,r1
@@ -2558,7 +2564,7 @@ txt_won_2:
        text "BOUNCY COMPLETED THE COURSE"
        byte 0
 txt_won_3:
-       text "BUT THE GAME IS NOT OVER"
+       text "BUT THE GAME IS NOT OVER YET"
        byte 0
 keys_keyboard:
        data KEY_SP, KEY_S, KEY_D

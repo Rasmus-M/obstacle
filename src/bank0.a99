@@ -1500,6 +1500,7 @@ collect_item_4:
        ai   r0,->1000
        ci   r0,>1800
        jl   collect_item_6
+       andi r0,>ff00
        mov  r0,@points_sprite_y
        mov  @ball_x,r0
        mov  @ball_vx,r1
@@ -1627,7 +1628,12 @@ get_map_char_2:
        srl  r0,8                       ; To pixels
        a    @scroll_offset_pixels,r0   ; Add scroll offset
        srl  r0,3                       ; To chars
-       andi r0,>00ff                   ; Wrap around
+       ci   r0,map_width
+       jl   get_map_char_4
+       clr  r0                         ; No VDP address
+       clr  r1                         ; Space properties
+       rt
+get_map_char_4:
        sla  r1,1                       ; To word
        a    @map_row_table(r1),r0      ; Add row offset
        li   r2,TCHARS

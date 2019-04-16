@@ -611,8 +611,8 @@ move_other_sprites:
 *      Points sprite
        mov  @points_sprite_y,r0
        jeq  move_other_sprites_2
-       ci   r0,>1000
-       jl   move_other_sprites_1
+       ci   r0,>f800
+       jh   move_other_sprites_1
        ai   r0,->0100
        mov  r0,@points_sprite_y
        mov  @points_sprite_x,r0
@@ -1497,10 +1497,8 @@ collect_item_3:
        jmp  collect_item_5
 collect_item_4:
        mov  @ball_y,r0
-       ai   r0,->1000
-       ci   r0,>1800
-       jl   collect_item_6
-       andi r0,>ff00
+       ai   r0,->0800
+       ori  r0,>00ff
        mov  r0,@points_sprite_y
        mov  @ball_x,r0
        mov  @ball_vx,r1

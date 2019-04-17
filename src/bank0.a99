@@ -1317,11 +1317,11 @@ wait_key_1:
        seto @speech_on
        li   r0,sp_on
        bl   @say_word
-       li   r7,txt_speech_on
+       li   r7,speech_on_ptr
        jmp  wait_key_3
 wait_key_2:
        clr  @speech_on
-       li   r7,txt_speech_off
+       li   r7,speech_off_ptr
 wait_key_3:
        li   r0,KEY_S
        bl   @check_key
@@ -2533,6 +2533,10 @@ intro_text:
        data txt_copyright
        data txt_credits
        data txt_fire_to_begin
+speech_on_ptr:
+       data txt_speech_on
+speech_off_ptr:
+       data txt_speech_off
 txt_stats:
        byte 30
        text "SCORE:000000 LEVEL:00 LIVES:00"

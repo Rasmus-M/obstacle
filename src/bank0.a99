@@ -125,6 +125,7 @@ init_game:
        li   r0,start_level
        mov  r0,@level
        clr  @score
+       clr  @score_msw
        seto @disp_score
        li   r0,n_lives
        mov  r0,@lives
@@ -262,10 +263,10 @@ level_completed:
        bl   @display_message
        li   r2,120
        bl   @wait
-       li   r0,map_width*8+250
-       s    @frame,r0
+       li   r1,map_width*8+250
+       s    @frame,r1
        jlt  level_completed_1
-       a    r0,@score
+       bl   @add_score
 level_completed_1:
        mov  @level,r0
        ci   r0,n_levels
@@ -831,17 +832,37 @@ user_input_7:
 
 ***************************************************************
 *
+* Add to score
+*
+* r1: Points to add
+*
+add_score:
+       a    r1,@score
+       jnc  add_score_1
+       inc  @score_msw
+add_score_1:
+       rt
+*// add_score
+
+***************************************************************
+*
 * Display score
 *
 display_score:
        .proc
        c    @score,@disp_score
        jeq  display_score_1
-       li   r0,32*23+8
-       mov  @score,r1
-       li   r2,5
+       mov  @score_msw,r6
+       mov  @score,r7
+       div  @d10000,r6
+       li   r0,32*23+7
+       mov  r6,r1
+       li   r2,2
        bl   @display_decimal
-       mov  @score,@disp_score
+       li   r0,32*23+9
+       mov  r7,r1
+       li   r2,4
+       bl   @display_decimal
 display_score_1:
        .endproc
 *// display_score
@@ -1527,7 +1548,7 @@ collect_item_1:
        li   r1,50
 collect_item_2:
        mov  *r0,@points_sprite_pattern_color
-       a    r1,@score
+       bl   @add_score
 collect_item_5:
        bl   @play_star
        .endproc

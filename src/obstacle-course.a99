@@ -163,10 +163,12 @@ lives:
        equ  mod_level+2
 score:
        equ  lives+2
+score_msw:
+       equ  score+2
 clear_start:                           ; Clearing starts here
-       equ  score+2
+       equ  score_msw+2
 disp_score:
-       equ  score+2
+       equ  score_msw+2
 status:
        equ  disp_score+2
 frame:

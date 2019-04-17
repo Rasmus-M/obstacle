@@ -81,7 +81,7 @@ buffer_size:
 log_2_buffer_size:
        equ  5
 n_sprite_patterns:
-       equ  24
+       equ  28
 chr_space:
        equ  96
 chr_zero:

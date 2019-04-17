@@ -94,16 +94,15 @@ intro:
 *      Text
        li   r9,43                      ; First wait
 intro_1:
-       li   r7,txt_title
+       li   r7,intro_text
        li   r8,4
 intro_2:
        mov  r9,@frame
        bl   @wait_key
        mov  r0,r0
        jne  intro_3
-       mov  r7,r1
+       mov  *r7+,r1
        bl   @display_message
-       ai   r7,20
        li   r9,192                     ; Subsequent waits
        dec  r8
        jgt  intro_2
@@ -429,7 +428,7 @@ upload_sprites_1:
        bl   @upload_sprite
        ai   r2,>04fe
        bl   @upload_sprite
-*      Goal line
+*      Finish line
 upload_sprites_2:
        li   r1,(map_width-32)*8
        s    @scroll_offset_pixels,r1
@@ -439,7 +438,10 @@ upload_sprites_2:
        ai   r1,>00ff
        swpb r1
        li   r0,>0f00
-       li   r2,>cc0f
+       mov  @frame,r2
+       andi r2,>0038
+       srl  r2,2
+       mov  @animation_flag(r2),r2
        li   r3,8
 upload_sprites_3:
        bl   @upload_sprite
@@ -611,8 +613,10 @@ move_other_sprites:
 *      Points sprite
        mov  @points_sprite_y,r0
        jeq  move_other_sprites_2
+       jgt  move_other_sprites_7
        ci   r0,>f800
-       jh   move_other_sprites_1
+       jl   move_other_sprites_1
+move_other_sprites_7:
        ai   r0,->0100
        mov  r0,@points_sprite_y
        mov  @points_sprite_x,r0
@@ -666,7 +670,7 @@ move_other_sprites_4:
        bl   @say_word
 move_other_sprites_5:
        .endproc
-*// move_other_sprites<
+*// move_other_sprites
 
 ***************************************************************
 *
@@ -1969,20 +1973,37 @@ read_grom_chars_4:
 * Display text to both name table buffers (slow)
 *
 * r0: Screen offset
-* r1: Pointer to zero terminated ascii text
+* r1: Pointer to ascii text (first byte length)
 *
 * Modifies r0-r6
 *
 display_message:
-       li   r0,21*32+6
+       .proc
+       .push r1
+       li   r0,21*32+nametb
+       li   r1,chr_space
+       li   r2,screen_width
+       bl   @vsmw
+       li   r0,21*32+namet2
+       li   r2,screen_width
+       bl   @vsmw
+       .pop r1
+       clr  r0
+       movb *r1,@r0lb
+       srl  r0,1
+       neg  r0
+       ai   r0,21*32+16
+       jmp  display_text_5
 display_text:
        .proc
+display_text_5:
+       clr  r3
+       movb *r1+,@r3lb
        ai   r0,nametb
        bl   @vwad
        li   r2,buffer
 display_text_0:
        movb *r1+,r4
-       jeq  display_text_4
        li   r5,charset
        clr  r6
 display_text_1:
@@ -1999,7 +2020,8 @@ display_text_3:
        swpb r6
        movb r6,*r15
        movb r6,*r2+
-       jmp  display_text_0
+       dec  r3
+       jne  display_text_0
 *      2nd name table buffer
 display_text_4:
        ai   r0,namet2-nametb
@@ -2451,7 +2473,9 @@ animation_die:
        byte >b8,6
        byte >c0,6
        byte >c4,6
-       byte >e0,0
+       byte >f0,0
+animation_flag:
+       data >cc0f,>e80f,>e00f,>ec0f,>e40f,>ec0f,>e00f,>e80f
 sprite_100_pt:
        byte >d0,>0f
 sprite_50_pt:
@@ -2504,72 +2528,77 @@ level_names:
        data txt_level_8
        data txt_level_9
        data txt_level_10
+intro_text:
+       data txt_title
+       data txt_copyright
+       data txt_credits
+       data txt_fire_to_begin
 txt_stats:
+       byte 30
        text "SCORE:000000 LEVEL:00 LIVES:00"
-       byte 0
 txt_title:
-       text "  OBSTACLE COURSE  "
-       byte 0
+       byte 15
+       text "OBSTACLE COURSE"
 txt_copyright:
-       text "  COPYRIGHT 2019   "
-       byte 0
+       byte 14
+       text "COPYRIGHT 2019"
 txt_credits:
-       text " RASMUS MOUSTGAARD "
-       byte 0
+       byte 17
+       text "RASMUS MOUSTGAARD"
 txt_fire_to_begin:
+       byte 19
        text "PRESS FIRE TO BEGIN"
-       byte 0
 txt_level_completed:
-       text "  LEVEL COMPLETED  "
-       byte 0
+       byte 15
+       text "LEVEL COMPLETED"
 txt_game_over:
-       text "     GAME OVER     "
-       byte 0
+       byte 9
+       text "GAME OVER"
 txt_speech_on:
-       text "     SPEECH ON     "
-       byte 0
+       byte 9
+       text "SPEECH ON"
 txt_speech_off:
-       text "     SPEECH OFF    "
-       byte 0
+       byte 10
+       text "SPEECH OFF"
 txt_level_1:
-       text "  ONE SMALL LEAP   "
-       byte 0
+       byte 14
+       text "ONE SMALL LEAP"
 txt_level_2:
-       text "  TRAMPOLINE TRIAL "
-       byte 0
+       byte 16
+       text "TRAMPOLINE TRIAL"
 txt_level_3:
-       text "   LONG BOUNCES    "
-       byte 0
+       byte 12
+       text "LONG BOUNCES"
 txt_level_4:
-       text "     SPEED RUN     "
-       byte 0
+       byte 9
+       text "SPEED RUN"
 txt_level_5:
-       text "    THE BRIDGE     "
-       byte 0
+       byte 10
+       text "THE BRIDGE"
 txt_level_6:
-       text "   MOUNTAIN TOP    "
-       byte 0
+       byte 12
+       text "MOUNTAIN TOP"
 txt_level_7:
-       text "    OH NO STOP     "
-       byte 0
+       byte 10
+       text "OH NO STOP"
 txt_level_8:
-       text "    MOBS GALORE    "
-       byte 0
+       byte 11
+       text "MOBS GALORE"
 txt_level_9:
-       text "     UP AGAIN      "
-       byte 0
+       byte 8
+       text "UP AGAIN"
 txt_level_10:
-       text "     THE FINAL     "
-       byte 0
+       byte 9
+       text "THE FINAL"
 txt_won_1:
+       byte 15
        text "CONGRATULATIONS"
-       byte 0
 txt_won_2:
+       byte 27
        text "BOUNCY COMPLETED THE COURSE"
-       byte 0
 txt_won_3:
+       byte 28
        text "BUT THE GAME IS NOT OVER YET"
-       byte 0
 keys_keyboard:
        data KEY_SP, KEY_S, KEY_D
 keys_joystick:

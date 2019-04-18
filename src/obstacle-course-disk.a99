@@ -1,0 +1,19 @@
+*********************************************************************
+*
+* Obstacles course
+* For the TI-99/4A home computer
+* Disk version
+*
+* January 2019
+* Rasmus Moustgaard <rasmus.moustgaard@gmail.com>
+*
+*********************************************************************
+
+       aorg >a000
+
+       copy "defs.a99"
+       copy "bank0.a99"
+       copy "bank1.a99"
+       copy "allbanks.a99"
+
+       end

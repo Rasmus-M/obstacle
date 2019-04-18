@@ -1,20 +1,5 @@
 *********************************************************************
 *
-* Trampoline code for executing bank 0 routine
-*
-* r13: address of bank 0 routine
-*
-bank_0_exec:
-       .proc
-bank_0_branch:
-       seto @bank_0
-       bl   *r13
-       seto @bank_1
-       .endproc
-*// bank_0_exec
-
-*********************************************************************
-*
 * Trampoline code for executing bank 1 routine
 *
 * r13: address of bank 1 routine

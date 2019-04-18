@@ -28,8 +28,13 @@ play_jump:
        li   r0,snd_jump#
        li   r1,snd_channel_1
        li   r2,>0230
+       .ifndef disk
        li   r13, play_snd#
        b    @bank_1_branch
+       .else
+       bl   @play_snd
+       .endproc
+       .endif
 *// play_axe
 
 *********************************************************************
@@ -41,8 +46,13 @@ play_long_jump:
        li   r0,snd_long_jump#
        li   r1,snd_channel_1
        li   r2,>0230
+       .ifndef disk
        li   r13, play_snd#
        b    @bank_1_branch
+       .else
+       bl   @play_snd
+       .endproc
+       .endif
 *// play_bomb
 
 *********************************************************************
@@ -54,8 +64,13 @@ play_star:
        li   r0,snd_star#
        li   r1,snd_channel_1
        li   r2,>0040
+       .ifndef disk
        li   r13, play_snd#
        b    @bank_1_branch
+       .else
+       bl   @play_snd
+       .endproc
+       .endif
 *// play_star
 
 *********************************************************************
@@ -67,8 +82,13 @@ play_slow:
        li   r0,snd_slow#
        li   r1,snd_channel_1
        li   r2,>0040
+       .ifndef disk
        li   r13, play_snd#
        b    @bank_1_branch
+       .else
+       bl   @play_snd
+       .endproc
+       .endif
 *// play_slow
 
 *********************************************************************
@@ -80,8 +100,13 @@ play_normal:
        li   r0,snd_normal#
        li   r1,snd_channel_1
        li   r2,>0340
+       .ifndef disk
        li   r13, play_snd#
        b    @bank_1_branch
+       .else
+       bl   @play_snd
+       .endproc
+       .endif
 *// play_normal
 
 *********************************************************************
@@ -92,7 +117,12 @@ play_die:
        .proc
        li   r0,snd_die#
        li   r1,snd_channel_4
+       .ifndef disk
        li   r13, play_snd#
        b    @bank_1_branch
+       .else
+       bl   @play_snd
+       .endproc
+       .endif
 *// play_die
 

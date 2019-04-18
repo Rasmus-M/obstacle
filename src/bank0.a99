@@ -1,11 +1,5 @@
 ***************************************************************
 *
-* Cartridge bank 0
-*
-       bank 0
-
-***************************************************************
-*
 * Main program
 *
        limi 0                          ; Interrupts off
@@ -193,8 +187,12 @@ init_level_7:
        mov  r0,@scroll_speed_x
        mov  r1,@scroll_speed_y
 *      Setup display
+       .ifndef disk
        li   r13,copy_map_to_vdp#
        bl   @bank_1_exec
+       .else
+       bl   @copy_map_to_vdp
+       .endif
        bl   @read_grom_chars
        abs  @vertical
        jne  init_level_5
@@ -237,8 +235,12 @@ init_level_8:
 init_level_2:
        li   r0,bipbop_module#
 init_level_3:
+       .ifndef disk
        li   r13,play_module#
        bl   @bank_1_exec
+       .else
+       bl   @play_module
+       .endif
 *      Screen on
        li   r0,nametb/>400+>0200
        bl   @vwtr
@@ -346,8 +348,12 @@ main_loop_1:
        bl   @user_input
        bl   @display_score
        bl   @check_quit
+       .ifndef disk
        li   r13,module_player#
        bl   @bank_1_exec
+       .else
+       bl   @module_player
+       .endif
        bl   @speak
        bl   @scroll
        mov  @status,r0
@@ -1300,8 +1306,12 @@ wait:
        mov  r2,@frame
 wait_1:
        bl   @vsync
+       .ifndef disk
        li   r13,module_player#
        bl   @bank_1_exec
+       .else
+       bl   @module_player
+       .endif
        bl   @check_quit
        dec  @frame
        jne  wait_1
@@ -1320,8 +1330,12 @@ wait_key:
        .proc
 wait_key_1:
        bl   @vsync
+       .ifndef disk
        li   r13,module_player#
        bl   @bank_1_exec
+       .else
+       bl   @module_player
+       .endif
        bl   @check_quit
        li   r0,JOY_FI
        bl   @check_key

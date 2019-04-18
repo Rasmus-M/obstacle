@@ -1,0 +1,273 @@
+**
+* Memory mapped addresses
+*
+vdpwd  equ  >8c00                      ; VDP write data
+vdpwa  equ  >8c02                      ; VDP set read/write address
+vdprd  equ  >8800                      ; VDP read data
+vdpsta equ  >8802                      ; VDP status
+sound  equ  >8400                      ; PSG sound
+spchrd equ	>9000                      ; Speech read
+spchwt equ	>9400                      ; Speech write
+grmrd  equ  >9800                      ; GROM read data
+grmra  equ  >9802                      ; GROM address read
+grmwd  equ  >9C00                      ; GROM write data
+grmwa  equ  >9C02                      ; GROM address write
+
+**
+* VDP memory map
+*
+ptrntb equ  >0000                      ; Pattern table base
+nametb equ  >0400                      ; Name table base 1
+spratb equ  >0700                      ; Sprite attribute table base
+colrtb equ  >0780                      ; Color table base
+ptrnt2 equ  >0800                      ; Patterns
+namet2 equ  >0c00                      ; Name table base 2
+ptrnt3 equ  >1000                      ; Patterns
+sprptb equ  >1000                      ; Sprite pattern table base (only from >1400, 32 patterns)
+ptrnt4 equ  >1800                      ; Patterns
+freev1 equ  >1c00                      ; 1k free
+ptrnt5 equ  >2000                      ; Patterns
+vmap0  equ  >2400                      ; Map 0010010000000000
+ptrnt6 equ  >2800                      ; Patterns
+vmap1  equ  >2c00                      ; Map 0010110000000000 100000
+ptrnt7 equ  >3000                      ; Patterns
+vmap2  equ  >3400                      ; Map
+ptrnt8 equ  >3800                      ; Patterns
+vmap3  equ  >3c00                      ; Map
+
+**
+* Constants
+*
+bank_0:
+       equ  >6002
+bank_1:
+       equ  >6000
+scroll_speed_slower:
+       equ  >0040
+scroll_speed_slow:
+       equ  >0080
+scroll_speed_normal:
+       equ  >0100
+scroll_speed_fast:
+       equ  >0200
+map_width:
+       equ  256
+map_height:
+       equ  16
+map_size:
+       equ  map_width*map_height
+map_width_h:
+       equ  32
+map_height_h:
+       equ  64
+map_size_h:
+       equ  map_width_h*map_height_h
+screen_width:
+       equ  32
+screen_height:
+       equ  20
+buffer_size:
+       equ  32
+log_2_buffer_size:
+       equ  5
+n_sprite_patterns:
+       equ  28
+chr_space:
+       equ  96
+chr_zero:
+       equ  97
+chr_star_1:
+       equ  87
+chr_star_2:
+       equ  95
+chr_star_s_apo:
+       equ  87
+chr_qst_mark:
+       equ  chr_space
+n_lives:
+       equ  5
+n_levels:
+       equ  10
+start_level:
+       equ  1
+
+* Sound channel structure
+snd_channel_addr:
+       equ  0
+snd_channel_duration:
+       equ  2
+snd_channel_attn:
+       equ  3
+snd_channel_freq:
+       equ  4
+snd_channel_size:
+       equ  6
+
+* Sound track structure
+snd_track_channel:                     ; Channel to play track in, zero if track inactive
+       equ  0
+snd_track_location:                    ; Location in track, points to sequence pointer or command
+       equ  2
+snd_track_seq_location:                ; Location in active sequecne
+       equ  4
+snd_track_duration_count:              ; Node (within sequence) duration counter
+       equ  6
+snd_track_repeat_count:                ; Repeat count for track loops
+       equ  7
+snd_track_size:
+       equ  8
+
+**
+* Scratch pad
+*
+rndsd  equ  >83c0                      ; Random number seed
+pad    equ  >8300
+wrksp  equ  pad                        ; Workspace
+r0lb   equ  wrksp+1                    ; r0 low byte required for VDP routines
+r1lb   equ  wrksp+3
+r2lb   equ  wrksp+5
+r3lb   equ  wrksp+7
+r4lb   equ  wrksp+9
+r5lb   equ  wrksp+11
+r6lb   equ  wrksp+13
+r7lb   equ  wrksp+15
+r8lb   equ  wrksp+17
+r9lb   equ  wrksp+19
+stack  equ  wrksp+>20                  ; Stack (grows up)
+padvar equ  stack+>18                  ; Start of pad variables
+
+**
+* PAD variables
+*
+speech_on:
+       equ  padvar
+controls:
+       equ  speech_on+2
+demo:
+       equ  controls+2
+level:
+       equ  demo+2
+mod_level:
+       equ  level+2
+lives:
+       equ  mod_level+2
+score:
+       equ  lives+2
+score_msw:
+       equ  score+2
+clear_start:                           ; Clearing starts here
+       equ  score_msw+2
+disp_score:
+       equ  score_msw+2
+status:
+       equ  disp_score+2
+frame:
+       equ  status+2
+sparkle_count:
+       equ  frame+2
+n_sparkles:
+       equ  sparkle_count+2
+vertical:
+       equ  n_sparkles+2
+double_run:
+       equ  vertical+2
+vdp_status:
+       equ  double_run+2
+scroll_offset:                         ; Scroll offset in FP 12.4
+       equ  vdp_status+2
+scroll_offset_pixels:                  ; Scroll offset in pixels
+       equ  scroll_offset+2
+scroll_speed_x:                        ; FP 8.8
+       equ  scroll_offset_pixels+2
+scroll_speed_y:                        ; FP 8.8
+       equ  scroll_speed_x+2
+scroll_speed_request:
+       equ  scroll_speed_y+2
+ball_x:                                ; FP 8.8
+       equ  scroll_speed_request+2
+ball_vx:                               ; FP 8.8 Velocity relative to track
+       equ  ball_x+2
+ball_vx_last:                          ; FP 8.8
+       equ  ball_vx+2
+ball_y:                                ; FP 8.8
+       equ  ball_vx_last+2
+ball_vy:                               ; FP 8.8
+       equ  ball_y+2
+ball_ay:                               ; FP 8.8
+       equ  ball_vy+2
+ball_pattern_color:
+       equ  ball_ay+2
+ball_animation_ptr:
+       equ  ball_pattern_color+2
+ball_animation_count:
+       equ  ball_animation_ptr+2
+ball_rebounce:
+       equ  ball_animation_count+2
+enemy_x:
+       equ  ball_rebounce+2
+enemy_vx:
+       equ  enemy_x+2
+enemy_y:
+       equ  enemy_vx+2
+enemy_vy:
+       equ  enemy_y+2
+enemy_list_ptr:
+       equ  enemy_vy+2
+points_sprite_y:
+       equ  enemy_list_ptr+2
+points_sprite_x:
+       equ  points_sprite_y+2
+points_sprite_pattern_color:
+       equ  points_sprite_x+2
+snd_channel_1:
+       equ  points_sprite_pattern_color+2
+snd_channel_2:
+       equ  snd_channel_1+snd_channel_size
+snd_channel_3:
+       equ  snd_channel_2+snd_channel_size
+snd_channel_4:
+       equ  snd_channel_3+snd_channel_size
+snd_track_1:
+       equ  snd_channel_4+snd_channel_size
+snd_track_2:
+       equ  snd_track_1+snd_track_size
+snd_track_3:
+       equ  snd_track_2+snd_track_size
+module_speed:
+       equ  snd_track_3+snd_track_size
+buffer:
+       equ  module_speed+2
+clear_end:                             ; Clearing ends here
+       equ  buffer+buffer_size
+speech_ptr:
+       equ  buffer+buffer_size
+get_speech_status:
+       equ  speech_ptr+2
+pad_max:
+       equ  get_speech_status+6
+
+**
+* Macros
+*
+       .defm proc
+       mov  r11,*r10+
+       .endm
+
+       .defm endproc
+       dect r10
+       mov  *r10,r11
+       b    *r11
+       .endm
+
+       .defm push
+       mov  #1,*r10+
+       .endm
+
+       .defm pop
+       dect r10
+       mov  *r10,#1
+       .endm
+
+       .defm peek
+       mov  @-2(r10),#1
+       .endm

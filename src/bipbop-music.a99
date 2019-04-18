@@ -58,9 +58,6 @@ bipbop_track_03_rpt:
        data >00FF
        data bipbop_track_03_rpt
        data >0000
-bipbop_seq_00D8:
-       data >0020
-       data >0000
 bipbop_seq_00DC:
        data bipbop_note_0182
        data >0007

@@ -25,11 +25,11 @@ mute_table:
 *
 play_jump:
        .proc
-       li   r0,snd_jump#
+       li   r0,x#snd_jump
        li   r1,snd_channel_1
        li   r2,>0230
        .ifndef disk
-       li   r13, play_snd#
+       li   r13,x#play_snd
        b    @bank_1_branch
        .else
        bl   @play_snd
@@ -43,11 +43,11 @@ play_jump:
 *
 play_long_jump:
        .proc
-       li   r0,snd_long_jump#
+       li   r0,x#snd_long_jump
        li   r1,snd_channel_1
        li   r2,>0230
        .ifndef disk
-       li   r13, play_snd#
+       li   r13,x#play_snd
        b    @bank_1_branch
        .else
        bl   @play_snd
@@ -61,11 +61,11 @@ play_long_jump:
 *
 play_star:
        .proc
-       li   r0,snd_star#
+       li   r0,x#snd_star
        li   r1,snd_channel_1
        li   r2,>0040
        .ifndef disk
-       li   r13, play_snd#
+       li   r13,x#play_snd
        b    @bank_1_branch
        .else
        bl   @play_snd
@@ -79,11 +79,11 @@ play_star:
 *
 play_slow:
        .proc
-       li   r0,snd_slow#
+       li   r0,x#snd_slow
        li   r1,snd_channel_1
        li   r2,>0040
        .ifndef disk
-       li   r13, play_snd#
+       li   r13,x#play_snd
        b    @bank_1_branch
        .else
        bl   @play_snd
@@ -97,11 +97,11 @@ play_slow:
 *
 play_normal:
        .proc
-       li   r0,snd_normal#
+       li   r0,x#snd_normal
        li   r1,snd_channel_1
        li   r2,>0340
        .ifndef disk
-       li   r13, play_snd#
+       li   r13,x#play_snd
        b    @bank_1_branch
        .else
        bl   @play_snd
@@ -115,10 +115,10 @@ play_normal:
 *
 play_die:
        .proc
-       li   r0,snd_die#
+       li   r0,x#snd_die
        li   r1,snd_channel_4
        .ifndef disk
-       li   r13, play_snd#
+       li   r13,x#play_snd
        b    @bank_1_branch
        .else
        bl   @play_snd

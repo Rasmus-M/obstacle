@@ -64,9 +64,6 @@ obstacles_track_03_rpt:
        data >00FF
        data obstacles_track_03_rpt
        data >0000
-obstacles_seq_00F8:
-       data >0020
-       data >0000
 obstacles_seq_00FC:
        data obstacles_note_0246
        data >0007

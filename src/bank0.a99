@@ -188,7 +188,7 @@ init_level_7:
        mov  r1,@scroll_speed_y
 *      Setup display
        .ifndef disk
-       li   r13,copy_map_to_vdp#
+       li   r13,x#copy_map_to_vdp
        bl   @bank_1_exec
        .else
        bl   @copy_map_to_vdp
@@ -230,13 +230,13 @@ init_level_8:
        mov  @level,r0
        andi r0,1
        jne  init_level_2
-       li   r0,obstacles_module#
+       li   r0,x#obstacles_module
        jmp  init_level_3
 init_level_2:
-       li   r0,bipbop_module#
+       li   r0,x#bipbop_module
 init_level_3:
        .ifndef disk
-       li   r13,play_module#
+       li   r13,x#play_module
        bl   @bank_1_exec
        .else
        bl   @play_module
@@ -349,7 +349,7 @@ main_loop_1:
        bl   @display_score
        bl   @check_quit
        .ifndef disk
-       li   r13,module_player#
+       li   r13,x#module_player
        bl   @bank_1_exec
        .else
        bl   @module_player
@@ -1307,7 +1307,7 @@ wait:
 wait_1:
        bl   @vsync
        .ifndef disk
-       li   r13,module_player#
+       li   r13,x#module_player
        bl   @bank_1_exec
        .else
        bl   @module_player
@@ -1331,7 +1331,7 @@ wait_key:
 wait_key_1:
        bl   @vsync
        .ifndef disk
-       li   r13,module_player#
+       li   r13,x#module_player
        bl   @bank_1_exec
        .else
        bl   @module_player

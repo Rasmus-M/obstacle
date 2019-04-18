@@ -57,7 +57,7 @@ module_player_3:
        jmp  module_player_11
 module_player_4:
        ci   r4,256                     ; Repeat?
-       jlt  module_player_5
+       jl   module_player_5
 *      Next sequence
        mov  r4,@snd_track_seq_location(r5)
        jmp  module_player_2

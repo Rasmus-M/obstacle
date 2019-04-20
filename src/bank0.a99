@@ -1499,8 +1499,12 @@ jump:
 *
 * Init long jump
 *
+* r0: VDP address of a character in the metatile
+*
 long_jump:
        .proc
+       mov  @status,r1
+       jlt  long_jump_1
        li   r1,spring_collapsed
        bl   @replace_meta_tile
        li   r0,->0400
@@ -1511,6 +1515,7 @@ long_jump:
        bl   @play_long_jump
        li   r1,good_move
        bl   @say_phrase
+long_jump_1:
        .endproc
 *// long_jump
 
@@ -1574,6 +1579,8 @@ collect_item_5:
 *
 slow_speed:
        .proc
+       mov  @status,r0
+       jlt  slow_speed_1
        mov  @scroll_speed_x,r0
        ci   r0,scroll_speed_slow
        jeq  slow_speed_1
@@ -1594,6 +1601,8 @@ slow_speed_1:
 *
 normal_speed:
        .proc
+       mov  @status,r0
+       jlt  normal_speed_1
        mov  @scroll_speed_x,r0
        ci   r0,scroll_speed_normal
        jeq  normal_speed_1
@@ -1614,6 +1623,8 @@ normal_speed_1:
 *
 fast_speed:
        .proc
+       mov  @status,r0
+       jlt  fast_speed_1
        mov  @scroll_speed_x,r0
        ci   r0,scroll_speed_fast
        jeq  fast_speed_1

@@ -16,7 +16,7 @@ On Windows, run make.bat to build the cartridge, or makedisk to build the disk v
 There are 2 options for running the game:
 
 * With 16K cartridge, FinalGROM99, or emulators: Burn and run obstacle-8.bin (non-inverted) or obstacle-9.bin (inverted).
-* TODO: With 32K expansion and disk system: Run E/A#5 DSK1.OBSTACLE1.
+* With 32K expansion and disk system: Run E/A#5 DSK1.OBSTACLE1.
 
 ## Playing the game
 You can play the game using a joystick (left, right, fire) or keyboard (s, d, space), depending on which key you press to start the game.

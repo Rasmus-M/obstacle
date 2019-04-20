@@ -34,6 +34,7 @@ Thanks to:
 * Ralph for his xdt99 tools.
   https://github.com/endlos99/xdt99
 * Tursi for his lz4 decompression code
+* Martin for his MOD2PSG2 player
 
 ## Contact
 

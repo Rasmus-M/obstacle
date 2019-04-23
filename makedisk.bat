@@ -4,5 +4,6 @@ xdm99.py obstacle.dsk --initialize DSSD -n OBSTACLE
 
 xas99.py -R -S -L obstacle-disk.lst -D disk -i src/obstacle-course-disk.a99 -o OBSTACLE1
 
+xdm99.py obstacle.dsk -a LOAD
 xdm99.py obstacle.dsk -a OBSTACLE1
 xdm99.py obstacle.dsk -a OBSTACLE2

@@ -977,6 +977,17 @@ scroll_6:
        mov  r1,@scroll_speed_x
        clr  @scroll_speed_request
 scroll_7:
+       mov  @ball_x,r0
+       srl  r0,8
+       a    @scroll_offset_pixels,r0
+       ci   r0,map_width*8
+       jne  scroll_8
+       abs  @double_run
+       jne  scroll_8
+       .push r11
+       bl   @play_finish
+       .pop r11
+scroll_8:
        rt
 *// scroll
 
@@ -2134,16 +2145,22 @@ d10:
 *
 upload_sprite_patterns:
        .proc
+*      Upload
        li   r0,freev1
        li   r1,sprite_patterns
        li   r2,sprite_patterns_end-sprite_patterns
        bl   @vmbw
-
+*      Unpack
        li   r0,freev1                  ; Source
        li   r1,sprptb+>400             ; Destination
        li   r2,freev1+(sprite_patterns_end-sprite_patterns) ; Source end
        li   r13,x#unpack_lz4_from_to_vdp
        bl   @bank_1_exec
+*      Clear remaining space
+       li   r0,sprptb+>400+(n_sprite_patterns*32)
+       clr  r1
+       li   r2,(32-n_sprite_patterns)*32
+       bl   @vsmw
        .endproc
 *// upload_sprite_patterns
 

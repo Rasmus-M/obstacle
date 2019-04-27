@@ -126,3 +126,20 @@ play_die:
        .endif
 *// play_die
 
+*********************************************************************
+*
+* Play finish
+*
+play_finish:
+       .proc
+       li   r0,x#snd_finish
+       li   r1,snd_channel_1
+       li   r2,>03ff
+       .ifndef disk
+       li   r13,x#play_snd
+       b    @bank_1_branch
+       .else
+       bl   @play_snd
+       .endproc
+       .endif
+*// play_finish

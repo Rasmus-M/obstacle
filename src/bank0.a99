@@ -2134,14 +2134,16 @@ d10:
 *
 upload_sprite_patterns:
        .proc
-       li   r0,sprptb+>400
-       li   r1,SPR0
-       li   r2,n_sprite_patterns*32
+       li   r0,freev1
+       li   r1,sprite_patterns
+       li   r2,sprite_patterns_end-sprite_patterns
        bl   @vmbw
-       li   r0,sprptb+>400+(n_sprite_patterns*32)
-       clr  r1
-       li   r2,(32-n_sprite_patterns)*32
-       bl   @vsmw
+
+       li   r0,freev1                  ; Source
+       li   r1,sprptb+>400             ; Destination
+       li   r2,freev1+(sprite_patterns_end-sprite_patterns) ; Source end
+       li   r13,x#unpack_lz4_from_to_vdp
+       bl   @bank_1_exec
        .endproc
 *// upload_sprite_patterns
 
@@ -2662,7 +2664,8 @@ keys_joystick:
        copy "charset.a99"
 map_chars:
        copy "map-chars.a99"
-       copy "sprite-patterns.a99"
-
+sprite_patterns:
+       bcopy "sprite-patterns.lz4"
+sprite_patterns_end
        copy "vertical.a99"
 

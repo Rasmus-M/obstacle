@@ -2,6 +2,10 @@ cd maps
 call lz4map.bat
 cd ..
 
+java -jar tools\asm2bin.jar src/sprite-patterns.a99 sprite-patterns.bin
+tools\lz4.exe -9 -f sprite-patterns.bin sprite-patterns.lz4
+tools\sfk.exe partcopy sprite-patterns.lz4 -fromto 11 -8 src\sprite-patterns.lz4 -yes
+
 xas99.py -R -S -L obstacle-course.lst -b src/obstacle-course.a99
 @IF %ERRORLEVEL% NEQ 0 GOTO :end
 

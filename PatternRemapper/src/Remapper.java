@@ -12,8 +12,8 @@ public class Remapper {
         }
     }
 
-    // toFile is the destination, the file that is changed
-
+    // Remap the TCHARS in toFileName to use the same patterns as in fromFileName7
+    // Write the output to output.a99
     private void remap(String toFileName, String fromFileName) throws IOException {
         List<String> toLines = readTextFile(toFileName);
         List<String> fromLines = readTextFile(fromFileName);
@@ -84,14 +84,12 @@ public class Remapper {
     }
 
     private int getPatternIndex(String patternData, List<String> lines) {
-        int index = 0;
         for (String line : lines) {
             if (line.startsWith("PAT")) {
                 if (patternData.equals(getPatternData(line))) {
                     return Integer.parseInt(line.substring(3, 5).trim());
                 }
             }
-            index++;
         }
         return -1;
     }

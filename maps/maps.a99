@@ -54,6 +54,11 @@ PAT49  DATA >0000,>00FF,>FF80,>7FF0    ; #31 (50)
 PAT50  DATA >0000,>00FE,>FE00,>FE0E    ; #32 (51)
 PAT51  DATA >807F,>F080,>7FF0,>807F    ; #33 (58)
 PAT52  DATA >00FE,>0E00,>FE0E,>00FE    ; #34 (59)
+PAT53  DATA >1F20,>5F5F,>5F5F,>5F5F    ;
+PAT54  DATA >F804,>FAFE,>EAFE,>AAFE    ;
+PAT55  DATA >7F57,>1515,>1101,>0000    ;
+PAT56  DATA >FE74,>5450,>4040,>0000    ;
+
 ****************************************
 * Colorset Definitions                  
 ****************************************

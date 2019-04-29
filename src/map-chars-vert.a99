@@ -52,12 +52,12 @@ TCHARS_V:
        BYTE >00,>2E                    ; #25 color A/1
        BYTE >FF,>FF                    ; #26 unused
        BYTE >FF,>FF                    ; #27 unused
-       BYTE >23,>00                    ; #28 color F/1
+       BYTE >35,>00                    ; #28 color F/1
        BYTE >24,>00                    ; #29 color F/1
-       BYTE >25,>00                    ; #2A color F/1
-       BYTE >2A,>23                    ; #2B color F/1
+       BYTE >36,>00                    ; #2A color F/1
+       BYTE >37,>35                    ; #2B color F/1
        BYTE >2B,>24                    ; #2C color F/1
-       BYTE >2C,>25                    ; #2D color F/1
-       BYTE >00,>2A                    ; #2E color F/1
+       BYTE >38,>36                    ; #2D color F/1
+       BYTE >00,>37                    ; #2E color F/1
        BYTE >00,>2B                    ; #2F color F/1
-       BYTE >00,>2C                    ; #30 color F/1
+       BYTE >00,>38                    ; #30 color F/1

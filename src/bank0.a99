@@ -152,7 +152,7 @@ init_level:
        div  r2,r0
        inc  r1
 init_level_1:
-       mov  r1,@mod_level
+       mov  r1,@mod_level              ; 0,1,2,3,4,5,6,7,8,9,10,1,2,3,4,5,6,7,8,9,10...
 *      Level orientation
        movb @level_vertical(r1),r0
        jeq  init_level_4
@@ -164,8 +164,11 @@ init_level_4:
        seto @double_run
 init_level_9:
 *      Enemy list pointer
-       mov  @level,r0
-       ci   r0,n_levels
+       mov  @level,r0                  ; 0,1,2...99
+       ci   r0,n_levels                ; 10
+       jl   init_level_11
+       ai   r1,n_levels
+       ci   r0,n_levels*2              ; 20
        jl   init_level_11
        ai   r1,n_levels
 init_level_11:
@@ -2547,6 +2550,7 @@ sprite_50_pt:
        byte >d4,>0e
 enemy_lists:
        data enemy_list_0               ; 0 Title
+
        data enemy_list_0               ; 1 One small leap
        data enemy_list_0               ; 2 Trampoline fun
        data enemy_list_0               ; 3 Long bounces
@@ -2557,6 +2561,7 @@ enemy_lists:
        data enemy_list_3               ; 8 Mobs galore
        data enemy_list_5               ; 9 Up again
        data enemy_list_0               ; 10 The final
+
        data enemy_list_1               ; 1 One small leap
        data enemy_list_4               ; 2 Trampoline fun
        data enemy_list_2               ; 3 Long bounces
@@ -2565,8 +2570,19 @@ enemy_lists:
        data enemy_list_0               ; 6 Mountain top
        data enemy_list_2               ; 7 Oh no stop
        data enemy_list_3               ; 8 Mobs galore
-       data enemy_list_0               ; 9 Up again
+       data enemy_list_5               ; 9 Up again
        data enemy_list_0               ; 10 The final
+
+       data enemy_list_3               ; 1 One small leap
+       data enemy_list_3               ; 2 Trampoline fun
+       data enemy_list_3               ; 3 Long bounces
+       data enemy_list_4               ; 4 Speed run
+       data enemy_list_2               ; 5 The bridge
+       data enemy_list_5               ; 6 Mountain top
+       data enemy_list_3               ; 7 Oh no stop
+       data enemy_list_3               ; 8 Mobs galore
+       data enemy_list_5               ; 9 Up again
+       data enemy_list_3               ; 10 The final
 enemy_list_0:
        data -1
 enemy_list_1:

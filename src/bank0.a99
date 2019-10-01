@@ -2094,7 +2094,6 @@ display_text_4:
 *********************************************************************
 *
 * Display decimal number
-* VDP address must already be set up.
 *
 * r0: Screen offset
 * r1: Number to display

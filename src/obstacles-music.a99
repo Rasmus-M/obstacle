@@ -681,16 +681,16 @@ obstacles_note_0258:
        data C3
 obstacles_note_025B:
        data obstacles_instr_00
-       data D#3
+       data D♯3
 obstacles_note_025E:
        data obstacles_instr_00
-       data F#3
+       data F♯3
 obstacles_note_0261:
        data obstacles_instr_00
        data C4
 obstacles_note_02A3:
        data obstacles_instr_01
-       data G#3
+       data G♯3
 obstacles_note_02A6:
        data obstacles_instr_05
        data A1
@@ -702,13 +702,13 @@ obstacles_note_02AC:
        data B1
 obstacles_note_0264:
        data obstacles_instr_00
-       data D#4
+       data D♯4
 obstacles_note_0267:
        data obstacles_instr_00
        data E4
 obstacles_note_026A:
        data obstacles_instr_00
-       data F#4
+       data F♯4
 obstacles_note_026D:
        data obstacles_instr_00
        data B4
@@ -723,7 +723,7 @@ obstacles_note_0276:
        data G2
 obstacles_note_02AF:
        data obstacles_instr_01
-       data F#4
+       data F♯4
 obstacles_note_02B2:
        data obstacles_instr_05
        data G1
@@ -735,10 +735,10 @@ obstacles_note_02C8:
        data W2
 obstacles_note_0279:
        data obstacles_instr_00
-       data A#3
+       data A♯3
 obstacles_note_02B8:
        data obstacles_instr_01
-       data C#4
+       data C♯4
 obstacles_note_02BB:
        data obstacles_instr_05
        data D1

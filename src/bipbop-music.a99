@@ -433,7 +433,7 @@ bipbop_note_01BE:
        data G3
 bipbop_note_01D9:
        data bipbop_instr_00
-       data G#3
+       data G♯3
 bipbop_note_01DC:
        data bipbop_instr_03
        data C1
@@ -445,7 +445,7 @@ bipbop_note_01C4:
        data A4
 bipbop_note_01DF:
        data bipbop_instr_00
-       data C#4
+       data C♯4
 bipbop_note_01E2:
        data bipbop_instr_03
        data F1

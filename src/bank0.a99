@@ -67,7 +67,7 @@ intro:
        seto @status
        bl   @main_loop
 *      Display S'
-       li   r0,ptrntb+chr_star_s_apo*8
+       li   r0,ptrntb+(chr_star_s_apo*8)
        li   r1,char_s_apo
        li   r2,8
        bl   @vmbw
